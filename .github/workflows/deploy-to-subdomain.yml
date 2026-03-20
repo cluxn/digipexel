@@ -1,0 +1,56 @@
+name: Digi Pexel Subdomain Deployment
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: 📦 Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: 🏗️ Build Statically Exported Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: 🚀 Deploy Static Frontend to Hostinger Subdomain
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: digipexel.cluxn.com
+          username: u723773599.u723773599
+          password: Cluxnftp@12345
+          local-dir: ./frontend/out/
+          server-dir: public_html/digipexel/
+          state-name: .ftp-deploy-sync-state-frontend.json
+
+      - name: 🚀 Deploy PHP Backend to Hostinger Subdomain
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: digipexel.cluxn.com
+          username: u723773599.u723773599
+          password: Cluxnftp@12345
+          local-dir: ./backend/
+          server-dir: public_html/digipexel/backend/
+          state-name: .ftp-deploy-sync-state-backend.json
+
+      - name: 📡 Activate Database and Verify
+        run: |
+          echo "Initializing database on subdomain..."
+          curl -v --retry 3 https://digipexel.cluxn.com/backend/init_db.php
+          echo "Website activation complete!"
