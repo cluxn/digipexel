@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v4
@@ -32,22 +34,28 @@ jobs:
       - name: 🚀 Deploy Static Frontend to Hostinger Subdomain
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: digipexel.cluxn.com
+          server: cluxn.com
           username: u723773599.u723773599
           password: Cluxnftp@12345
+          protocol: ftps
+          port: 21
           local-dir: ./frontend/out/
           server-dir: public_html/digipexel/
           state-name: .ftp-deploy-sync-state-frontend.json
+          security: loose
 
       - name: 🚀 Deploy PHP Backend to Hostinger Subdomain
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: digipexel.cluxn.com
+          server: cluxn.com
           username: u723773599.u723773599
           password: Cluxnftp@12345
+          protocol: ftps
+          port: 21
           local-dir: ./backend/
           server-dir: public_html/digipexel/backend/
           state-name: .ftp-deploy-sync-state-backend.json
+          security: loose
 
       - name: 📡 Activate Database and Verify
         run: |
