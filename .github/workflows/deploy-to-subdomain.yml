@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v4
@@ -31,34 +29,42 @@ jobs:
           cd frontend
           npm run build
 
-      - name: 🚀 Deploy Static Frontend to Hostinger Subdomain
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: cluxn.com
-          username: u723773599.u723773599
-          password: Cluxnftp@12345
-          protocol: ftps
-          port: 21
-          local-dir: ./frontend/out/
-          server-dir: public_html/digipexel/
-          state-name: .ftp-deploy-sync-state-frontend.json
-          security: loose
+      - name: 🔧 Install lftp
+        run: sudo apt-get install -y lftp
 
-      - name: 🚀 Deploy PHP Backend to Hostinger Subdomain
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: cluxn.com
-          username: u723773599.u723773599
-          password: Cluxnftp@12345
-          protocol: ftps
-          port: 21
-          local-dir: ./backend/
-          server-dir: public_html/digipexel/backend/
-          state-name: .ftp-deploy-sync-state-backend.json
-          security: loose
-
-      - name: 📡 Activate Database and Verify
+      - name: 🚀 Deploy Static Frontend to Hostinger
+        env:
+          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          FTP_PASS: ${{ secrets.HOSTINGER_FTP_PASS }}
         run: |
-          echo "Initializing database on subdomain..."
-          curl -v --retry 3 https://digipexel.cluxn.com/backend/init_db.php
-          echo "Website activation complete!"
+          lftp -u "$FTP_USER,$FTP_PASS" \
+            -e "set ftp:ssl-force true; \
+                set ssl:verify-certificate false; \
+                set ftp:passive-mode true; \
+                set net:max-retries 5; \
+                set net:reconnect-interval-base 5; \
+                mirror --reverse --delete --verbose \
+                  ./frontend/out/ public_html/digipexel/; \
+                quit" \
+            ftp://cluxn.com
+
+      - name: 🚀 Deploy PHP Backend to Hostinger
+        env:
+          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          FTP_PASS: ${{ secrets.HOSTINGER_FTP_PASS }}
+        run: |
+          lftp -u "$FTP_USER,$FTP_PASS" \
+            -e "set ftp:ssl-force true; \
+                set ssl:verify-certificate false; \
+                set ftp:passive-mode true; \
+                set net:max-retries 5; \
+                set net:reconnect-interval-base 5; \
+                mirror --reverse --delete --verbose \
+                  ./backend/ public_html/digipexel/backend/; \
+                quit" \
+            ftp://cluxn.com
+
+      - name: 📡 Initialize Database
+        run: |
+          curl -s --retry 3 https://digipexel.cluxn.com/backend/init_db.php
+          echo "Deployment complete!"
