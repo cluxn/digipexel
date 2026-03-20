@@ -13,14 +13,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost/api/:path*',
-      },
-    ];
-  },
+  output: 'export',
+  trailingSlash: true,
 };
 
 export default nextConfig;

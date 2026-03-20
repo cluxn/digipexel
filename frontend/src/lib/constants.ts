@@ -47,4 +47,4 @@ export const SOCIAL_LINKS = [
   { label: 'LinkedIn', href: '#' },
 ];
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cluxn.com/backend/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://digipexel.cluxn.com/backend/api";

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -456,6 +454,12 @@ const DEFAULT_SECTIONS = {
   ctaCopy: "Get a tailored plan and deployment timeline in days, not weeks. Start building your autonomous future today.",
   ctaSecondaryAlt: "Request a Proposal",
 };
+
+export async function generateStaticParams() {
+  return Object.keys(SERVICES).map((slug) => ({
+    slug,
+  }));
+}
 
 export default function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const unwrappedParams = React.use(params);
