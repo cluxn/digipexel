@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@theme {
+  --color-base: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-highlight: #F1F5F9;
+
+  --color-primary: #0F172A;
+  --color-primary-text: #0F172A;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #475569;
+  --color-secondary-text: #475569;
+  --color-secondary-foreground: #FFFFFF;
+
+  /* Signature brand: deep violet — distinctive, not the default SaaS blue */
+  --color-brand: #7C3AED;
+  --color-brand-hover: #6D28D9;
+  --color-brand-light: #DDD6FE;
+
+  /* Signature accent: electric teal — dual-tone identity with violet */
+  --color-accent: #10D9B0;
+  --color-accent-foreground: #0A0A0A;
+
+  --color-border-subtle: #E2E8F0;
+  --color-border: #E2E8F0;
+
+  --color-semantic-success: #059669;
+  --color-semantic-warning: #D97706;
+  --color-semantic-error: #DC2626;
+  --color-semantic-info: #0284C7;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+
+  --color-slider-track: #94A3B8;
+
+  --color-background: var(--color-base);
+  --color-foreground: var(--color-primary);
+
+  --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Typography scale — clear 3-step hierarchy: Display → Section → Body */
+  --text-display-1: 5rem;            /* 80px — hero titles */
+  --text-display-1--line-height: 1;
+
+  --text-h1: 3.5rem;                 /* 56px — page-level headings */
+  --text-h1--line-height: 1.1;
+
+  --text-h2: 2.25rem;                /* 36px — section sub-headings, 2.25× body */
+  --text-h2--line-height: 1.25;
+
+  --text-body-l: 1.125rem;           /* 18px */
+  --text-body-l--line-height: 1.75rem;
+
+  --text-body-m: 1rem;               /* 16px */
+  --text-body-m--line-height: 1.5rem;
+
+  --text-label: 0.875rem;            /* 14px */
+  --text-label--line-height: 1.3125rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+@layer utilities {
+  .section-eyebrow {
+    @apply mb-6 rounded-full border border-brand/15 bg-brand/8 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand/80;
+  }
+
+  /* Section headings — 3× body size on desktop */
+  .section-title {
+    @apply text-balance text-4xl md:text-5xl lg:text-[3.25rem] font-display font-bold tracking-tight text-primary leading-[1.1];
+  }
+
+  .section-title-accent {
+    @apply text-brand;
+  }
+
+  .section-subtitle {
+    @apply mt-5 text-secondary text-lg md:text-xl opacity-70 leading-relaxed font-medium;
+  }
+
+  /* Hero title — commanding 56–80px range */
+  .hero-title {
+    @apply text-5xl md:text-7xl lg:text-[5.25rem] font-display font-black tracking-tight leading-[1.02];
+  }
+
+  /* Gradient accent for hero text — violet → teal */
+  .hero-title-accent {
+    background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 40%, #10D9B0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline;
+  }
+
+  /* Legacy: plain brand accent (used in sections that don't need gradient) */
+  .section-title-gradient {
+    background: linear-gradient(135deg, #7C3AED 0%, #10D9B0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline;
+  }
+
+  .field-label {
+    @apply block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1;
+  }
+
+  /* ─── MASTER brand button — single source of truth ─────────────────────────
+     Change gradient, shine, or glow here and it applies everywhere:
+     Button variant="brand", .nav-btn links, .hero-btn links, nudge CTAs.
+  ──────────────────────────────────────────────────────────────────────────── */
+  .btn-brand {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #9333EA 0%, #7C3AED 55%, #6D28D9 100%);
+    color: #ffffff;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  /* Continuous light sweep — plays every 2.8 s, pauses on hover */
+  .btn-brand::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 100%
+    );
+    animation: btn-brand-sweep 2.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes btn-brand-sweep {
+    0%   { left: -120%; opacity: 1; }
+    60%  { left: 120%;  opacity: 1; }
+    61%  { opacity: 0; }
+    100% { left: 120%;  opacity: 0; }
+  }
+
+  .btn-brand:hover {
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.65),
+                0 0 52px rgba(109, 40, 217, 0.25);
+    transform: scale(1.02);
+  }
+
+  .btn-brand:hover::before {
+    animation-play-state: paused;
+  }
+
+  /* Nav CTA link — uses .btn-brand for visuals, this adds nav-specific sizing */
+  .nav-btn {
+    border-radius: 10px;
+    padding: 11px 26px;
+    font-size: 0.9rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Hero CTA link — uses .btn-brand for visuals, this adds hero-specific sizing + glow */
+  .hero-btn {
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    border: 1px solid rgba(196, 181, 255, 0.25);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4),
+                0 0 40px rgba(16, 217, 176, 0.1);
+  }
+
+  .hero-btn:hover {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.65),
+                0 0 60px rgba(16, 217, 176, 0.2);
+    border-color: rgba(196, 181, 255, 0.5);
+  }
+}

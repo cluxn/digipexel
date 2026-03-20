@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background -->
+  <rect width="32" height="32" rx="8" fill="#7C3AED"/>
+  <!-- D mark — bold geometric "D" shape -->
+  <rect x="8" y="8" width="4" height="16" rx="1.5" fill="white"/>
+  <path d="M12 8h4a8 8 0 0 1 0 16h-4V8z" fill="white"/>
+  <path d="M12 12h3.5a4 4 0 0 1 0 8H12V12z" fill="#7C3AED"/>
+</svg>
