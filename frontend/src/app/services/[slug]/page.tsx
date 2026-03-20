@@ -747,7 +747,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
             <p className="section-subtitle max-w-2xl mx-auto">{DEFAULT_SECTIONS.testimonialsCopy}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(service.testimonials || DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role }))).map((t, idx) => (
+            {(service.testimonials || DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" }))).map((t: any, idx) => (
               <div key={idx} className="group relative rounded-[3rem] border border-border-subtle bg-white p-10 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500 flex flex-col h-full overflow-hidden">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative mb-8">
@@ -763,7 +763,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                 
                 <div className="mt-auto pt-8 border-t border-slate-50 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-bold text-primary group-hover:text-brand transition-colors">{t.author || t.role}</p>
+                        <p className="text-sm font-bold text-primary group-hover:text-brand transition-colors">{t.role}</p>
                         <p className="text-[10px] font-black uppercase tracking-widest text-secondary/40 mt-1">
                             {t.company || "Client Pioneer"}
                         </p>
