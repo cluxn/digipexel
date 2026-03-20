@@ -33,32 +33,40 @@ jobs:
         run: sudo apt-get install -y lftp
 
       - name: 🚀 Deploy Static Frontend to Hostinger
-        env:
-          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
-          FTP_PASS: ${{ secrets.HOSTINGER_FTP_PASS }}
         run: |
-          lftp -u "$FTP_USER,$FTP_PASS" \
+          lftp -u "u723773599.u723773599,Cluxnftp@12345" \
+            -e "set sftp:auto-confirm yes; \
+                set net:max-retries 5; \
+                set net:reconnect-interval-base 3; \
+                mirror --reverse --delete --verbose \
+                  ./frontend/out/ public_html/digipexel/; \
+                quit" \
+            sftp://cluxn.com || \
+          lftp -u "u723773599.u723773599,Cluxnftp@12345" \
             -e "set ftp:ssl-force true; \
                 set ssl:verify-certificate false; \
                 set ftp:passive-mode true; \
                 set net:max-retries 5; \
-                set net:reconnect-interval-base 5; \
                 mirror --reverse --delete --verbose \
                   ./frontend/out/ public_html/digipexel/; \
                 quit" \
             ftp://cluxn.com
 
       - name: 🚀 Deploy PHP Backend to Hostinger
-        env:
-          FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
-          FTP_PASS: ${{ secrets.HOSTINGER_FTP_PASS }}
         run: |
-          lftp -u "$FTP_USER,$FTP_PASS" \
+          lftp -u "u723773599.u723773599,Cluxnftp@12345" \
+            -e "set sftp:auto-confirm yes; \
+                set net:max-retries 5; \
+                set net:reconnect-interval-base 3; \
+                mirror --reverse --delete --verbose \
+                  ./backend/ public_html/digipexel/backend/; \
+                quit" \
+            sftp://cluxn.com || \
+          lftp -u "u723773599.u723773599,Cluxnftp@12345" \
             -e "set ftp:ssl-force true; \
                 set ssl:verify-certificate false; \
                 set ftp:passive-mode true; \
                 set net:max-retries 5; \
-                set net:reconnect-interval-base 5; \
                 mirror --reverse --delete --verbose \
                   ./backend/ public_html/digipexel/backend/; \
                 quit" \
