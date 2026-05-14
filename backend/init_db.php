@@ -98,6 +98,24 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS site_content (
+        section VARCHAR(50) PRIMARY KEY,
+        content JSON NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+        `key` VARCHAR(50) PRIMARY KEY,
+        `value` TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status ENUM('active', 'unsubscribed') DEFAULT 'active'
+    );
+
     -- Insert default logos if table is empty
     INSERT INTO logos (name, src, position) 
     SELECT 'Dish', 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg', 0
@@ -155,6 +173,14 @@ try {
     WHERE NOT EXISTS (SELECT 1 FROM case_studies);
     ";
     $pdo->exec($sql_testimonials);
+
+    // Seed default settings
+    $sql_settings = "
+    INSERT INTO settings (`key`, `value`)
+    SELECT 'whatsapp_number', ''
+    WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'whatsapp_number');
+    ";
+    $pdo->exec($sql_settings);
 
     echo "Database initialized successfully.";
 } catch (PDOException $e) {
