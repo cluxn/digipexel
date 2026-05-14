@@ -60,7 +60,7 @@ export function ContextProblem() {
             <span className="section-title-accent">Your team pays the price</span>
           </h2>
           <p className="section-subtitle max-w-xl opacity-60">
-            Every manual handoff costs time, context, and revenue. We bridge every gap with AI that connects your entire stack and acts 24/7.
+            Every manual handoff costs time and revenue. We bridge every gap with AI that acts 24/7.
           </p>
         </div>
 
