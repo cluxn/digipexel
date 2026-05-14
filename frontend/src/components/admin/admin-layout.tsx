@@ -4,31 +4,36 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  Image as ImageIcon, 
-  Workflow, 
-  MessageSquare, 
-  Users, 
-  Globe, 
+import {
+  LayoutDashboard,
+  Image as ImageIcon,
+  Workflow,
+  MessageSquare,
+  Users,
+  Globe,
   LogOut,
   Sparkles,
   Loader2,
   BookOpen,
   FileText,
-  Briefcase
+  Briefcase,
+  Mail,
+  Layers,
+  Settings
 } from "lucide-react";
 
 const sidebarItems = [
-  { name: "DASHBOARD", icon: LayoutDashboard, href: "/admin", status: "Active" },
-  { name: "LOGO MARQUEE", icon: ImageIcon, href: "/admin/logos", status: "Active" },
-  { name: "VISUAL PROCESS", icon: Workflow, href: "#", status: "Upcoming" },
-  { name: "INSIGHTS & GUIDES", icon: BookOpen, href: "/admin/guides", status: "Active" },
-  { name: "BLOG HUB", icon: FileText, href: "/admin/blog", status: "Active" },
-  { name: "CASE VAULT", icon: Briefcase, href: "/admin/case-studies", status: "Active" },
-  { name: "TESTIMONIALS", icon: MessageSquare, href: "/admin/testimonials", status: "Active" },
-  { name: "CONTACT LEADS", icon: Users, href: "/admin/leads", status: "Active" },
-  { name: "NUDGES", icon: Sparkles, href: "/admin/nudges", status: "Active" },
+  { name: "DASHBOARD",     icon: LayoutDashboard, href: "/admin",              status: "Active" },
+  { name: "PARTNER LOGOS", icon: ImageIcon,        href: "/admin/logos",        status: "Active" },
+  { name: "CASE STUDIES",  icon: Briefcase,        href: "/admin/case-studies", status: "Active" },
+  { name: "BLOG POSTS",    icon: FileText,          href: "/admin/blog",         status: "Active" },
+  { name: "GUIDES",        icon: BookOpen,          href: "/admin/guides",       status: "Active" },
+  { name: "TESTIMONIALS",  icon: MessageSquare,     href: "/admin/testimonials", status: "Active" },
+  { name: "LEADS",         icon: Users,             href: "/admin/leads",        status: "Active" },
+  { name: "NEWSLETTER",    icon: Mail,              href: "/admin/newsletter",   status: "Active" },
+  { name: "POPUPS",        icon: Sparkles,          href: "/admin/nudges",       status: "Active" },
+  { name: "BANNERS",       icon: Layers,            href: "/admin/banners",      status: "Active" },
+  { name: "SETTINGS",      icon: Settings,          href: "/admin/settings",     status: "Active" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -75,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {sidebarItems.map((item) => {
             const isActive = pathname === item.href;
             return (
