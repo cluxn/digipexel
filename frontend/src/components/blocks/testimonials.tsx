@@ -1,9 +1,28 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
+import { safeFetch } from "@/lib/utils";
 
-const testimonials = [
+interface ApiTestimonial {
+  id: number;
+  name: string;
+  role: string;
+  company: string;
+  content: string;    // DB column name
+  image_url: string;  // DB column name
+}
+
+interface ColumnTestimonial {
+  name: string;
+  role: string;
+  text: string;   // TestimonialsColumn expects "text" not "content"
+  image: string;  // TestimonialsColumn expects "image" not "image_url"
+}
+
+const FALLBACK_TESTIMONIALS: ColumnTestimonial[] = [
   {
     name: "Aarav Mehta",
     role: "COO, Lumina Health",
@@ -60,11 +79,33 @@ const testimonials = [
   },
 ];
 
-const firstColumn = testimonials.slice(0, 3);
-const secondColumn = testimonials.slice(3, 6);
-const thirdColumn = testimonials.slice(6, 9);
-
 export function Testimonials() {
+  const [allTestimonials, setAllTestimonials] = useState<ColumnTestimonial[]>(FALLBACK_TESTIMONIALS);
+
+  useEffect(() => {
+    async function fetchTestimonials() {
+      const json = await safeFetch("/api/testimonials.php");
+      if (json.status === "success" && Array.isArray(json.data) && json.data.length > 0) {
+        // Take first 9, map DB field names to component field names
+        const mapped: ColumnTestimonial[] = (json.data as ApiTestimonial[])
+          .slice(0, 9)
+          .map((t) => ({
+            name:  t.name,
+            role:  t.role + (t.company ? `, ${t.company}` : ""),
+            text:  t.content,
+            image: t.image_url,
+          }));
+        setAllTestimonials(mapped);
+      }
+      // On failure: keep FALLBACK_TESTIMONIALS in state
+    }
+    fetchTestimonials();
+  }, []);
+
+  const firstColumn  = allTestimonials.slice(0, 3);
+  const secondColumn = allTestimonials.slice(3, 6);
+  const thirdColumn  = allTestimonials.slice(6, 9);
+
   return (
     <section className="py-40 bg-base relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
@@ -82,19 +123,19 @@ export function Testimonials() {
 
         <div className="flex justify-center gap-8 mt-16 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[840px] overflow-hidden">
           <TestimonialsColumn testimonials={firstColumn} duration={25} />
-          <TestimonialsColumn 
-            testimonials={secondColumn} 
-            className="hidden md:block" 
-            duration={32} 
+          <TestimonialsColumn
+            testimonials={secondColumn}
+            className="hidden md:block"
+            duration={32}
           />
-          <TestimonialsColumn 
-            testimonials={thirdColumn} 
-            className="hidden lg:block" 
-            duration={28} 
+          <TestimonialsColumn
+            testimonials={thirdColumn}
+            className="hidden lg:block"
+            duration={28}
           />
         </div>
       </div>
-      
+
       {/* Decorative gradient background */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-brand/5 rounded-full blur-[120px] pointer-events-none opacity-50" />
     </section>

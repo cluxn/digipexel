@@ -12,6 +12,27 @@ jest.mock("@/lib/utils", () => ({
   cn: (...args: string[]) => args.filter(Boolean).join(" "),
 }));
 
+// Mock motion/react to avoid animation issues in tests
+jest.mock("motion/react", () => ({
+  motion: {
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  },
+}));
+
+// Mock TestimonialsColumn to render testimonial names for easy assertion
+jest.mock("@/components/ui/testimonials-columns-1", () => ({
+  TestimonialsColumn: ({ testimonials }: any) => (
+    <div>
+      {testimonials.map((t: any, i: number) => (
+        <div key={i} data-testid="testimonial-item">
+          <span>{t.name}</span>
+          <span>{t.text}</span>
+        </div>
+      ))}
+    </div>
+  ),
+}));
+
 const { safeFetch } = require("@/lib/utils");
 
 const mockTestimonials = Array.from({ length: 9 }, (_, i) => ({
@@ -38,8 +59,9 @@ describe("Testimonials", () => {
   it("renders fallback data when API fails", async () => {
     safeFetch.mockResolvedValue({ status: "error" });
     render(<Testimonials />);
-    await waitFor(() => screen.getByText(/Aarav Mehta|Priya Nair|Kabir Singh/));
+    await waitFor(() => screen.getAllByText(/Aarav Mehta|Priya Nair|Kabir Singh/));
     // At least one fallback testimonial name appears
+    expect(screen.getAllByText(/Aarav Mehta|Priya Nair|Kabir Singh/).length).toBeGreaterThan(0);
   });
 
   it("fetches from /api/testimonials.php", async () => {
