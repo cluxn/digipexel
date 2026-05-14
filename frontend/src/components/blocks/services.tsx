@@ -61,7 +61,7 @@ export function Services() {
       <div className="container mx-auto px-8 max-w-7xl relative z-10">
         <div className="flex flex-col items-center text-center mb-10">
           <Badge variant="outline" className="section-eyebrow mb-4 px-6">
-            Our Ecosystem
+            What We Do
           </Badge>
           <h2 className="section-title mb-4">
             AI Automation<br /><span className="section-title-accent">Services</span>
