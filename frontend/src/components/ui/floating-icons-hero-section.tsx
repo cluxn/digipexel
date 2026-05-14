@@ -20,6 +20,7 @@ export interface FloatingIconsHeroProps {
   subtitle: string;
   ctaText: string;
   ctaHref: string;
+  eyebrow?: string;
   icons: IconProps[];
   pointers?: { name: string; icon: React.ReactNode }[];
   className?: string;
@@ -124,7 +125,7 @@ const Icon = ({
 const FloatingIconsHero = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & FloatingIconsHeroProps
->(({ className, title, titleHighlight, subtitle, ctaText, ctaHref, icons, pointers, ...props }, ref) => {
+>(({ className, title, titleHighlight, subtitle, ctaText, ctaHref, eyebrow, icons, pointers, ...props }, ref) => {
   const mouseX = React.useRef(0);
   const mouseY = React.useRef(0);
 
@@ -207,7 +208,7 @@ const FloatingIconsHero = React.forwardRef<
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50 mb-6"
         >
-          AI Automation Agency
+          {eyebrow || "AI Automation Agency"}
         </motion.div>
 
         {/* H1 — commanding 56–80px */}

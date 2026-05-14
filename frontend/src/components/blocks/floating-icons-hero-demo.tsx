@@ -153,7 +153,7 @@ const IconAnthropic = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 // ICON_REGISTRY maps icon key strings (from API) to SVG components
-const ICON_REGISTRY: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+export const ICON_REGISTRY: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   openai:    IconOpenAI,
   n8n:       IconN8N,
   zapier:    IconZapier,
@@ -179,6 +179,7 @@ const ICON_REGISTRY: Record<string, React.ComponentType<React.SVGProps<SVGSVGEle
 
 // Fallback hero text constants (current hardcoded values)
 const FALLBACK_HERO_TEXT = {
+  eyebrow: "AI Automation Agency",
   heading: "Automate",
   titleHighlight: "with AI that ships",
   subtitle: "Digi Pexel is an AI automation agency. We design reliable workflows that move data, decisions, and actions across your stack so your team can scale without friction.",
@@ -243,6 +244,7 @@ export default function FloatingIconsHeroDemo() {
     <div className="relative w-full">
       <Navbar className="top-0" />
       <FloatingIconsHero
+        eyebrow={heroText.eyebrow}
         title={heroText.heading}
         titleHighlight={heroText.titleHighlight}
         subtitle={heroText.subtitle}
