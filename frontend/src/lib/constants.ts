@@ -40,11 +40,11 @@ export const NAV_LINKS = [
   },
 ];
 
-export const SOCIAL_LINKS = [
-  { label: 'Facebook', href: '#' },
-  { label: 'Instagram', href: '#' },
-  { label: 'YouTube', href: '#' },
-  { label: 'LinkedIn', href: '#' },
+export const SOCIAL_LINKS: Array<{ label: string; href?: string }> = [
+  { label: 'Facebook' },
+  { label: 'Instagram' },
+  { label: 'YouTube' },
+  { label: 'LinkedIn' },
 ];
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://digipexel.cluxn.com/backend/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://digi.cluxn.com/backend/api";
