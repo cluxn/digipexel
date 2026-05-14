@@ -14,6 +14,7 @@ interface IconSlot {
 }
 
 interface HeroContent {
+  eyebrow: string;
   heading: string;
   titleHighlight: string;
   subtitle: string;
@@ -53,6 +54,7 @@ const ICON_OPTIONS = [
 ];
 
 const DEFAULT_HERO: HeroContent = {
+  eyebrow: "AI Automation Agency",
   heading: "Automate",
   titleHighlight: "with AI that ships",
   subtitle:
@@ -285,6 +287,17 @@ export default function AdminSiteContentPage() {
             <div className="border-b border-slate-50 pb-8 space-y-1">
               <h3 className="text-2xl font-bold text-[#1A1C1E]">Hero Section</h3>
               <p className="text-xs text-slate-400">Controls the main headline, subtitle, CTA button, and floating icon strip.</p>
+            </div>
+
+            <div>
+              <label className={labelCls}>Eyebrow Label</label>
+              <input
+                type="text"
+                value={heroContent.eyebrow}
+                onChange={(e) => setHeroContent((p) => ({ ...p, eyebrow: e.target.value }))}
+                className={inputCls}
+                placeholder="AI Automation Agency"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
