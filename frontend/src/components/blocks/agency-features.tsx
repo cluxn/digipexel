@@ -9,8 +9,8 @@ export function AgencyFeatures() {
     <section className="w-full bg-base relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl pt-20">
         <div className="flex flex-col items-center text-center">
-          <Badge variant="outline" className="section-eyebrow">
-            Automation Capabilities
+          <Badge variant="outline" className="section-eyebrow mb-6">
+            Why Choose Us
           </Badge>
           <h2 className="section-title mb-6">
             Built for<br /><span className="section-title-accent">Reliable Automation</span>
