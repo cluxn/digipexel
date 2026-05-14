@@ -22,6 +22,31 @@ jest.mock("framer-motion", () => ({
   useReducedMotion: () => true,
 }));
 
+// Mock complex UI sub-components that depend on context/animations
+jest.mock("@/components/ui/floating-icons-hero-section", () => ({
+  FloatingIconsHero: ({ title, titleHighlight, subtitle }: any) => (
+    <div data-testid="hero">
+      <span>{title}</span>
+      <span>{titleHighlight}</span>
+      <p>{subtitle}</p>
+    </div>
+  ),
+}));
+
+jest.mock("@/components/ui/navbar-menu", () => ({
+  Menu: ({ children }: any) => <nav>{children}</nav>,
+  MenuItem: ({ children, item }: any) => <div>{item}{children}</div>,
+  ServiceMenu: () => <div>ServiceMenu</div>,
+  WorkMenu: () => <div>WorkMenu</div>,
+  InsightsMenu: () => <div>InsightsMenu</div>,
+}));
+
+jest.mock("next/link", () => {
+  const Link = ({ children, href }: any) => <a href={href}>{children}</a>;
+  Link.displayName = "Link";
+  return Link;
+});
+
 const { safeFetch } = require("@/lib/utils");
 
 describe("FloatingIconsHeroDemo", () => {

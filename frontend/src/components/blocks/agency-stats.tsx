@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { safeFetch } from "@/lib/utils";
 
-const stats = [
+const FALLBACK_STATS = [
   {
     label: "FASTER SHIPPING",
     value: "42%",
@@ -29,6 +30,19 @@ const stats = [
 ];
 
 export function AgencyStats() {
+  const [stats, setStats] = useState(FALLBACK_STATS);
+
+  useEffect(() => {
+    async function fetchStats() {
+      const json = await safeFetch("/api/site_content.php?section=stats");
+      if (json.status === "success" && json.data?.stats && Array.isArray(json.data.stats)) {
+        setStats(json.data.stats);
+      }
+      // On failure: keep FALLBACK_STATS in state
+    }
+    fetchStats();
+  }, []);
+
   return (
     <section className="w-full py-24 md:py-32 bg-base relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl">

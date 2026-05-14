@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FloatingIconsHero } from '@/components/ui/floating-icons-hero-section';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — Youtube/Instagram/Linkedin are deprecated in lucide but still functional
 import { Sparkles, Plug, Activity, Cpu, Search, Youtube, Instagram, Linkedin, Database, Workflow, Layers, Calculator, UserPlus, TrendingUp, FileText, HelpCircle, Phone } from 'lucide-react';
 import { Menu, MenuItem, ServiceMenu, WorkMenu, InsightsMenu } from "@/components/ui/navbar-menu";
-import { cn } from "@/lib/utils";
+import { cn, safeFetch } from "@/lib/utils";
 import Link from "next/link";
 
 // --- Original Stylized Company Logo SVG Components ---
@@ -152,33 +152,102 @@ const IconAnthropic = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+// ICON_REGISTRY maps icon key strings (from API) to SVG components
+const ICON_REGISTRY: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  openai:    IconOpenAI,
+  n8n:       IconN8N,
+  zapier:    IconZapier,
+  make:      IconMake,
+  anthropic: IconAnthropic,
+  slack:     IconSlack,
+  google:    IconGoogle,
+  github:    IconGitHub,
+  notion:    IconNotion,
+  figma:     IconFigma,
+  microsoft: IconMicrosoft,
+  vercel:    IconVercel,
+  stripe:    IconStripe,
+  discord:   IconDiscord,
+  youtube:   IconYouTube,
+  linear:    IconLinear,
+  x:         IconX,
+  spotify:   IconSpotify,
+  dropbox:   IconDropbox,
+  twitch:    IconTwitch,
+  apple:     IconApple,
+};
+
+// Fallback hero text constants (current hardcoded values)
+const FALLBACK_HERO_TEXT = {
+  heading: "Automate",
+  titleHighlight: "with AI that ships",
+  subtitle: "Digi Pexel is an AI automation agency. We design reliable workflows that move data, decisions, and actions across your stack so your team can scale without friction.",
+  ctaText: "Book a Strategy Call",
+  ctaHref: "/contact-us",
+};
+
+// Default icon slots matching current hardcoded aiIcons
+const FALLBACK_ICON_SLOTS = [
+  { slot: 1, icon: "openai",    label: "OpenAI"    },
+  { slot: 2, icon: "n8n",       label: "n8n"       },
+  { slot: 3, icon: "zapier",    label: "Zapier"    },
+  { slot: 4, icon: "make",      label: "Make"      },
+  { slot: 5, icon: "anthropic", label: "Anthropic" },
+  { slot: 6, icon: "slack",     label: "Slack"     },
+];
+
+// Static positioning classes for each slot — these NEVER change from API
+const SLOT_CLASSES: Record<number, string> = {
+  1: "top-[22%] left-[4%] md:top-[24%] md:left-[7%]",
+  2: "top-[22%] right-[4%] md:top-[24%] md:right-[7%]",
+  3: "top-[44%] left-[-1%] md:top-[46%] md:left-[1%]",
+  4: "top-[44%] right-[-1%] md:top-[46%] md:right-[1%]",
+  5: "top-[67%] left-[2%] md:top-[68%] md:left-[4%]",
+  6: "top-[67%] right-[2%] md:top-[68%] md:right-[4%]",
+};
+
 export default function FloatingIconsHeroDemo() {
+  const [heroText, setHeroText] = useState(FALLBACK_HERO_TEXT);
+  const [iconSlots, setIconSlots] = useState(FALLBACK_ICON_SLOTS);
+
+  useEffect(() => {
+    async function fetchHero() {
+      const json = await safeFetch("/api/site_content.php?section=hero");
+      if (json.status === "success" && json.data) {
+        const { iconSlots: slots, ...text } = json.data;
+        setHeroText({ ...FALLBACK_HERO_TEXT, ...text });
+        if (Array.isArray(slots) && slots.length > 0) {
+          setIconSlots(slots);
+        }
+      }
+      // On failure: keep FALLBACK values in state
+    }
+    fetchHero();
+  }, []);
+
   const pointers = [
     { name: "Remove manual handoffs", icon: <Sparkles /> },
     { name: "Connect every system", icon: <Plug /> },
     { name: "Measure ROI every week", icon: <Activity /> },
   ];
 
-  const aiIcons = [
-    // Left cluster — shifted down to clear navbar
-    { id: 1, icon: IconOpenAI,    label: "OpenAI",    className: "top-[22%] left-[4%] md:top-[24%] md:left-[7%]" },
-    { id: 6, icon: IconSlack,     label: "Slack",     className: "top-[67%] left-[2%] md:top-[68%] md:left-[4%]" },
-    { id: 3, icon: IconZapier,    label: "Zapier",    className: "top-[44%] left-[-1%] md:top-[46%] md:left-[1%]" },
-    // Right cluster — mirrored stagger
-    { id: 2, icon: IconN8N,       label: "n8n",       className: "top-[22%] right-[4%] md:top-[24%] md:right-[7%]" },
-    { id: 5, icon: IconAnthropic, label: "Anthropic", className: "top-[67%] right-[2%] md:top-[68%] md:right-[4%]" },
-    { id: 4, icon: IconMake,      label: "Make",      className: "top-[44%] right-[-1%] md:top-[46%] md:right-[1%]" },
-  ];
+  // Build aiIcons from current iconSlots state + static positioning classes
+  const aiIcons = iconSlots.map(({ slot, icon, label }) => ({
+    id: slot,
+    icon: (ICON_REGISTRY[icon] ?? IconOpenAI) as React.FC<React.SVGProps<SVGSVGElement>>, // fallback to OpenAI if unknown key
+    label,
+    className: SLOT_CLASSES[slot] ?? SLOT_CLASSES[1],
+  }));
 
   return (
     <div className="relative w-full">
       <Navbar className="top-0" />
       <FloatingIconsHero
-        title="Automate"
-        titleHighlight="with AI that ships"
-        subtitle="Digi Pexel is an AI automation agency. We design reliable workflows that move data, decisions, and actions across your stack so your team can scale without friction."
-        ctaText="Book a Strategy Call"
-        ctaHref="/contact-us"
+        title={heroText.heading}
+        titleHighlight={heroText.titleHighlight}
+        subtitle={heroText.subtitle}
+        ctaText={heroText.ctaText}
+        ctaHref={heroText.ctaHref}
         icons={aiIcons}
         pointers={pointers}
       />
@@ -190,11 +259,22 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
   const [active, setActive] = useState<string | null>(null);
   const [serviceCategory, setServiceCategory] = useState("strategic");
   const [scrolled, setScrolled] = React.useState(false);
+  const [navCta, setNavCta] = useState({ text: "Book a Call", href: "/contact-us" });
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 72);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    async function fetchNav() {
+      const json = await safeFetch("/api/site_content.php?section=nav");
+      if (json.status === "success" && json.data) {
+        setNavCta({ text: json.data.ctaText ?? "Book a Call", href: json.data.ctaHref ?? "/contact-us" });
+      }
+    }
+    fetchNav();
   }, []);
 
   // On dark-hero pages: transparent at top, frosted on scroll.
@@ -328,7 +408,7 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
       icon: Phone,
     },
   ];
-  
+
   return (
     <div
       className={cn("fixed inset-x-0 z-50 transition-all duration-300", className)}
@@ -368,7 +448,7 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
             </div>
 
             <div className="hidden sm:flex">
-              <Link href="/contact-us" className="btn-brand nav-btn">Book a Call</Link>
+              <Link href={navCta.href} className="btn-brand nav-btn">{navCta.text}</Link>
             </div>
           </div>
         </Menu>
