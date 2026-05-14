@@ -55,17 +55,22 @@ Exceptions:
 
 All sizes are from the confirmed `@theme` block in `globals.css` plus existing usage in service page and admin pages.
 
+**Exactly 4 sizes declared:**
+
 | Role | Size | Weight | Line Height | CSS Class / Token |
 |------|------|--------|-------------|-------------------|
-| Hero heading | 80px (5rem) / responsive: 84px (5.25rem) at lg | 900 (font-black) | 1.02 | `.hero-title` |
+| Hero heading | 80px (5rem) / responsive: 84px (5.25rem) at lg | 700 (font-bold) | 1.02 | `.hero-title` |
 | Section heading | 52px (3.25rem) at lg, 48px (3rem) md, 36px base | 700 (font-bold) | 1.1 | `.section-title` |
-| Body large | 18px (1.125rem) | 500 (font-medium) | 1.75rem | `.text-body-l` / `text-lg` |
 | Body | 16px (1rem) | 400 (regular) | 1.5rem | `.text-body-m` / `text-sm` in admin |
-| Label / Eyebrow | 14px (0.875rem) / 11px for eyebrow badge, 10px for field labels | 700 (font-bold) / 600 (font-semibold) | 1.3125rem | `.text-label`, `.field-label`, `.section-eyebrow` |
+| Label | 12px (0.75rem) | 700 (font-bold) | 1.3125rem | `.field-label`, `.section-eyebrow`, pill chips |
 
-**Weights in use — exactly 2 primary weights:**
+**Removed tiers (checker fix):**
+- 18px "body large" tier removed — use `font-medium` weight on 16px body text to create weight-based hierarchy where emphasis is needed
+- 14px, 11px, 10px label/eyebrow sizes consolidated into single 12px label size
+
+**Weights in use — exactly 2 weights:**
 - Regular/Medium: 400–500 — body copy, descriptions, paragraph text
-- Bold/Semibold: 600–700 — headings, labels, buttons, badges
+- Bold: 700 (`font-bold`) — headings, labels, buttons, badges, step numbers, field labels
 
 **Font display:** Inter is the single typeface for both `--font-sans` and `--font-display`. No secondary typeface.
 
@@ -156,10 +161,10 @@ Every section follows: eyebrow Badge → two-part heading (line1 / line2 accent)
 - Background: `bg-base` with `radial-gradient` ambient light (top-left)
 - Eyebrow: `Badge variant="outline"` with `.section-eyebrow` class — `service.badge` text
 - Heading: `h1` with `.hero-title` — `heroLine1` on line 1, `heroLine2` in `<span className="hero-title-accent">` on line 2
-- Body: `text-lg md:text-xl font-medium text-secondary opacity-70 leading-relaxed` — `service.heroCopy` (max 2 sentences)
+- Body: `text-base font-medium text-secondary opacity-70 leading-relaxed` — `service.heroCopy` (max 2 sentences); `font-medium` on 16px body creates emphasis without a separate size tier
 - Primary CTA button: `Button asChild variant="brand"` → `Link href="/contact-us"` — label = `service.ctaPrimary`
 - No secondary CTA button rendered (D-20 locked)
-- Pills row: `flex flex-wrap gap-3`, each pill = `rounded-xl bg-highlight border border-border-subtle text-[10px] font-bold uppercase tracking-widest` with `CheckCircle2 w-3 h-3 text-brand` icon
+- Pills row: `flex flex-wrap gap-3`, each pill = `rounded-xl bg-highlight border border-border-subtle text-[12px] font-bold uppercase tracking-widest` with `CheckCircle2 w-3 h-3 text-brand` icon
 - Right panel: snapshot card (`snapshotTitle`, 4 `snapshotRows`) + 2 stat chips (`statLabel1/statValue1`, `statLabel2/statValue2`)
 
 #### Comparison / Gap Section
@@ -183,8 +188,8 @@ Every section follows: eyebrow Badge → two-part heading (line1 / line2 accent)
 - Eyebrow: hardcoded `"The Delivery Process"` badge
 - Heading: `roadmapTitle` + `roadmapTitleAccent` from service_content API
 - Body: `roadmapCopy` (max 2 sentences)
-- 6 steps: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6` — each step card: step number badge (`text-brand font-black`), title, `desc` (2-line max guideline)
-- Step number: `text-4xl font-black text-brand/20` (large muted background number)
+- 6 steps: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6` — each step card: step number badge (`text-brand font-bold`), title, `desc` (2-line max guideline)
+- Step number: `text-4xl font-bold text-brand/20` (large muted background number) — visual impact comes from size (4xl) and brand color, not weight 900
 
 #### Market Impact / Outcomes Section
 
@@ -198,7 +203,7 @@ Every section follows: eyebrow Badge → two-part heading (line1 / line2 accent)
 
 - Eyebrow: hardcoded `"Real Intelligence"` badge
 - 2–3 testimonial cards from service_content API: `quote` + `role` + `company`
-- Card style: `rounded-2xl bg-surface border border-border-subtle p-8` — quote in italic body, attribution in label size
+- Card style: `rounded-2xl bg-surface border border-border-subtle p-8` — quote in italic body, attribution in label size (12px)
 
 #### CTA Section (Connect Component)
 
@@ -215,7 +220,7 @@ Every section follows: eyebrow Badge → two-part heading (line1 / line2 accent)
 
 - Position: top of page content, above tabs
 - Element: `<select>` styled consistently with the admin page pattern — `h-10 px-3 rounded-md border border-border-subtle bg-surface text-sm font-medium`
-- Label: `"Select Service"` (`field-label` class: `text-[10px] font-black uppercase tracking-widest text-slate-500`)
+- Label: `"Select Service"` (`field-label` class: `text-[12px] font-bold uppercase tracking-widest text-slate-500`)
 - On change: re-fetch all 6 sections for new slug; reset all content states; no unsaved-changes warning (consistent with site-content page behavior per RESEARCH.md Pitfall 3)
 
 #### Tab Navigation
@@ -229,7 +234,7 @@ Every section follows: eyebrow Badge → two-part heading (line1 / line2 accent)
 
 - Input: `w-full rounded-md border border-border-subtle bg-base px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20`
 - Textarea: same as input + `resize-none`, rows as appropriate (2 rows for desc fields, 4 rows for longer copy)
-- Label: `.field-label` utility — `text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1`
+- Label: `.field-label` utility — `text-[12px] font-bold uppercase tracking-widest text-slate-500 mb-1`
 - Field spacing: `space-y-4` within a tab, grouped fields in `grid grid-cols-1 md:grid-cols-2 gap-4`
 - Section grouping: `border border-border-subtle rounded-xl p-6 space-y-4 mb-6` for grouped row sets (e.g., each roadmap step, each testimonial)
 
