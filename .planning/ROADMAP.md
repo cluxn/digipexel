@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Bugs & Foundation** - Eliminate all blocking bugs and broken admin navigation so every subsequent phase can build on a clean base (completed 2026-05-14)
 - [ ] **Phase 2: Homepage & Site Content Admin** - Connect every homepage section to the admin CMS and give the admin panel full control over hero, navbar, footer, and agency stats
+- [ ] **Phase 2.1: Post-Phase-2 Gap Fixes** [INSERTED] - Close 5 UI/admin gaps identified after phase 2 execution: icon previews in admin, hero eyebrow field, section eyebrow text polish, problem stats in admin, footer layout restructure
 - [ ] **Phase 3: Service Pages** - Build all 12 service pages to a consistent, admin-editable format aligned to the benai.co reference
 - [ ] **Phase 4: Content Pages — Blog, Case Studies & Guides** - Deliver fully functional blog, case studies, and guides with pagination, filtering, search, scheduling, and lead capture
 - [ ] **Phase 5: Testimonials System Upgrade** - Redesign the testimonials page, make testimonials multi-format, and wire different display contexts to the same DB
@@ -54,6 +55,24 @@ Plans:
 - [x] 02-02-PLAN.md — Quick fixes: logo data seed via admin UI, eyebrow labels, services href verify, problem section trim
 - [x] 02-03-PLAN.md — Admin site-content page with Hero, Navbar, Stats, Footer tabs
 - [x] 02-04-PLAN.md — Homepage block connections: hero, testimonials, AgencyStats, newsletter footer, WhatsApp button
+
+### Phase 2.1: Post-Phase-2 Gap Fixes [INSERTED]
+**Goal**: Close 5 UI/admin gaps found after phase 2 execution — icon previews in admin, hero eyebrow field, homepage section eyebrow polish, problem stats editable from admin, footer newsletter column layout restructured
+**Depends on**: Phase 2
+**Requirements**: HOME-01, CONT-01, CONT-03
+**Success Criteria** (what must be TRUE):
+  1. Admin site-content Hero tab shows a rendered SVG icon preview (20px) beside each floating-icon slot dropdown so the admin can see what icon they are choosing
+  2. The hero section has an editable eyebrow label field in the admin panel and the `FloatingIconsHeroSection` component renders it above the heading
+  3. Every homepage section block (ContextProblem, AgencyStats, Testimonials, ConvergedPlatform, AgencyFeatures, WorkflowDemo) has a descriptive eyebrow badge — correct text confirmed visible in the browser
+  4. Admin site-content page has a "Problem" tab with 3 stat card rows (stat value, stat detail, title, body) that persist to the DB via site_content.php; the ContextProblem component fetches from the API on mount with hardcoded fallback
+  5. Footer is restructured to a 4-column equal grid (brand+social | nav col 1 | nav col 2 | newsletter) with no layout inconsistency at lg breakpoint
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02.1-01-PLAN.md — Eyebrow text fixes (6 blocks) + footer 4-column grid restructure
+- [ ] 02.1-02-PLAN.md — Hero eyebrow prop (UI component + demo + admin tab) + export ICON_REGISTRY
+- [ ] 02.1-03-PLAN.md — Backend: site_content.php problem section defaults
+- [ ] 02.1-04-PLAN.md — Admin Problem tab (3 stat card rows) + icon SVG previews in Hero tab + context-problem.tsx API fetch
 
 ### Phase 3: Service Pages
 **Goal**: All 12 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel
@@ -125,7 +144,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Bugs & Foundation | 1/1 | Complete    | 2026-05-14 |
-| 2. Homepage & Site Content Admin | 0/4 | Not started | - |
+| 2. Homepage & Site Content Admin | 4/4 | Complete | 2026-05-14 |
+| 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
 | 3. Service Pages | 0/0 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
