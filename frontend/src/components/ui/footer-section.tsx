@@ -111,24 +111,24 @@ export function Footer() {
 			{/* Top brand glow — 10% accent, very subtle */}
 			<div className="pointer-events-none absolute top-0 left-1/2 h-px w-2/5 max-w-xs -translate-x-1/2 bg-gradient-to-r from-transparent via-brand/40 to-transparent" />
 
-			{/* ── Main content — 60% breathing room via padding ── */}
+			{/* ── Main content ── */}
 			<div className="mx-auto max-w-7xl px-6 pt-16 pb-12 lg:px-8 lg:pt-20 lg:pb-16">
-				<div className="flex flex-col gap-12 lg:flex-row lg:gap-16 xl:gap-24">
+				{/* 4-column equal grid: brand+social | nav1 | nav2+resources | newsletter */}
+				<div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
 
-					{/* Brand column — 40% of width on desktop */}
-					<AnimatedContainer className="lg:w-[38%] shrink-0 space-y-6">
+					{/* Col 1: Brand + social */}
+					<AnimatedContainer className="space-y-6">
 						<div className="space-y-4">
 							<a href="/" className="group inline-block">
 								<span className="text-2xl font-display font-bold text-primary group-hover:text-brand transition-colors duration-300">
 									Digi Pexel
 								</span>
 							</a>
-							<p className="text-secondary text-sm leading-relaxed max-w-[28ch]">
+							<p className="text-secondary text-sm leading-relaxed">
 								Building the future of AI automation. Transforming businesses through intelligent agents and seamless workflows.
 							</p>
 						</div>
-
-						{/* Social icons — 10% accent on hover */}
+						{/* Social icons */}
 						<div className="flex items-center gap-3">
 							{socialLinks.map((social) => (
 								<span
@@ -141,65 +141,81 @@ export function Footer() {
 								</span>
 							))}
 						</div>
-
-						{/* Newsletter signup */}
-						<div className="mt-2">
-							<p className="text-xs font-semibold text-primary/60 uppercase tracking-wider mb-3">
-								Stay in the loop
-							</p>
-							{subStatus === "success" ? (
-								<p className="text-sm text-emerald-500 font-medium">You&apos;re in! Check your inbox.</p>
-							) : (
-								<form onSubmit={handleSubscribe} className="flex gap-2">
-									<input
-										type="email"
-										placeholder="Your email"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										required
-										aria-label="Email address for newsletter"
-										className="flex-1 min-w-0 bg-white/5 border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-primary placeholder:text-secondary/40 focus:outline-none focus:border-brand/30 focus:ring-2 focus:ring-brand/10"
-									/>
-									<button
-										type="submit"
-										disabled={subLoading}
-										className="shrink-0 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand/90 transition-colors disabled:opacity-60"
-									>
-										{subLoading ? "..." : "Subscribe"}
-									</button>
-								</form>
-							)}
-							{subStatus === "duplicate" && (
-								<p className="text-xs text-amber-500 mt-2">Already subscribed with this email.</p>
-							)}
-							{subStatus === "error" && (
-								<p className="text-xs text-rose-500 mt-2">Something went wrong. Try again.</p>
-							)}
-						</div>
 					</AnimatedContainer>
 
-					{/* Nav columns — 3 clean columns, 60% of width on desktop */}
-					<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:flex-1 lg:gap-12">
-						{navLinks.map((section, index) => (
-							<AnimatedContainer key={section.label} delay={0.1 + index * 0.08}>
-								<p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/50 mb-5">
+					{/* Col 2: Services nav links */}
+					<AnimatedContainer delay={0.1} className="space-y-5">
+						<p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/50">
+							{navLinks[0].label}
+						</p>
+						<ul className="space-y-3">
+							{navLinks[0].links.map((link) => (
+								<li key={link.title}>
+									<a href={link.href} className="text-sm text-secondary/70 hover:text-brand transition-colors duration-200">
+										{link.title}
+									</a>
+								</li>
+							))}
+						</ul>
+					</AnimatedContainer>
+
+					{/* Col 3: Company + Resources nav links */}
+					<AnimatedContainer delay={0.18} className="space-y-8">
+						{navLinks.slice(1).map((section) => (
+							<div key={section.label} className="space-y-5">
+								<p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/50">
 									{section.label}
 								</p>
 								<ul className="space-y-3">
 									{section.links.map((link) => (
 										<li key={link.title}>
-											<a
-												href={link.href}
-												className="text-sm text-secondary/70 hover:text-brand transition-colors duration-200"
-											>
+											<a href={link.href} className="text-sm text-secondary/70 hover:text-brand transition-colors duration-200">
 												{link.title}
 											</a>
 										</li>
 									))}
 								</ul>
-							</AnimatedContainer>
+							</div>
 						))}
-					</div>
+					</AnimatedContainer>
+
+					{/* Col 4: Newsletter */}
+					<AnimatedContainer delay={0.26} className="space-y-4">
+						<p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/50">
+							Stay in the Loop
+						</p>
+						<p className="text-sm text-secondary/70 leading-relaxed">
+							Weekly insights on AI automation, workflows, and agency growth.
+						</p>
+						{subStatus === "success" ? (
+							<p className="text-sm text-emerald-500 font-medium">You&apos;re in! Check your inbox.</p>
+						) : (
+							<form onSubmit={handleSubscribe} className="flex flex-col gap-2">
+								<input
+									type="email"
+									placeholder="Your email"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									required
+									aria-label="Email address for newsletter"
+									className="w-full bg-white/5 border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-primary placeholder:text-secondary/40 focus:outline-none focus:border-brand/30 focus:ring-2 focus:ring-brand/10"
+								/>
+								<button
+									type="submit"
+									disabled={subLoading}
+									className="w-full px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand/90 transition-colors disabled:opacity-60"
+								>
+									{subLoading ? "..." : "Subscribe"}
+								</button>
+							</form>
+						)}
+						{subStatus === "duplicate" && (
+							<p className="text-xs text-amber-500">Already subscribed with this email.</p>
+						)}
+						{subStatus === "error" && (
+							<p className="text-xs text-rose-500">Something went wrong. Try again.</p>
+						)}
+					</AnimatedContainer>
 				</div>
 
 				{/* ── Bottom bar — clean divider, copyright + legal ── */}
