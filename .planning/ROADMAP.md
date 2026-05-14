@@ -72,7 +72,7 @@ Plans:
 - [x] 02.1-01-PLAN.md — Eyebrow text fixes (6 blocks) + footer 4-column grid restructure
 - [x] 02.1-02-PLAN.md — Hero eyebrow prop (UI component + demo + admin tab) + export ICON_REGISTRY
 - [x] 02.1-03-PLAN.md — Backend: site_content.php problem section defaults
-- [ ] 02.1-04-PLAN.md — Admin Problem tab (3 stat card rows) + icon SVG previews in Hero tab + context-problem.tsx API fetch
+- [x] 02.1-04-PLAN.md — Admin Problem tab (3 stat card rows) + icon SVG previews in Hero tab + context-problem.tsx API fetch
 
 ### Phase 3: Service Pages
 **Goal**: All 12 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel
