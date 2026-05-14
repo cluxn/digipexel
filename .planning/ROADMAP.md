@@ -47,8 +47,13 @@ Plans:
   3. Logo marquee displays real partner logos (Meta, Google Ads, Anthropic, etc.) pulled from admin; agency stats (42%, 28%, 12k+, 4-6 wks) are editable from admin
   4. Homepage testimonials block shows testimonials from the admin panel, not hardcoded text
   5. Footer newsletter signup, all footer links, services section card links, and WhatsApp floating button are all connected and functional
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Backend: 3 new DB tables (site_content, settings, newsletter_subscribers) + 3 PHP endpoints
+- [ ] 02-02-PLAN.md — Quick fixes: logo data seed via admin UI, eyebrow labels, services href verify, problem section trim
+- [ ] 02-03-PLAN.md — Admin site-content page with Hero, Navbar, Stats, Footer tabs
+- [ ] 02-04-PLAN.md — Homepage block connections: hero, testimonials, AgencyStats, newsletter footer, WhatsApp button
 
 ### Phase 3: Service Pages
 **Goal**: All 12 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel
@@ -120,7 +125,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Bugs & Foundation | 1/1 | Complete    | 2026-05-14 |
-| 2. Homepage & Site Content Admin | 0/0 | Not started | - |
+| 2. Homepage & Site Content Admin | 0/4 | Not started | - |
 | 3. Service Pages | 0/0 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
