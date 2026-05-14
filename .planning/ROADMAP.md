@@ -53,7 +53,7 @@ Plans:
 - [x] 02-01-PLAN.md — Backend: 3 new DB tables (site_content, settings, newsletter_subscribers) + 3 PHP endpoints
 - [x] 02-02-PLAN.md — Quick fixes: logo data seed via admin UI, eyebrow labels, services href verify, problem section trim
 - [x] 02-03-PLAN.md — Admin site-content page with Hero, Navbar, Stats, Footer tabs
-- [ ] 02-04-PLAN.md — Homepage block connections: hero, testimonials, AgencyStats, newsletter footer, WhatsApp button
+- [x] 02-04-PLAN.md — Homepage block connections: hero, testimonials, AgencyStats, newsletter footer, WhatsApp button
 
 ### Phase 3: Service Pages
 **Goal**: All 12 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel

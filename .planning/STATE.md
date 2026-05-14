@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: "Checkpoint: Task 3 human-verify for 02-03 site-content admin page"
-last_updated: "2026-05-14T10:37:03.441Z"
+stopped_at: Completed 02-homepage-site-content-admin 02-04-PLAN.md
+last_updated: "2026-05-14T10:46:58.341Z"
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 02 (homepage-&-site-content-admin) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: 2 of 4
 | Phase 01-bugs-foundation P01 | 25min | 4 tasks | 6 files |
 | Phase 02-homepage-site-content-admin P01 | 2 | 3 tasks | 4 files |
 | Phase 02-homepage-site-content-admin P03 | 15 | 2 tasks | 1 files |
+| Phase 02-homepage-site-content-admin P04 | 11 | 4 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Recent decisions affecting current work:
 - [Phase 02-homepage-site-content-admin]: settings.php returns default empty value when key not found — graceful fallback for WhatsAppButton
 - [Phase 02-homepage-site-content-admin]: Task 1 sidebar SITE CONTENT was pre-completed in prior commit 6c6fdfc — detected at plan start and skipped duplicate edit
 - [Phase 02-homepage-site-content-admin]: Shared saveSection() helper accepts typed union of 4 content interfaces — reduces repetition and keeps per-tab save logic DRY
+- [Phase 02-homepage-site-content-admin]: ICON_REGISTRY maps string keys to SVG components; SLOT_CLASSES hardcoded per slot; only icon identity dynamic from API
+- [Phase 02-homepage-site-content-admin]: app/layout.tsx stays a Server Component; WhatsAppButton is client component imported into it
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-14T10:37:03.432Z
-Stopped at: Checkpoint: Task 3 human-verify for 02-03 site-content admin page
+Last session: 2026-05-14T10:46:58.308Z
+Stopped at: Completed 02-homepage-site-content-admin 02-04-PLAN.md
 Resume file: None
