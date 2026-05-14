@@ -21,6 +21,11 @@ A launch-ready agency website where every section is editable from the admin pan
 - ✓ Admin authentication — login-protected admin panel
 - ✓ Static export Next.js frontend + PHP REST API backend
 - ✓ Deployed to Hostinger via GitHub Actions
+- ✓ All section eyebrow labels rewritten — Validated in Phase 02.1: post-phase-2-gap-fixes-inserted
+- ✓ Problem section stat cards editable from admin (Problem tab + API fetch) — Validated in Phase 02.1
+- ✓ Hero section eyebrow label editable from admin — Validated in Phase 02.1
+- ✓ Footer restructured to 4-column equal grid (brand | nav1 | nav2 | newsletter) — Validated in Phase 02.1
+- ✓ Admin Hero tab shows SVG icon previews beside each slot dropdown — Validated in Phase 02.1
 
 ### Active
 
@@ -131,7 +136,7 @@ A launch-ready agency website where every section is editable from the admin pan
 
 **Existing stack:** Next.js 16 (static export) + PHP REST API (no framework) + MySQL on Hostinger shared hosting. Frontend deployed as static HTML/CSS/JS. Backend at `https://digi.cluxn.com/backend/api/`.
 
-**Current state:** Site is partially built. Core content systems (blog, case studies, guides, testimonials, leads, logos) exist and are connected to admin. Homepage has hardcoded sections, 5 admin pages are "Coming Soon" stubs, sidebar links are broken, testimonials are fake, and multiple bugs exist.
+**Current state:** Phase 02.1 complete (2026-05-14) — Homepage admin CMS now covers Hero (eyebrow, heading, icons with previews), Navbar, Stats, Footer, and Problem stat cards, all editable without code. All 6 homepage section eyebrow labels updated. Footer in 4-column equal grid with newsletter. Next: Phase 3 — service pages.
 
 **Design references:**
 - Blog, Case Studies, Guides → radixweb.com
