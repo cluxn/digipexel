@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nudges } from "@/components/ui/nudges";
 import { BackToTop } from "@/components/ui/back-to-top";
+import { WhatsAppButton } from "@/components/ui/whatsapp-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
         <Nudges />
         {children}
         <BackToTop />
+        <WhatsAppButton />
       </body>
     </html>
   );

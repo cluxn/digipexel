@@ -1,6 +1,9 @@
 'use client';
+import React from 'react';
 import type { ComponentProps, ReactNode } from 'react';
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { safeFetch } from '@/lib/utils';
 
 const navLinks = [
 	{
@@ -79,6 +82,30 @@ const socialLinks = [
 ];
 
 export function Footer() {
+	const [email, setEmail] = useState("");
+	const [subStatus, setSubStatus] = useState<"idle" | "success" | "error" | "duplicate">("idle");
+	const [subLoading, setSubLoading] = useState(false);
+
+	const handleSubscribe = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!email || subLoading) return;
+		setSubLoading(true);
+		const res = await safeFetch("/api/newsletter.php", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ action: "subscribe", email }),
+		});
+		if (res.status === "success") {
+			setSubStatus("success");
+			setEmail("");
+		} else if (res.message?.toLowerCase().includes("already")) {
+			setSubStatus("duplicate");
+		} else {
+			setSubStatus("error");
+		}
+		setSubLoading(false);
+	};
+
 	return (
 		<footer className="relative w-full border-t border-border-subtle bg-surface mt-24">
 			{/* Top brand glow — 10% accent, very subtle */}
@@ -113,6 +140,41 @@ export function Footer() {
 									{social.svg}
 								</span>
 							))}
+						</div>
+
+						{/* Newsletter signup */}
+						<div className="mt-2">
+							<p className="text-xs font-semibold text-primary/60 uppercase tracking-wider mb-3">
+								Stay in the loop
+							</p>
+							{subStatus === "success" ? (
+								<p className="text-sm text-emerald-500 font-medium">You&apos;re in! Check your inbox.</p>
+							) : (
+								<form onSubmit={handleSubscribe} className="flex gap-2">
+									<input
+										type="email"
+										placeholder="Your email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										required
+										aria-label="Email address for newsletter"
+										className="flex-1 min-w-0 bg-white/5 border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-primary placeholder:text-secondary/40 focus:outline-none focus:border-brand/30 focus:ring-2 focus:ring-brand/10"
+									/>
+									<button
+										type="submit"
+										disabled={subLoading}
+										className="shrink-0 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand/90 transition-colors disabled:opacity-60"
+									>
+										{subLoading ? "..." : "Subscribe"}
+									</button>
+								</form>
+							)}
+							{subStatus === "duplicate" && (
+								<p className="text-xs text-amber-500 mt-2">Already subscribed with this email.</p>
+							)}
+							{subStatus === "error" && (
+								<p className="text-xs text-rose-500 mt-2">Something went wrong. Try again.</p>
+							)}
 						</div>
 					</AnimatedContainer>
 
