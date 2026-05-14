@@ -9,8 +9,8 @@ export function ConvergedPlatform() {
     <section className="w-full py-32 bg-base overflow-hidden relative">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex flex-col items-center text-center mb-20">
-          <Badge variant="outline" className="section-eyebrow">
-            Connected Ecosystem
+          <Badge variant="outline" className="section-eyebrow mb-6">
+            Our Platform
           </Badge>
           <h2 className="section-title mb-6 max-w-4xl">
             Every service Every tool<br />

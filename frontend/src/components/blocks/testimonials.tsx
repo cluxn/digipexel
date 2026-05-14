@@ -69,8 +69,8 @@ export function Testimonials() {
     <section className="py-40 bg-base relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         <div className="flex flex-col items-center justify-center text-center mb-24 max-w-3xl mx-auto">
-          <Badge variant="outline" className="section-eyebrow">
-            Client Outcomes
+          <Badge variant="outline" className="section-eyebrow mb-6">
+            Client Success Stories
           </Badge>
           <h2 className="section-title leading-tight">
             Trusted by Ops Leaders <span className="section-title-accent">Scaling with AI</span>

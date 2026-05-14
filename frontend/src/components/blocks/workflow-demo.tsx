@@ -2,6 +2,7 @@
 
 import { N8nWorkflowBlock } from "@/components/ui/n8n-workflow-block-shadcnui";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 export function WorkflowDemo() {
   return (
@@ -10,6 +11,13 @@ export function WorkflowDemo() {
       style={{ background: 'linear-gradient(to bottom, #080E1C 0%, #0D1428 8%, #172040 18%, #1e2a50 28%, #e8edf6 48%, #F8FAFC 60%)' }}
     >
       <div className="container mx-auto px-6 max-w-7xl pt-12">
+
+        {/* ── Section eyebrow ── */}
+        <div className="flex flex-col items-center text-center mb-10">
+          <Badge variant="outline" className="section-eyebrow mb-6">
+            How It Works
+          </Badge>
+        </div>
 
         {/* ── Browser chrome + workflow canvas ── */}
         <motion.div
