@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02.1-post-phase-2-gap-fixes-inserted 02.1-02-PLAN.md
-last_updated: "2026-05-14T15:51:39.790Z"
+stopped_at: Completed 02.1-post-phase-2-gap-fixes-inserted 02.1-01-PLAN.md
+last_updated: "2026-05-14T15:52:35.518Z"
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 02.1 (post-phase-2-gap-fixes-inserted) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 3 of 4
 | Phase 02-homepage-site-content-admin P04 | 11 | 4 tasks | 12 files |
 | Phase 02.1-post-phase-2-gap-fixes-inserted P03 | 5 | 1 tasks | 1 files |
 | Phase 02.1-post-phase-2-gap-fixes-inserted P02 | 5 | 2 tasks | 3 files |
+| Phase 02.1-post-phase-2-gap-fixes-inserted P01 | 15 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 02-homepage-site-content-admin]: app/layout.tsx stays a Server Component; WhatsAppButton is client component imported into it
 - [Phase 02.1-post-phase-2-gap-fixes-inserted]: $section_defaults array in site_content.php GET handler provides section-aware fallback — extensible pattern for adding future section defaults without changing handler structure
 - [Phase 02.1-post-phase-2-gap-fixes-inserted]: eyebrow prop uses || fallback to 'AI Automation Agency' — backward compatible, no empty badge if admin clears field
+- [Phase 02.1-post-phase-2-gap-fixes-inserted]: Eyebrow text values locked per CONTEXT.md — The Automation Gap, Proven Results, Client Success Stories, Our Platform, Why Choose Us, How It Works
+- [Phase 02.1-post-phase-2-gap-fixes-inserted]: Footer newsletter form moved from brand column to dedicated 4th equal-width column (lg:grid-cols-4)
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-14T15:51:39.785Z
-Stopped at: Completed 02.1-post-phase-2-gap-fixes-inserted 02.1-02-PLAN.md
+Last session: 2026-05-14T15:52:35.514Z
+Stopped at: Completed 02.1-post-phase-2-gap-fixes-inserted 02.1-01-PLAN.md
 Resume file: None
