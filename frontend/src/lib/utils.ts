@@ -5,9 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export async function safeFetch(url: string, options?: RequestInit) {
+export async function safeFetch(url: string, options?: RequestInit, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, options);
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) {
       console.warn(`Fetch to ${url} returned status ${res.status}`);
       return { status: "error", message: `Server returned ${res.status}` };
@@ -20,7 +23,12 @@ export async function safeFetch(url: string, options?: RequestInit) {
       return { status: "error", message: "Invalid server response format" };
     }
   } catch (err) {
-    console.error(`Fetch to ${url} failed:`, err);
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      console.warn(`Fetch to ${url} timed out after ${timeoutMs}ms`);
+      return { status: "error", message: "Request timed out" };
+    }
+    console.warn(`Fetch to ${url} failed:`, err);
     return { status: "error", message: "Connection failed" };
   }
 }

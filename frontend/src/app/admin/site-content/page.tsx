@@ -127,6 +127,7 @@ const labelCls = "block text-[9px] font-bold uppercase tracking-widest text-slat
 export default function AdminSiteContentPage() {
   const [activeTab, setActiveTab] = useState<TabId>("hero");
   const [loading, setLoading]     = useState(true);
+  const [apiError, setApiError]   = useState(false);
 
   const [heroContent,   setHeroContent]   = useState<HeroContent>(DEFAULT_HERO);
   const [navContent,    setNavContent]    = useState<NavContent>(DEFAULT_NAV);
@@ -148,6 +149,11 @@ export default function AdminSiteContentPage() {
         api.get("site_content", { section: "stats"  }),
         api.get("site_content", { section: "footer" }),
       ]);
+
+      const anySuccess = [heroRes, navRes, statsRes, footerRes].some(
+        (r) => r?.status === "success",
+      );
+      if (!anySuccess) setApiError(true);
 
       if (heroRes?.status === "success" && heroRes.data) {
         setHeroContent(heroRes.data as HeroContent);
@@ -242,6 +248,19 @@ export default function AdminSiteContentPage() {
             Edit the live copy for your Hero section, Navbar CTA, Agency Stats, and Footer newsletter signup.
           </p>
         </div>
+
+        {/* API unavailable banner */}
+        {apiError && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
+            <span className="text-amber-500 text-lg leading-none mt-0.5">⚠</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">Backend API unreachable</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Could not load saved content — showing defaults. Deploy the backend to enable saving.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tab Row */}
         <div className="flex gap-2 flex-wrap">
