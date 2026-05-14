@@ -24,6 +24,7 @@ import {
 
 const sidebarItems = [
   { name: "DASHBOARD",     icon: LayoutDashboard, href: "/admin",              status: "Active" },
+  { name: "SITE CONTENT",  icon: Globe,            href: "/admin/site-content", status: "Active" },
   { name: "PARTNER LOGOS", icon: ImageIcon,        href: "/admin/logos",        status: "Active" },
   { name: "CASE STUDIES",  icon: Briefcase,        href: "/admin/case-studies", status: "Active" },
   { name: "BLOG POSTS",    icon: FileText,          href: "/admin/blog",         status: "Active" },
