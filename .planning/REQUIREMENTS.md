@@ -15,16 +15,16 @@
 
 ### Homepage (HOME)
 
-- [ ] **HOME-01**: Hero section content (heading, subheading, paragraph, CTA) editable from admin
-- [ ] **HOME-02**: Floating icons replaced with real tech brand icons, manageable from admin
-- [ ] **HOME-03**: Navbar links and CTA button editable from admin (add/edit/remove)
+- [x] **HOME-01**: Hero section content (heading, subheading, paragraph, CTA) editable from admin
+- [x] **HOME-02**: Floating icons replaced with real tech brand icons, manageable from admin
+- [x] **HOME-03**: Navbar links and CTA button editable from admin (add/edit/remove)
 - [ ] **HOME-04**: Logo marquee updated with real partner logos (Meta, Google Ads, Anthropic, etc.)
 - [ ] **HOME-05**: All section eyebrow labels rewritten to be clear and user-friendly
 - [ ] **HOME-06**: Services section cards linked to their respective service pages
 - [ ] **HOME-07**: Problem section paragraph trimmed to 2 lines for consistency
-- [ ] **HOME-08**: Homepage testimonials block fetches from admin panel (not hardcoded)
-- [ ] **HOME-09**: Footer menu links all connected, newsletter signup input in footer
-- [ ] **HOME-10**: WhatsApp floating button on every public page (bottom-right), pulls number from Settings
+- [x] **HOME-08**: Homepage testimonials block fetches from admin panel (not hardcoded)
+- [x] **HOME-09**: Footer menu links all connected, newsletter signup input in footer
+- [x] **HOME-10**: WhatsApp floating button on every public page (bottom-right), pulls number from Settings
 
 ### Service Pages (SVC)
 
@@ -98,10 +98,10 @@
 
 ### Admin Panel — Site Content (CONT)
 
-- [ ] **CONT-01**: Admin section to manage hero content (heading, subheading, para, icons, CTA)
-- [ ] **CONT-02**: Admin section to manage navbar links (add/edit/remove/reorder)
-- [ ] **CONT-03**: Admin section to manage footer links and content
-- [ ] **CONT-04**: Admin section to manage agency stats (labels, values, descriptions)
+- [x] **CONT-01**: Admin section to manage hero content (heading, subheading, para, icons, CTA)
+- [x] **CONT-02**: Admin section to manage navbar links (add/edit/remove/reorder)
+- [x] **CONT-03**: Admin section to manage footer links and content
+- [x] **CONT-04**: Admin section to manage agency stats (labels, values, descriptions)
 
 ### Admin Panel — Testimonials Management (TADM)
 
@@ -176,20 +176,20 @@
 | BUG-06 | Phase 1 — Bugs & Foundation | Complete |
 | BUG-07 | Phase 1 — Bugs & Foundation | Complete |
 | BUG-08 | Phase 1 — Bugs & Foundation | Complete |
-| HOME-01 | Phase 2 — Homepage & Site Content Admin | Pending |
-| HOME-02 | Phase 2 — Homepage & Site Content Admin | Pending |
-| HOME-03 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-01 | Phase 2 — Homepage & Site Content Admin | Complete |
+| HOME-02 | Phase 2 — Homepage & Site Content Admin | Complete |
+| HOME-03 | Phase 2 — Homepage & Site Content Admin | Complete |
 | HOME-04 | Phase 2 — Homepage & Site Content Admin | Pending |
 | HOME-05 | Phase 2 — Homepage & Site Content Admin | Pending |
 | HOME-06 | Phase 2 — Homepage & Site Content Admin | Pending |
 | HOME-07 | Phase 2 — Homepage & Site Content Admin | Pending |
-| HOME-08 | Phase 2 — Homepage & Site Content Admin | Pending |
-| HOME-09 | Phase 2 — Homepage & Site Content Admin | Pending |
-| HOME-10 | Phase 2 — Homepage & Site Content Admin | Pending |
-| CONT-01 | Phase 2 — Homepage & Site Content Admin | Pending |
-| CONT-02 | Phase 2 — Homepage & Site Content Admin | Pending |
-| CONT-03 | Phase 2 — Homepage & Site Content Admin | Pending |
-| CONT-04 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-08 | Phase 2 — Homepage & Site Content Admin | Complete |
+| HOME-09 | Phase 2 — Homepage & Site Content Admin | Complete |
+| HOME-10 | Phase 2 — Homepage & Site Content Admin | Complete |
+| CONT-01 | Phase 2 — Homepage & Site Content Admin | Complete |
+| CONT-02 | Phase 2 — Homepage & Site Content Admin | Complete |
+| CONT-03 | Phase 2 — Homepage & Site Content Admin | Complete |
+| CONT-04 | Phase 2 — Homepage & Site Content Admin | Complete |
 | SVC-01 | Phase 3 — Service Pages | Pending |
 | SVC-02 | Phase 3 — Service Pages | Pending |
 | SVC-03 | Phase 3 — Service Pages | Pending |

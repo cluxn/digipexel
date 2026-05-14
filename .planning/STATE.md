@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 02
-stopped_at: Completed 01-bugs-foundation 01-PLAN.md
-last_updated: "2026-05-14T10:03:25.311Z"
+status: Ready to execute
+stopped_at: Completed 02-homepage-site-content-admin 02-01-PLAN.md
+last_updated: "2026-05-14T10:08:48.204Z"
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 5
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 02 (homepage-&-site-content-admin) — EXECUTING
-Plan: 1 of 4
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 1 of 4
 
 *Updated after each plan completion*
 | Phase 01-bugs-foundation P01 | 25min | 4 tasks | 6 files |
+| Phase 02-homepage-site-content-admin P01 | 2 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 01-bugs-foundation]: Added unoptimized: true to next.config.ts for static export image compatibility
 - [Phase 01-bugs-foundation]: Converted social icon anchors to non-clickable spans with Coming soon tooltip
 - [Phase 01-bugs-foundation]: Deleted approvals/ and waitlist/ stub directories; kept banners/, newsletter/, settings/ stubs for Phase 6
+- [Phase 02-homepage-site-content-admin]: site_content table uses section VARCHAR(50) PK — O(1) lookup by section name, no surrogate needed
+- [Phase 02-homepage-site-content-admin]: newsletter.php uses plain INSERT (not INSERT IGNORE) to detect duplicates via PDOException code 23000
+- [Phase 02-homepage-site-content-admin]: settings.php returns default empty value when key not found — graceful fallback for WhatsAppButton
 
 ### Pending Todos
 
@@ -74,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-14T08:50:04.649Z
-Stopped at: Completed 01-bugs-foundation 01-PLAN.md
+Last session: 2026-05-14T10:08:48.198Z
+Stopped at: Completed 02-homepage-site-content-admin 02-01-PLAN.md
 Resume file: None
