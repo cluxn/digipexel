@@ -51,8 +51,8 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Backend: 3 new DB tables (site_content, settings, newsletter_subscribers) + 3 PHP endpoints
-- [ ] 02-02-PLAN.md — Quick fixes: logo data seed via admin UI, eyebrow labels, services href verify, problem section trim
-- [ ] 02-03-PLAN.md — Admin site-content page with Hero, Navbar, Stats, Footer tabs
+- [x] 02-02-PLAN.md — Quick fixes: logo data seed via admin UI, eyebrow labels, services href verify, problem section trim
+- [x] 02-03-PLAN.md — Admin site-content page with Hero, Navbar, Stats, Footer tabs
 - [ ] 02-04-PLAN.md — Homepage block connections: hero, testimonials, AgencyStats, newsletter footer, WhatsApp button
 
 ### Phase 3: Service Pages
