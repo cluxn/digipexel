@@ -211,7 +211,7 @@ export default function AdminSiteContentPage() {
       setLoading(false);
     };
 
-    fetchAll();
+    fetchAll().catch(() => { setApiError(true); setLoading(false); });
   }, []);
 
   // ── Save helpers ───────────────────────────────────────────────────────
