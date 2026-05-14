@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-05-14T07:12:37.591Z"
-last_activity: 2026-05-14 — Roadmap created, project initialized
+stopped_at: Completed 01-bugs-foundation 01-PLAN.md
+last_updated: "2026-05-14T08:50:04.654Z"
+last_activity: 2026-05-14
 progress:
   total_phases: 7
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 Phase: 1 of 7 (Bugs & Foundation)
 Plan: 0 of 0 in current phase
 Status: Ready to plan
-Last activity: 2026-05-14 — Roadmap created, project initialized
+Last activity: 2026-05-14
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-bugs-foundation P01 | 25min | 4 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Recent decisions affecting current work:
 - [Init]: PHP REST API with no framework — follow existing action-based POST routing pattern
 - [Init]: Exit-intent only for nudges — B2B buyers close timed popups immediately
 - [Init]: No About Us page, no Waitlist, no Pricing page, no FAQ — user decisions
+- [Phase 01-bugs-foundation]: Added unoptimized: true to next.config.ts for static export image compatibility
+- [Phase 01-bugs-foundation]: Converted social icon anchors to non-clickable spans with Coming soon tooltip
+- [Phase 01-bugs-foundation]: Deleted approvals/ and waitlist/ stub directories; kept banners/, newsletter/, settings/ stubs for Phase 6
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-14T07:12:37.585Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-bugs-foundation/01-CONTEXT.md
+Last session: 2026-05-14T08:50:04.649Z
+Stopped at: Completed 01-bugs-foundation 01-PLAN.md
+Resume file: None

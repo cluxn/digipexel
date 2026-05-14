@@ -4,14 +4,14 @@
 
 ### Bugs & Technical Fixes (BUG)
 
-- [ ] **BUG-01**: Fix `next/image` incompatibility with static export — add `images: { unoptimized: true }` to next.config.ts
-- [ ] **BUG-02**: Fix admin dashboard double menu — remove horizontal pill tabs from dashboard page
-- [ ] **BUG-03**: Fix admin sidebar broken links — Popups, Banners, Settings, Newsletter, Users all pointing to `#`
-- [ ] **BUG-04**: Add scrollbar to admin sidebar so all menu items are accessible
-- [ ] **BUG-05**: Remove Approval Queue and Waitlist from sidebar and codebase completely
-- [ ] **BUG-06**: Rename admin sidebar menu items to simple vocabulary (no jargon)
-- [ ] **BUG-07**: Add HTTPS redirect to backend `.htaccess`
-- [ ] **BUG-08**: Fix all `#` placeholder links across public site (navbar, footer, buttons)
+- [x] **BUG-01**: Fix `next/image` incompatibility with static export — add `images: { unoptimized: true }` to next.config.ts
+- [x] **BUG-02**: Fix admin dashboard double menu — remove horizontal pill tabs from dashboard page
+- [x] **BUG-03**: Fix admin sidebar broken links — Popups, Banners, Settings, Newsletter, Users all pointing to `#`
+- [x] **BUG-04**: Add scrollbar to admin sidebar so all menu items are accessible
+- [x] **BUG-05**: Remove Approval Queue and Waitlist from sidebar and codebase completely
+- [x] **BUG-06**: Rename admin sidebar menu items to simple vocabulary (no jargon)
+- [x] **BUG-07**: Add HTTPS redirect to backend `.htaccess`
+- [x] **BUG-08**: Fix all `#` placeholder links across public site (navbar, footer, buttons)
 
 ### Homepage (HOME)
 
@@ -168,14 +168,14 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-02 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-03 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-04 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-05 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-06 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-07 | Phase 1 — Bugs & Foundation | Pending |
-| BUG-08 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-01 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-02 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-03 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-04 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-05 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-06 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-07 | Phase 1 — Bugs & Foundation | Complete |
+| BUG-08 | Phase 1 — Bugs & Foundation | Complete |
 | HOME-01 | Phase 2 — Homepage & Site Content Admin | Pending |
 | HOME-02 | Phase 2 — Homepage & Site Content Admin | Pending |
 | HOME-03 | Phase 2 — Homepage & Site Content Admin | Pending |

@@ -12,7 +12,7 @@ The project takes a partially built, partially hardcoded agency website and make
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Bugs & Foundation** - Eliminate all blocking bugs and broken admin navigation so every subsequent phase can build on a clean base
+- [x] **Phase 1: Bugs & Foundation** - Eliminate all blocking bugs and broken admin navigation so every subsequent phase can build on a clean base (completed 2026-05-14)
 - [ ] **Phase 2: Homepage & Site Content Admin** - Connect every homepage section to the admin CMS and give the admin panel full control over hero, navbar, footer, and agency stats
 - [ ] **Phase 3: Service Pages** - Build all 12 service pages to a consistent, admin-editable format aligned to the benai.co reference
 - [ ] **Phase 4: Content Pages — Blog, Case Studies & Guides** - Deliver fully functional blog, case studies, and guides with pagination, filtering, search, scheduling, and lead capture
@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Config + .htaccess + admin layout overhaul + dashboard cleanup + social link fix
+- [x] 01-01-PLAN.md — Config + .htaccess + admin layout overhaul + dashboard cleanup + social link fix
 
 ### Phase 2: Homepage & Site Content Admin
 **Goal**: Every section of the homepage fetches content from the admin CMS — nothing is hardcoded — and the admin panel has dedicated controls for hero, navbar, footer, and agency stats
@@ -119,7 +119,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bugs & Foundation | 0/1 | Not started | - |
+| 1. Bugs & Foundation | 1/1 | Complete   | 2026-05-14 |
 | 2. Homepage & Site Content Admin | 0/0 | Not started | - |
 | 3. Service Pages | 0/0 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
