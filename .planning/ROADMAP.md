@@ -32,7 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Every admin sidebar link (Popups, Banners, Settings, Newsletter, Users) navigates to a real page, not a `#` placeholder
   4. Admin sidebar is scrollable and all menu items are reachable without a scroll cutoff
   5. Approval Queue and Waitlist are gone from sidebar and codebase; all public `#` placeholder links are replaced with real destinations; backend serves over HTTPS only
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Config + .htaccess + admin layout overhaul + dashboard cleanup + social link fix
 
 ### Phase 2: Homepage & Site Content Admin
 **Goal**: Every section of the homepage fetches content from the admin CMS — nothing is hardcoded — and the admin panel has dedicated controls for hero, navbar, footer, and agency stats
@@ -116,7 +119,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bugs & Foundation | 0/0 | Not started | - |
+| 1. Bugs & Foundation | 0/1 | Not started | - |
 | 2. Homepage & Site Content Admin | 0/0 | Not started | - |
 | 3. Service Pages | 0/0 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
