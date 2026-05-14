@@ -119,7 +119,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bugs & Foundation | 1/1 | Complete   | 2026-05-14 |
+| 1. Bugs & Foundation | 1/1 | Complete    | 2026-05-14 |
 | 2. Homepage & Site Content Admin | 0/0 | Not started | - |
 | 3. Service Pages | 0/0 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
