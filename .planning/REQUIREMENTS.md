@@ -166,22 +166,91 @@
 
 ## Traceability
 
-| Requirement Group | Phase |
-|---|---|
-| BUG-01 to BUG-08 | Phase 1 |
-| HOME-01 to HOME-10 | Phase 2 |
-| CONT-01 to CONT-04 | Phase 2 |
-| SVC-01 to SVC-08 | Phase 3 |
-| BLOG-01 to BLOG-11 | Phase 4 |
-| CS-01 to CS-04 | Phase 4 |
-| GUIDE-01 to GUIDE-05 | Phase 4 |
-| TEST-01 to TEST-05 | Phase 5 |
-| TADM-01 to TADM-02 | Phase 5 |
-| ADM-01 to ADM-02 | Phase 6 |
-| NEWS-01 to NEWS-03 | Phase 6 |
-| POP-01 to POP-03 | Phase 6 |
-| ANA-01 to ANA-02 | Phase 6 |
-| USR-01 to USR-03 | Phase 6 |
-| SET-01 to SET-05 | Phase 6 |
-| STATIC-01 to STATIC-05 | Phase 7 |
-| SEO-01 to SEO-06 | Phase 7 |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BUG-01 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-02 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-03 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-04 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-05 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-06 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-07 | Phase 1 — Bugs & Foundation | Pending |
+| BUG-08 | Phase 1 — Bugs & Foundation | Pending |
+| HOME-01 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-02 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-03 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-04 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-05 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-06 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-07 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-08 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-09 | Phase 2 — Homepage & Site Content Admin | Pending |
+| HOME-10 | Phase 2 — Homepage & Site Content Admin | Pending |
+| CONT-01 | Phase 2 — Homepage & Site Content Admin | Pending |
+| CONT-02 | Phase 2 — Homepage & Site Content Admin | Pending |
+| CONT-03 | Phase 2 — Homepage & Site Content Admin | Pending |
+| CONT-04 | Phase 2 — Homepage & Site Content Admin | Pending |
+| SVC-01 | Phase 3 — Service Pages | Pending |
+| SVC-02 | Phase 3 — Service Pages | Pending |
+| SVC-03 | Phase 3 — Service Pages | Pending |
+| SVC-04 | Phase 3 — Service Pages | Pending |
+| SVC-05 | Phase 3 — Service Pages | Pending |
+| SVC-06 | Phase 3 — Service Pages | Pending |
+| SVC-07 | Phase 3 — Service Pages | Pending |
+| SVC-08 | Phase 3 — Service Pages | Pending |
+| BLOG-01 | Phase 4 — Content Pages | Pending |
+| BLOG-02 | Phase 4 — Content Pages | Pending |
+| BLOG-03 | Phase 4 — Content Pages | Pending |
+| BLOG-04 | Phase 4 — Content Pages | Pending |
+| BLOG-05 | Phase 4 — Content Pages | Pending |
+| BLOG-06 | Phase 4 — Content Pages | Pending |
+| BLOG-07 | Phase 4 — Content Pages | Pending |
+| BLOG-08 | Phase 4 — Content Pages | Pending |
+| BLOG-09 | Phase 4 — Content Pages | Pending |
+| BLOG-10 | Phase 4 — Content Pages | Pending |
+| BLOG-11 | Phase 4 — Content Pages | Pending |
+| CS-01 | Phase 4 — Content Pages | Pending |
+| CS-02 | Phase 4 — Content Pages | Pending |
+| CS-03 | Phase 4 — Content Pages | Pending |
+| CS-04 | Phase 4 — Content Pages | Pending |
+| GUIDE-01 | Phase 4 — Content Pages | Pending |
+| GUIDE-02 | Phase 4 — Content Pages | Pending |
+| GUIDE-03 | Phase 4 — Content Pages | Pending |
+| GUIDE-04 | Phase 4 — Content Pages | Pending |
+| GUIDE-05 | Phase 4 — Content Pages | Pending |
+| TEST-01 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-02 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-03 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-04 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-05 | Phase 5 — Testimonials System Upgrade | Pending |
+| TADM-01 | Phase 5 — Testimonials System Upgrade | Pending |
+| TADM-02 | Phase 5 — Testimonials System Upgrade | Pending |
+| ADM-01 | Phase 6 — Admin Panel Completion | Pending |
+| ADM-02 | Phase 6 — Admin Panel Completion | Pending |
+| NEWS-01 | Phase 6 — Admin Panel Completion | Pending |
+| NEWS-02 | Phase 6 — Admin Panel Completion | Pending |
+| NEWS-03 | Phase 6 — Admin Panel Completion | Pending |
+| POP-01 | Phase 6 — Admin Panel Completion | Pending |
+| POP-02 | Phase 6 — Admin Panel Completion | Pending |
+| POP-03 | Phase 6 — Admin Panel Completion | Pending |
+| ANA-01 | Phase 6 — Admin Panel Completion | Pending |
+| ANA-02 | Phase 6 — Admin Panel Completion | Pending |
+| USR-01 | Phase 6 — Admin Panel Completion | Pending |
+| USR-02 | Phase 6 — Admin Panel Completion | Pending |
+| USR-03 | Phase 6 — Admin Panel Completion | Pending |
+| SET-01 | Phase 6 — Admin Panel Completion | Pending |
+| SET-02 | Phase 6 — Admin Panel Completion | Pending |
+| SET-03 | Phase 6 — Admin Panel Completion | Pending |
+| SET-04 | Phase 6 — Admin Panel Completion | Pending |
+| SET-05 | Phase 6 — Admin Panel Completion | Pending |
+| STATIC-01 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| STATIC-02 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| STATIC-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| STATIC-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| STATIC-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-01 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-02 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-06 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
