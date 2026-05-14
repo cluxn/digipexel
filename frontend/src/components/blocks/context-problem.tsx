@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
+import { safeFetch } from "@/lib/utils";
 import {
   BrainCircuit,
   Layers,
@@ -42,7 +43,38 @@ const OUTCOMES = [
   "Instant action triggered on every event",
 ];
 
+interface ProblemStats {
+  stat1_value: string;  stat1_detail: string;  stat1_title: string;  stat1_body: string;
+  stat2_value: string;  stat2_detail: string;  stat2_title: string;  stat2_body: string;
+  stat3_value: string;  stat3_detail: string;  stat3_title: string;  stat3_body: string;
+}
+
+const FALLBACK_PROBLEM_STATS: ProblemStats = {
+  stat1_value: "14 hrs",  stat1_detail: "lost per team / week",
+  stat1_title: "Handoff Friction",
+  stat1_body: "Every tool switch and status update burns hours that should go toward delivering real outcomes.",
+  stat2_value: "6+ tools", stat2_detail: "disconnected on average",
+  stat2_title: "Siloed Systems",
+  stat2_body: "Fragmented data means your AI can't see the full picture — so the right action never gets triggered.",
+  stat3_value: "40%",     stat3_detail: "of all work is rework",
+  stat3_title: "Manual Rework",
+  stat3_body: "Teams spend nearly half their time re-entering, reformatting, or chasing down information.",
+};
+
 export function ContextProblem() {
+  const [ps, setPs] = useState<ProblemStats>(FALLBACK_PROBLEM_STATS);
+
+  useEffect(() => {
+    async function fetchProblem() {
+      const json = await safeFetch("/api/site_content.php?section=problem");
+      if (json.status === "success" && json.data) {
+        setPs({ ...FALLBACK_PROBLEM_STATS, ...json.data });
+      }
+      // On failure: keep FALLBACK_PROBLEM_STATS in state
+    }
+    fetchProblem();
+  }, []);
+
   return (
     <section className="w-full py-32 bg-base relative overflow-hidden">
       {/* Background glow */}
@@ -89,26 +121,26 @@ export function ContextProblem() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <StatCard
             icon={<RefreshCw className="w-5 h-5" />}
-            stat="14 hrs"
-            detail="lost per team / week"
-            title="Handoff Friction"
-            body="Every tool switch and status update burns hours that should go toward delivering real outcomes."
+            stat={ps.stat1_value}
+            detail={ps.stat1_detail}
+            title={ps.stat1_title}
+            body={ps.stat1_body}
             index={0}
           />
           <StatCard
             icon={<Layers className="w-5 h-5" />}
-            stat="6+ tools"
-            detail="disconnected on average"
-            title="Siloed Systems"
-            body="Fragmented data means your AI can't see the full picture — so the right action never gets triggered."
+            stat={ps.stat2_value}
+            detail={ps.stat2_detail}
+            title={ps.stat2_title}
+            body={ps.stat2_body}
             index={1}
           />
           <StatCard
             icon={<Search className="w-5 h-5" />}
-            stat="40%"
-            detail="of all work is rework"
-            title="Manual Rework"
-            body="Teams spend nearly half their time re-entering, reformatting, or chasing down information."
+            stat={ps.stat3_value}
+            detail={ps.stat3_detail}
+            title={ps.stat3_title}
+            body={ps.stat3_body}
             index={2}
           />
         </div>
