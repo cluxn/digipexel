@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/blocks/floating-icons-hero-demo";
 import { Footer } from "@/components/ui/footer-section";
 import { Connect } from "@/components/blocks/connect-cta";
@@ -20,6 +19,8 @@ interface BlogPost {
   category: string;
   published_at: string;
   slug: string;
+  position: number;
+  status: string;
 }
 
 export default function BlogPage() {
@@ -27,6 +28,9 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState<"popular" | "recent">("popular");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     async function fetchPosts() {
@@ -46,16 +50,20 @@ export default function BlogPage() {
             image_url: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800",
             category: "Technology",
             published_at: "2024-03-15",
-            slug: "future-of-ai-business"
+            slug: "future-of-ai-business",
+            position: 1,
+            status: "published",
           },
           {
-             id: 2,
-             title: "Scaling Operations with Smart Automation",
-             excerpt: "Practical tips for integrating automation into your daily workflows without losing the human touch.",
-             image_url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&q=80&w=800",
-             category: "Operations",
-             published_at: "2024-03-10",
-             slug: "scaling-operations-automation"
+            id: 2,
+            title: "Scaling Operations with Smart Automation",
+            excerpt: "Practical tips for integrating automation into your daily workflows without losing the human touch.",
+            image_url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&q=80&w=800",
+            category: "Operations",
+            published_at: "2024-03-10",
+            slug: "scaling-operations-automation",
+            position: 2,
+            status: "published",
           }
         ]);
       } finally {
@@ -65,14 +73,30 @@ export default function BlogPage() {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
+
   const categories = ["All", ...Array.from(new Set(posts.map(p => p.category)))];
 
+  // Step 1: filter
   const filteredPosts = posts.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Step 2: sort
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    if (sortBy === "popular") return (a.position ?? 0) - (b.position ?? 0);
+    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+  });
+
+  // Step 3: paginate
+  const totalPages = Math.ceil(sortedPosts.length / PAGE_SIZE);
+  const paginatedPosts = sortedPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <main className="min-h-screen bg-base">
@@ -120,8 +144,8 @@ export default function BlogPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
                   "px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest border transition-all duration-300",
-                  selectedCategory === cat 
-                    ? "bg-brand border-brand text-white shadow-lg shadow-brand/20" 
+                  selectedCategory === cat
+                    ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
                     : "bg-surface border-border-subtle text-secondary/60 hover:border-brand/30 hover:text-brand"
                 )}
               >
@@ -130,15 +154,34 @@ export default function BlogPage() {
             ))}
           </div>
 
+          {/* Sort Controls */}
+          <div className="flex items-center justify-end gap-2 mb-10 -mt-10">
+            <span className="text-[10px] font-black uppercase tracking-widest text-secondary/40 mr-2">Sort:</span>
+            {(["popular", "recent"] as const).map(opt => (
+              <button
+                key={opt}
+                onClick={() => setSortBy(opt)}
+                className={cn(
+                  "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-200",
+                  sortBy === opt
+                    ? "bg-primary border-primary text-white"
+                    : "bg-surface border-border-subtle text-secondary/60 hover:border-primary/30 hover:text-primary"
+                )}
+              >
+                {opt === "popular" ? "Popular" : "Recent"}
+              </button>
+            ))}
+          </div>
+
           {loading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {[1, 2, 3].map(i => (
-                 <div key={i} className="h-96 rounded-[2.5rem] bg-surface/50 animate-pulse border border-border-subtle" />
-               ))}
-             </div>
-          ) : filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post, idx) => (
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-96 rounded-[2.5rem] bg-surface/50 animate-pulse border border-border-subtle" />
+              ))}
+            </div>
+          ) : paginatedPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {paginatedPosts.map((post, idx) => (
                 <BlogPostCard key={post.id} post={post} index={idx} />
               ))}
             </div>
@@ -146,6 +189,40 @@ export default function BlogPage() {
             <div className="text-center py-20 bg-surface/50 rounded-[3rem] border border-dashed border-border-subtle">
               <h3 className="text-xl font-bold text-primary">No stories match your search</h3>
               <p className="text-secondary/60 mt-2">Try adjusting your filters or search terms.</p>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-16">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center text-secondary/60 hover:border-brand hover:text-brand disabled:opacity-30 transition-all"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={cn(
+                    "w-10 h-10 rounded-full text-[11px] font-black transition-all",
+                    currentPage === page
+                      ? "bg-brand text-white shadow-lg shadow-brand/20"
+                      : "border border-border-subtle text-secondary/60 hover:border-brand hover:text-brand"
+                  )}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center text-secondary/60 hover:border-brand hover:text-brand disabled:opacity-30 transition-all"
+              >
+                &#8250;
+              </button>
             </div>
           )}
         </div>
