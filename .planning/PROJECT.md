@@ -39,7 +39,7 @@ A launch-ready agency website where every section is editable from the admin pan
 - [ ] Services section cards linked to their respective service pages
 - [ ] Problem section paragraph trimmed to 2 lines (consistency with other sections)
 - [ ] Agency stats (42%, 28%, 12k+, 4-6 wks) editable from admin
-- [ ] Homepage testimonials block connected to admin panel (not hardcoded)
+- ✓ Homepage testimonials block connected to admin panel, filtered to 'homepage' context — Validated in Phase 05: testimonials-system-upgrade
 - [ ] All buttons and links on homepage connected to their respective destinations
 - [ ] Footer menu links all connected, newsletter signup in footer, WhatsApp floating button
 
@@ -79,11 +79,11 @@ A launch-ready agency website where every section is editable from the admin pan
 - [ ] Design reference: radixweb.com/guides
 
 **Testimonials Page**
-- [ ] Page redesigned to match radixweb.com/testimonials format
-- [ ] Testimonials look genuine (real-feeling names, roles, companies)
-- [ ] Admin can upload testimonials in multiple formats (video, image, text-only, with/without star rating, with/without company logo)
-- [ ] Different display formats per page (homepage format, service page format, testimonials page format) — same DB
-- [ ] Navbar "Work" dropdown links to Case Studies + Testimonials (both working)
+- ✓ Page redesigned to match radixweb.com/testimonials format (card grid with star ratings, logos, category badges) — Validated in Phase 05
+- ✓ Testimonials look genuine (6 professional B2B names/roles/companies seeded) — Validated in Phase 05
+- ✓ Admin can upload testimonials in multiple formats (video, image, text-only, with/without star rating, with/without company logo) — Validated in Phase 05: testimonials-system-upgrade
+- ✓ Different display formats per page (homepage, service page, testimonials page) — same DB, filtered by display_context — Validated in Phase 05
+- ✓ Navbar "Work" dropdown links to Case Studies + Testimonials (both working) — Validated in Phase 05
 
 **Static / Legal Pages**
 - [ ] Thank You page redesigned to match site design system
@@ -184,4 +184,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-14 after project initialization discussion*
+*Last updated: 2026-05-15 — Phase 05 complete: testimonials system upgraded*
