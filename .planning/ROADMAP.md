@@ -89,7 +89,7 @@ Plans:
 - [x] 03-01-PLAN.md — Test scaffold: failing stubs for SVC-01 through SVC-08
 - [x] 03-02-PLAN.md — Backend: service_content.php endpoint + init_db.php table + 66 INSERT IGNORE seed rows
 - [x] 03-03-PLAN.md — Frontend: service page hybrid fetch (API + SERVICES fallback) + Connect CTA optional props
-- [ ] 03-04-PLAN.md — Admin: /admin/services editor page (service selector + 6 section tabs) + sidebar entry
+- [x] 03-04-PLAN.md — Admin: /admin/services editor page (service selector + 6 section tabs) + sidebar entry
 
 ### Phase 4: Content Pages — Blog, Case Studies & Guides
 **Goal**: Blog, case studies, and guides are fully functional content hubs with pagination, filtering, search, and scheduling — all editable from admin — and guides capture leads
