@@ -87,7 +87,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Test scaffold: failing stubs for SVC-01 through SVC-08
-- [ ] 03-02-PLAN.md — Backend: service_content.php endpoint + init_db.php table + 66 INSERT IGNORE seed rows
+- [x] 03-02-PLAN.md — Backend: service_content.php endpoint + init_db.php table + 66 INSERT IGNORE seed rows
 - [ ] 03-03-PLAN.md — Frontend: service page hybrid fetch (API + SERVICES fallback) + Connect CTA optional props
 - [ ] 03-04-PLAN.md — Admin: /admin/services editor page (service selector + 6 section tabs) + sidebar entry
 

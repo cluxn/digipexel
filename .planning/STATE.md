@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-service-pages 03-01-PLAN.md
-last_updated: "2026-05-15T02:09:58.916Z"
+stopped_at: Completed 03-service-pages 03-02-PLAN.md
+last_updated: "2026-05-15T02:15:38.606Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 03 (service-pages) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: 2 of 4
 | Phase 02.1-post-phase-2-gap-fixes-inserted P01 | 15 | 2 tasks | 7 files |
 | Phase 02.1-post-phase-2-gap-fixes-inserted P04 | 10 | 2 tasks | 2 files |
 | Phase 03-service-pages P01 | 25 | 1 tasks | 1 files |
+| Phase 03-service-pages P02 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 02.1-post-phase-2-gap-fixes-inserted]: Problem tab uses template literal key lookup (stat${n}_value as keyof ProblemContent) to map n=1,2,3 to the 12 content keys — avoids 3x repetitive JSX blocks
 - [Phase 03-service-pages]: React.use(Promise) triggers Suspense in JSDOM — test components wrapping React.use need React.Suspense + React.act() flush
 - [Phase 03-service-pages]: SVC-06 Connect ctaBadge prop test uses it.todo() — cannot assert until Plan 03 adds the prop to Connect component
+- [Phase 03-service-pages]: service_content uses (slug, section) composite PRIMARY KEY — O(1) lookup by either slug alone or slug+section
+- [Phase 03-service-pages]: INSERT IGNORE in seed rows protects admin edits from being overwritten on re-run of init_db.php; ON DUPLICATE KEY UPDATE used only in API endpoint for admin saves
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T02:09:58.910Z
-Stopped at: Completed 03-service-pages 03-01-PLAN.md
+Last session: 2026-05-15T02:15:38.599Z
+Stopped at: Completed 03-service-pages 03-02-PLAN.md
 Resume file: None
