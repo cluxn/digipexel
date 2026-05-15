@@ -19,6 +19,7 @@ $new_columns = [
     "show_category_section TINYINT(1) DEFAULT 0",
     "status VARCHAR(20) DEFAULT 'published'",
     "featured TINYINT(1) DEFAULT 0",
+    "scheduled_at DATETIME NULL DEFAULT NULL",
 ];
 foreach ($new_columns as $col_def) {
     try { $pdo->exec("ALTER TABLE blogs ADD COLUMN $col_def"); } catch (Exception $e) { /* exists */ }
@@ -43,7 +44,7 @@ try {
         if ($slug) {
             $sql  = $admin
                 ? "SELECT * FROM blogs WHERE slug = ?"
-                : "SELECT * FROM blogs WHERE slug = ? AND status = 'published'";
+                : "SELECT * FROM blogs WHERE slug = ? AND ((status = 'published') OR (status = 'scheduled' AND scheduled_at <= NOW()))";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$slug]);
             $row  = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -53,7 +54,7 @@ try {
         } else {
             $sql  = $admin
                 ? "SELECT * FROM blogs ORDER BY position ASC, published_at DESC"
-                : "SELECT id, title, slug, eyebrow, excerpt, image_url, category, tags, author_name, author_image, author_role, read_time, published_at, featured, status, position FROM blogs WHERE status = 'published' ORDER BY position ASC";
+                : "SELECT id, title, slug, eyebrow, excerpt, image_url, category, tags, author_name, author_image, author_role, read_time, published_at, featured, status, position FROM blogs WHERE (status = 'published') OR (status = 'scheduled' AND scheduled_at <= NOW()) ORDER BY position ASC";
             $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
             $out  = [];
             foreach ($rows as $row) {
@@ -90,9 +91,10 @@ try {
                 'sections'              => json_encode($b['sections']   ?? []),
                 'show_related'          => ($b['show_related']          ?? true)  ? 1 : 0,
                 'show_category_section' => ($b['show_category_section'] ?? false) ? 1 : 0,
-                'status'                => $b['status']                 ?? 'draft',
+                'status'                => in_array($b['status'] ?? 'draft', ['published', 'scheduled', 'draft']) ? $b['status'] : 'draft',
                 'featured'              => ($b['featured']              ?? false) ? 1 : 0,
                 'published_at'          => $b['published_at']           ?? date('Y-m-d'),
+                'scheduled_at'          => !empty($b['scheduled_at']) ? $b['scheduled_at'] : null,
                 'position'              => (int)($b['position']         ?? 0),
             ];
 
