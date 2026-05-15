@@ -7,6 +7,7 @@ import {
   Table2, BookOpen, Image as ImageIcon, User,
 } from "lucide-react";
 import { safeFetch, cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SectionType = "overview" | "challenge" | "solution" | "timeline" | "comparison" | "metrics" | "results" | "text" | "mid_cta";
