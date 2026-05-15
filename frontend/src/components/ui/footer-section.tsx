@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import type { ComponentProps, ReactNode } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { safeFetch } from '@/lib/utils';
 import { API_BASE_URL } from '@/lib/constants';
@@ -86,6 +86,25 @@ export function Footer() {
 	const [email, setEmail] = useState("");
 	const [subStatus, setSubStatus] = useState<"idle" | "success" | "error" | "duplicate">("idle");
 	const [subLoading, setSubLoading] = useState(false);
+	const [socialUrls, setSocialUrls] = useState<{
+		facebook_url: string;
+		instagram_url: string;
+		youtube_url: string;
+		linkedin_url: string;
+	}>({ facebook_url: '', instagram_url: '', youtube_url: '', linkedin_url: '' });
+
+	useEffect(() => {
+		safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
+			if (json?.status === "success" && json.data) {
+				setSocialUrls({
+					facebook_url: json.data.facebook_url || '',
+					instagram_url: json.data.instagram_url || '',
+					youtube_url: json.data.youtube_url || '',
+					linkedin_url: json.data.linkedin_url || '',
+				});
+			}
+		});
+	}, []);
 
 	const handleSubscribe = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -131,16 +150,39 @@ export function Footer() {
 						</div>
 						{/* Social icons */}
 						<div className="flex items-center gap-3">
-							{socialLinks.map((social) => (
-								<span
-									key={social.label}
-									aria-label={social.label}
-									title="Coming soon"
-									className="w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 cursor-default transition-all duration-300"
-								>
-									{social.svg}
-								</span>
-							))}
+							{socialLinks.map((social) => {
+								const urlMap: Record<string, string> = {
+									'Facebook': socialUrls.facebook_url,
+									'Instagram': socialUrls.instagram_url,
+									'YouTube': socialUrls.youtube_url,
+									'LinkedIn': socialUrls.linkedin_url,
+								};
+								const href = urlMap[social.label] || '';
+								if (!href) {
+									return (
+										<span
+											key={social.label}
+											aria-label={social.label}
+											title={`${social.label} (not configured)`}
+											className="w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 cursor-default transition-all duration-300"
+										>
+											{social.svg}
+										</span>
+									);
+								}
+								return (
+									<a
+										key={social.label}
+										href={href}
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label={social.label}
+										className="w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 hover:text-brand hover:border-brand/30 transition-all duration-300"
+									>
+										{social.svg}
+									</a>
+								);
+							})}
 						</div>
 					</AnimatedContainer>
 
