@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 4 plans created and verified
-last_updated: "2026-05-15T07:31:30.428Z"
+status: Ready to execute
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-01-PLAN.md
+last_updated: "2026-05-15T07:37:17.979Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 20
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-14)
 
 **Core value:** A launch-ready agency website where every section is editable from the admin panel and every lead is captured — no hardcoded content, no broken links, no fake data.
-**Current focus:** Phase 03 — service-pages
+**Current focus:** Phase 04 — content-pages-blog-case-studies-guides
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (content-pages-blog-case-studies-guides) — EXECUTING
+Plan: 2 of 7
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Plan: Not started
 | Phase 03-service-pages P02 | 5 | 2 tasks | 2 files |
 | Phase 03-service-pages P03 | 4 | 2 tasks | 2 files |
 | Phase 03-service-pages P04 | 5 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P01 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Recent decisions affecting current work:
 - [Phase 03-service-pages]: 6 separate SaveStatus states (one per section tab) rather than shared status — each tab save feedback is isolated
 - [Phase 03-service-pages]: SaveButton defined as a local non-exported helper function — avoids prop-drilling, co-located with page
 - [Phase 03-service-pages]: Spread DEFAULT_* before API data on fetch — guarantees all fields present even if API returns partial section
+- [Phase 04-content-pages-blog-case-studies-guides]: INSERT IGNORE pattern used for all content seeds in init_db.php — idempotent, admin edits never overwritten on re-run
+- [Phase 04-content-pages-blog-case-studies-guides]: Blog scheduling uses three-state status (published/scheduled/draft) — scheduled posts become public when scheduled_at <= NOW()
+- [Phase 04-content-pages-blog-case-studies-guides]: Case studies seeded with distinct published_date values (2025-03-14, 2025-04-10) so Recent sort on listing page has real ordering data
 
 ### Pending Todos
 
@@ -120,6 +124,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T07:31:30.413Z
-Stopped at: Phase 4 plans created and verified
-Resume file: .planning/phases/04-content-pages-blog-case-studies-guides/04-01-PLAN.md
+Last session: 2026-05-15T07:37:17.970Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-01-PLAN.md
+Resume file: None

@@ -39,28 +39,28 @@
 
 ### Blog (BLOG)
 
-- [ ] **BLOG-01**: 2 sample SEO-focused blog posts added with proper format
+- [x] **BLOG-01**: 2 sample SEO-focused blog posts added with proper format
 - [ ] **BLOG-02**: Pagination — 10 posts per page with numbered navigation
 - [ ] **BLOG-03**: Filter by category on blog listing page
 - [ ] **BLOG-04**: Sort by popular/editorial on blog listing page
 - [ ] **BLOG-05**: Search functionality on blog listing page
 - [ ] **BLOG-06**: Related posts section on blog detail page
-- [ ] **BLOG-07**: Blog scheduling from admin (publish now, schedule date/time, save as draft)
+- [x] **BLOG-07**: Blog scheduling from admin (publish now, schedule date/time, save as draft)
 - [ ] **BLOG-08**: Categories manageable from admin (add/edit/delete)
 - [ ] **BLOG-09**: Newsletter signup at end of each blog post
-- [ ] **BLOG-10**: All CTAs and links working on blog pages
+- [x] **BLOG-10**: All CTAs and links working on blog pages
 - [ ] **BLOG-11**: Design aligned to radixweb.com reference
 
 ### Case Studies (CS)
 
-- [ ] **CS-01**: 2-3 sample case studies added (problem → approach → results format)
+- [x] **CS-01**: 2-3 sample case studies added (problem → approach → results format)
 - [ ] **CS-02**: Pagination, filter, sort, search — same as blog
 - [ ] **CS-03**: All case study content editable from admin
 - [ ] **CS-04**: Design aligned to radixweb.com/case-studies reference
 
 ### Guides (GUIDE)
 
-- [ ] **GUIDE-01**: Guides work as lead magnets — capture lead before or during guide access
+- [x] **GUIDE-01**: Guides work as lead magnets — capture lead before or during guide access
 - [ ] **GUIDE-02**: Pagination, filter, sort, search — same as blog
 - [ ] **GUIDE-03**: Newsletter signup at end of each guide
 - [ ] **GUIDE-04**: All guide content editable from admin
@@ -198,22 +198,22 @@
 | SVC-06 | Phase 3 — Service Pages | Complete |
 | SVC-07 | Phase 3 — Service Pages | Complete |
 | SVC-08 | Phase 3 — Service Pages | Complete |
-| BLOG-01 | Phase 4 — Content Pages | Pending |
+| BLOG-01 | Phase 4 — Content Pages | Complete |
 | BLOG-02 | Phase 4 — Content Pages | Pending |
 | BLOG-03 | Phase 4 — Content Pages | Pending |
 | BLOG-04 | Phase 4 — Content Pages | Pending |
 | BLOG-05 | Phase 4 — Content Pages | Pending |
 | BLOG-06 | Phase 4 — Content Pages | Pending |
-| BLOG-07 | Phase 4 — Content Pages | Pending |
+| BLOG-07 | Phase 4 — Content Pages | Complete |
 | BLOG-08 | Phase 4 — Content Pages | Pending |
 | BLOG-09 | Phase 4 — Content Pages | Pending |
-| BLOG-10 | Phase 4 — Content Pages | Pending |
+| BLOG-10 | Phase 4 — Content Pages | Complete |
 | BLOG-11 | Phase 4 — Content Pages | Pending |
-| CS-01 | Phase 4 — Content Pages | Pending |
+| CS-01 | Phase 4 — Content Pages | Complete |
 | CS-02 | Phase 4 — Content Pages | Pending |
 | CS-03 | Phase 4 — Content Pages | Pending |
 | CS-04 | Phase 4 — Content Pages | Pending |
-| GUIDE-01 | Phase 4 — Content Pages | Pending |
+| GUIDE-01 | Phase 4 — Content Pages | Complete |
 | GUIDE-02 | Phase 4 — Content Pages | Pending |
 | GUIDE-03 | Phase 4 — Content Pages | Pending |
 | GUIDE-04 | Phase 4 — Content Pages | Pending |
