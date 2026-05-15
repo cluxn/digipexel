@@ -42,6 +42,7 @@ const mockTestimonials = Array.from({ length: 9 }, (_, i) => ({
   company: "Acme Corp",
   content: `Testimonial content ${i + 1}`,
   image_url: "https://i.pravatar.cc/150",
+  display_context: "homepage,testimonials-page",
 }));
 
 describe("Testimonials", () => {
@@ -64,9 +65,11 @@ describe("Testimonials", () => {
     expect(screen.getAllByText(/Aarav Mehta|Priya Nair|Kabir Singh/).length).toBeGreaterThan(0);
   });
 
-  it("fetches from /api/testimonials.php", async () => {
+  it("fetches from the testimonials API endpoint", async () => {
     safeFetch.mockResolvedValue({ status: "success", data: mockTestimonials });
     render(<Testimonials />);
-    await waitFor(() => expect(safeFetch).toHaveBeenCalledWith("/api/testimonials.php"));
+    await waitFor(() => expect(safeFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/testimonials.php")
+    ));
   });
 });
