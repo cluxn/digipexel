@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
+import { safeFetch } from "@/lib/utils";
 import { ICON_REGISTRY } from "@/components/blocks/floating-icons-hero-demo";
 import { API_BASE_URL } from "@/lib/constants";
 
@@ -280,8 +281,7 @@ export default function AdminSiteContentPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
-      const json = await res.json();
+      const json = await safeFetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
       if (json.status === "success" && json.data?.url) {
         updateIconSlot(slotIndex, "icon", json.data.url as string);
       }
