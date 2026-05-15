@@ -142,10 +142,10 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Backend: 3 new DB tables (users, analytics_codes, banners) + users.php + analytics.php + banners.php + newsletter.php list/export + settings.php bulk save
-- [ ] 06-02-PLAN.md — Admin: newsletter subscriber list + CSV export; settings page (social links, contact, site name, WhatsApp, CTA)
+- [x] 06-02-PLAN.md — Admin: newsletter subscriber list + CSV export; settings page (social links, contact, site name, WhatsApp, CTA)
 - [x] 06-03-PLAN.md — Admin: banners/popups (DB-backed), analytics code paste UI, users CRUD + sidebar links
 - [x] 06-04-PLAN.md — Frontend: nudges.tsx fetches from banners.php, AnalyticsInjector in layout.tsx, content-page banners on blog/guide pages, WhatsApp toggle + number from settings, Connect CTA link from settings
-- [ ] 06-05-PLAN.md — Admin: live dashboard stats from DB + captured leads section
+- [x] 06-05-PLAN.md — Admin: live dashboard stats from DB + captured leads section
 
 ### Phase 7: SEO, Static Pages & Launch Readiness
 **Goal**: The site has branded static/legal pages, every public page has editable SEO metadata, a sitemap is auto-generated, schema markup is in place, Calendly is connected to all CTAs, and the site passes a page speed audit

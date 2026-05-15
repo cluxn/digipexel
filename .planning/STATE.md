@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 06-admin-panel-completion/06-04-PLAN.md
-last_updated: "2026-05-15T18:20:49.232Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 06-admin-panel-completion/06-05-PLAN.md
+last_updated: "2026-05-15T18:24:31.791Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 29
-  completed_plans: 27
+  completed_plans: 29
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 06 (admin-panel-completion) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -72,6 +72,8 @@ Plan: 4 of 5
 | Phase 06-admin-panel-completion P01 | 3 | 3 tasks | 6 files |
 | Phase 06-admin-panel-completion P03 | 4 | 3 tasks | 5 files |
 | Phase 06-admin-panel-completion P04 | 18 | 5 tasks | 8 files |
+| Phase 06-admin-panel-completion P05 | 2 | 2 tasks | 2 files |
+| Phase 06-admin-panel-completion P02 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -139,6 +141,11 @@ Recent decisions affecting current work:
 - [Phase 06-admin-panel-completion]: AnalyticsInjector uses DOM manipulation instead of Next.js Metadata API — required for static export compatibility
 - [Phase 06-admin-panel-completion]: Connect CTA effectiveCtaLink = ctaHref prop || fetchedLink from DB — prop override pattern for service pages
 - [Phase 06-admin-panel-completion]: WhatsApp button defaults to visible with fallback number — never disappears on fetch failure
+- [Phase 06-admin-panel-completion]: stats.php uses separate COUNT queries per table — simpler and independently resilient to schema changes per table
+- [Phase 06-admin-panel-completion]: Blogs and subscribers counts filtered by status in stats.php — published blogs and active subscribers only for accurate live counts
+- [Phase 06-admin-panel-completion]: Newsletter fetch uses api.get('newsletter') with .then() chain — consistent with other admin pages
+- [Phase 06-admin-panel-completion]: Settings spreads API data onto DEFAULT_SETTINGS on fetch — graceful partial response handling
+- [Phase 06-admin-panel-completion]: WhatsApp toggle stores 'true'/'false' strings matching backend settings table string storage
 
 ### Pending Todos
 
@@ -163,6 +170,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T18:20:49.219Z
-Stopped at: Completed 06-admin-panel-completion/06-04-PLAN.md
+Last session: 2026-05-15T18:24:26.041Z
+Stopped at: Completed 06-admin-panel-completion/06-05-PLAN.md
 Resume file: None

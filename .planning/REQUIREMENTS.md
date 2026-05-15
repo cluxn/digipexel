@@ -93,8 +93,8 @@
 
 ### Admin Panel — Dashboard (ADM)
 
-- [ ] **ADM-01**: Dashboard stats show live counts from DB (leads, blogs, case studies, etc.)
-- [ ] **ADM-02**: Dashboard "Captured Leads" section shows real recent leads from DB
+- [x] **ADM-01**: Dashboard stats show live counts from DB (leads, blogs, case studies, etc.)
+- [x] **ADM-02**: Dashboard "Captured Leads" section shows real recent leads from DB
 
 ### Admin Panel — Site Content (CONT)
 
@@ -225,8 +225,8 @@
 | TEST-05 | Phase 5 — Testimonials System Upgrade | Complete |
 | TADM-01 | Phase 5 — Testimonials System Upgrade | Complete |
 | TADM-02 | Phase 5 — Testimonials System Upgrade | Complete |
-| ADM-01 | Phase 6 — Admin Panel Completion | Pending |
-| ADM-02 | Phase 6 — Admin Panel Completion | Pending |
+| ADM-01 | Phase 6 — Admin Panel Completion | Complete |
+| ADM-02 | Phase 6 — Admin Panel Completion | Complete |
 | NEWS-01 | Phase 6 — Admin Panel Completion | Complete |
 | NEWS-02 | Phase 6 — Admin Panel Completion | Complete |
 | NEWS-03 | Phase 6 — Admin Panel Completion | Complete |
