@@ -109,6 +109,7 @@ None yet.
 | 260515-aee | add image upload replace delete to admin hero icons and logos sections | 2026-05-15 | 4b29ebc | [260515-aee-add-image-upload-replace-delete-to-admin](./quick/260515-aee-add-image-upload-replace-delete-to-admin/) |
 | 260515-akk | wire admin dashboard stats and actions to live API data | 2026-05-15 | 09b5a30 | [260515-akk-wire-admin-dashboard-stats-and-actions-t](./quick/260515-akk-wire-admin-dashboard-stats-and-actions-t/) |
 | 260515-apt | fix logo floating-icon image upload not persisting and settings page error | 2026-05-15 | 3be661a | [260515-apt-fix-logo-floating-icon-image-upload-not-](./quick/260515-apt-fix-logo-floating-icon-image-upload-not-/) |
+| 260515-hoh | fix uploadIconImage fetch errors and backend API unreachable in admin panel | 2026-05-15 | b09fd39 | [260515-hoh-fix-uploadiconimage-fetch-errors-and-bac](./quick/260515-hoh-fix-uploadiconimage-fetch-errors-and-bac/) |
 
 ### Blockers/Concerns
 
