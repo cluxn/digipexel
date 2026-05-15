@@ -121,8 +121,12 @@ Plans:
   2. Admin can add a testimonial in any combination of formats: video, image, text-only, with or without star rating, with or without company logo — from a single admin upload form
   3. The same testimonials DB entry renders in the homepage block format, the service page sidebar format, and the full testimonials page format depending on context
   4. Navbar "Work" dropdown successfully links to Case Studies and to the Testimonials page (both navigable, no broken links)
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Backend: ALTER testimonials table (star_rating, video_url, logo_url, display_context) + fix GET response key + individual save/delete actions + reseed
+- [ ] 05-02-PLAN.md — Admin: multi-format testimonial form (star rating, video URL, logo URL, display context checkboxes) + individual save/delete
+- [ ] 05-03-PLAN.md — Frontend: redesigned testimonials page (star ratings, logos, context filter) + homepage block filter + service page shared DB fetch
 
 ### Phase 6: Admin Panel Completion
 **Goal**: Every admin panel section that was a stub or missing is now fully functional and its output is live on the public site — newsletter collects and lists subscribers, popups and banners actually appear, analytics codes are injected, users are DB-backed, and settings control live site behavior
@@ -161,6 +165,6 @@ Plans:
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
 | 3. Service Pages | 3/4 | In Progress|  |
 | 4. Content Pages — Blog, Case Studies & Guides | 7/7 | Complete   | 2026-05-15 |
-| 5. Testimonials System Upgrade | 0/0 | Not started | - |
+| 5. Testimonials System Upgrade | 0/3 | Not started | - |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |
