@@ -68,11 +68,11 @@
 
 ### Testimonials (TEST)
 
-- [ ] **TEST-01**: Testimonials page redesigned to match radixweb.com/testimonials format
+- [x] **TEST-01**: Testimonials page redesigned to match radixweb.com/testimonials format
 - [x] **TEST-02**: Testimonials look genuine (real-feeling names, roles, companies)
 - [x] **TEST-03**: Admin can upload testimonials in multiple formats: video, image, text-only, star rating, company logo — any combination
 - [x] **TEST-04**: Different display formats per page — homepage format, service page format, testimonials page format — same DB, different rendering
-- [ ] **TEST-05**: Navbar "Work" dropdown links to Case Studies and Testimonials (both working)
+- [x] **TEST-05**: Navbar "Work" dropdown links to Case Studies and Testimonials (both working)
 
 ### Static & Legal Pages (STATIC)
 
@@ -129,7 +129,6 @@
 
 - [ ] **USR-01**: Admin can create users with name, designation, login ID, and password (stored in DB)
 - [ ] **USR-02**: Admin login passcode manageable from Users panel (changeable without code)
-- [ ] **USR-03**: Activity tracking — record which user made changes in admin panel
 
 ### Admin Panel — Settings (SET)
 
@@ -148,6 +147,7 @@
 - Advanced analytics dashboard (beyond embed codes)
 - Email sending from newsletter (only subscriber list in v1)
 - Advanced user role permissions (read-only, editor, admin)
+- **USR-03**: Activity tracking — record which user made changes in admin panel (deferred from v1 Phase 6; requires hooking all write actions across every admin page — disproportionate effort for launch)
 
 ---
 
@@ -218,11 +218,11 @@
 | GUIDE-03 | Phase 4 — Content Pages | Complete |
 | GUIDE-04 | Phase 4 — Content Pages | Complete |
 | GUIDE-05 | Phase 4 — Content Pages | Complete |
-| TEST-01 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-01 | Phase 5 — Testimonials System Upgrade | Complete |
 | TEST-02 | Phase 5 — Testimonials System Upgrade | Complete |
 | TEST-03 | Phase 5 — Testimonials System Upgrade | Complete |
 | TEST-04 | Phase 5 — Testimonials System Upgrade | Complete |
-| TEST-05 | Phase 5 — Testimonials System Upgrade | Pending |
+| TEST-05 | Phase 5 — Testimonials System Upgrade | Complete |
 | TADM-01 | Phase 5 — Testimonials System Upgrade | Complete |
 | TADM-02 | Phase 5 — Testimonials System Upgrade | Complete |
 | ADM-01 | Phase 6 — Admin Panel Completion | Pending |
@@ -237,7 +237,7 @@
 | ANA-02 | Phase 6 — Admin Panel Completion | Pending |
 | USR-01 | Phase 6 — Admin Panel Completion | Pending |
 | USR-02 | Phase 6 — Admin Panel Completion | Pending |
-| USR-03 | Phase 6 — Admin Panel Completion | Pending |
+| USR-03 | v2 (Deferred from Phase 6) | Deferred |
 | SET-01 | Phase 6 — Admin Panel Completion | Pending |
 | SET-02 | Phase 6 — Admin Panel Completion | Pending |
 | SET-03 | Phase 6 — Admin Panel Completion | Pending |
