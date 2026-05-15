@@ -5,27 +5,27 @@ import React, { useEffect, useState } from "react";
 import { safeFetch } from "@/lib/utils";
 
 export function WhatsAppButton() {
-  const [number, setNumber] = useState<string | null>(null);
+  const [whatsappEnabled, setWhatsappEnabled] = useState(true);
+  const [whatsappNumber, setWhatsappNumber] = useState("911234567890"); // fallback default
 
   useEffect(() => {
-    async function fetchNumber() {
-      const json = await safeFetch(`${API_BASE_URL}/settings.php?key=whatsapp_number`);
-      if (json.status === "success" && json.data?.value) {
-        const cleaned = (json.data.value as string).replace(/\D/g, "");
-        if (cleaned.length >= 7) {
-          setNumber(cleaned);
+    safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
+      if (json?.status === "success" && json.data) {
+        // whatsapp_enabled is stored as string "true"/"false" in settings table
+        setWhatsappEnabled(json.data.whatsapp_enabled !== "false");
+        if (json.data.whatsapp_number) {
+          setWhatsappNumber(json.data.whatsapp_number);
         }
       }
-      // On failure or empty: keep null → button stays hidden
-    }
-    fetchNumber();
+      // On fetch failure safeFetch returns { status: "error" } — keep defaults (button stays visible with fallback number)
+    });
   }, []);
 
-  if (!number) return null;
+  if (!whatsappEnabled) return null;
 
   return (
     <a
-      href={`https://wa.me/${number}`}
+      href={`https://wa.me/${whatsappNumber}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
