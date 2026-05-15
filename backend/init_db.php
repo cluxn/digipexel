@@ -151,18 +151,40 @@ try {
     ";
 
     $pdo->exec($sql);
+
+    // ALTER TABLE to add new testimonials columns (MySQL silently ignores if column already exists)
+    $sql_alter = "
+    ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS star_rating TINYINT DEFAULT 5;
+    ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS video_url TEXT;
+    ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS logo_url TEXT;
+    ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS display_context VARCHAR(100) DEFAULT 'homepage,testimonials-page';
+    ";
+    $pdo->exec($sql_alter);
+
     $sql_testimonials = "
-    INSERT INTO testimonials (name, role, company, content, image_url, category, position)
-    SELECT 'Sarah Chen', 'Product Manager', 'Stripe', 'The AI workflows implemented by Digi Pexel transformed our support operations. We reduced response times by 70% while improving customer satisfaction scores.', 'https://i.pravatar.cc/150?u=sarah', 'Fintech', 0
-    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Sarah Chen');
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Arjun Mehta', 'COO', 'Lumina Health', 'Digi Pexel replaced our manual handoffs with AI workflows. Our operations now run in half the time with clear ownership at every step.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150', 'Healthcare', 5, '', '', 'homepage,testimonials-page', 0
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Arjun Mehta');
 
-    INSERT INTO testimonials (name, role, company, content, image_url, category, position)
-    SELECT 'Marcus Rodriguez', 'Founder', 'GrowthLoop', 'We tried building internal AI systems for 6 months with no luck. Digi Pexel delivered a production-ready lead scoring agent in 3 weeks.', 'https://i.pravatar.cc/150?u=marcus', 'SaaS', 1
-    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Marcus Rodriguez');
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Priya Nair', 'Head of Operations', 'Arrow Logistics', 'The automation system removed our QA bottleneck completely. We ship faster and miss fewer delivery deadlines across the board.', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150', 'Logistics', 5, '', '', 'homepage,service,testimonials-page', 1
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Priya Nair');
 
-    INSERT INTO testimonials (name, role, company, content, image_url, category, position)
-    SELECT 'Emma Watson', 'Director of Marketing', 'Adobe', 'Their AI SEO strategy is light years ahead. We went from zero AI citations to being the top result for critical industry prompts.', 'https://i.pravatar.cc/150?u=emma', 'Enterprise', 2
-    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Emma Watson');
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Kabir Singh', 'VP Growth', 'Northbridge SaaS', 'AI-driven lead workflows turned our response time from hours to minutes. Pipeline quality improved immediately after go-live.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150', 'SaaS', 5, '', '', 'service,testimonials-page', 2
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Kabir Singh');
+
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Neha Joshi', 'Director of FinOps', 'FinOps Hub', 'Reconciliation workflows now run nightly without human intervention. We trust the numbers every morning without checking anything manually.', 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=150', 'Fintech', 5, '', '', 'homepage,testimonials-page', 3
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Neha Joshi');
+
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Zara Sheikh', 'Product Lead', 'CloudNorth', 'The AI workflows reduced escalation volume by 60%. Our support team now focuses entirely on high-value complex cases.', 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=150', 'Cloud', 4, '', '', 'service,testimonials-page', 4
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Zara Sheikh');
+
+    INSERT INTO testimonials (name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position)
+    SELECT 'Marcus Webb', 'Founder', 'GrowthLoop', 'We tried building internal AI systems for 6 months with no luck. Digi Pexel delivered a production-ready lead scoring agent in 3 weeks.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150', 'SaaS', 5, '', '', 'homepage,service,testimonials-page', 5
+    WHERE NOT EXISTS (SELECT 1 FROM testimonials WHERE name = 'Marcus Webb');
 
     ";
     $pdo->exec($sql_testimonials);
