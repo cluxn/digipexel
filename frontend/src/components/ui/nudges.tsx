@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 type NudgeConfig = {
   banner: {
@@ -53,21 +55,9 @@ const DEFAULT_CONFIG: NudgeConfig = {
   },
 };
 
-const CONFIG_KEY = "DP_NUDGES_CONFIG";
 const BANNER_DISMISS_KEY = "DP_BANNER_DISMISSED";
 const POPUP_DISMISS_KEY = "DP_POPUP_DISMISSED";
 const EXIT_DISMISS_KEY = "DP_EXIT_DISMISSED";
-
-function loadConfig(): NudgeConfig {
-  if (typeof window === "undefined") return DEFAULT_CONFIG;
-  try {
-    const stored = localStorage.getItem(CONFIG_KEY);
-    if (!stored) return DEFAULT_CONFIG;
-    return { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
-  } catch {
-    return DEFAULT_CONFIG;
-  }
-}
 
 export function Nudges() {
   const [config, setConfig] = React.useState<NudgeConfig>(DEFAULT_CONFIG);
@@ -76,32 +66,57 @@ export function Nudges() {
   const [showExit, setShowExit] = React.useState(false);
 
   React.useEffect(() => {
-    const cfg = loadConfig();
-    setConfig(cfg);
+    const loadFromDB = async () => {
+      const json = await safeFetch(`${API_BASE_URL}/banners.php`);
+      if (json?.status === "success" && json.data) {
+        const d = json.data;
+        // Map from DB shape (exit_popup snake_case) to internal shape (exitPopup camelCase)
+        const cfg: NudgeConfig = {
+          banner: {
+            enabled: d.banner?.enabled ?? DEFAULT_CONFIG.banner.enabled,
+            text: d.banner?.text ?? DEFAULT_CONFIG.banner.text,
+            ctaLabel: d.banner?.ctaLabel ?? DEFAULT_CONFIG.banner.ctaLabel,
+            ctaLink: d.banner?.ctaLink ?? DEFAULT_CONFIG.banner.ctaLink,
+          },
+          popup: {
+            enabled: d.popup?.enabled ?? DEFAULT_CONFIG.popup.enabled,
+            title: d.popup?.title ?? DEFAULT_CONFIG.popup.title,
+            body: d.popup?.body ?? DEFAULT_CONFIG.popup.body,
+            ctaLabel: d.popup?.ctaLabel ?? DEFAULT_CONFIG.popup.ctaLabel,
+            ctaLink: d.popup?.ctaLink ?? DEFAULT_CONFIG.popup.ctaLink,
+            delayMs: d.popup?.delayMs ?? DEFAULT_CONFIG.popup.delayMs,
+          },
+          exitPopup: {
+            enabled: d.exit_popup?.enabled ?? DEFAULT_CONFIG.exitPopup.enabled,
+            title: d.exit_popup?.title ?? DEFAULT_CONFIG.exitPopup.title,
+            body: d.exit_popup?.body ?? DEFAULT_CONFIG.exitPopup.body,
+            ctaLabel: d.exit_popup?.ctaLabel ?? DEFAULT_CONFIG.exitPopup.ctaLabel,
+            ctaLink: d.exit_popup?.ctaLink ?? DEFAULT_CONFIG.exitPopup.ctaLink,
+          },
+        };
+        setConfig(cfg);
 
-    const bannerDismissed = localStorage.getItem(BANNER_DISMISS_KEY) === "true";
-    const popupDismissed = localStorage.getItem(POPUP_DISMISS_KEY) === "true";
-    const exitDismissed = localStorage.getItem(EXIT_DISMISS_KEY) === "true";
+        // Now handle show/dismiss logic exactly as before
+        const bannerDismissed = localStorage.getItem(BANNER_DISMISS_KEY) === "true";
+        const popupDismissed = localStorage.getItem(POPUP_DISMISS_KEY) === "true";
+        const exitDismissed = localStorage.getItem(EXIT_DISMISS_KEY) === "true";
 
-    if (cfg.banner.enabled && !bannerDismissed) {
-      setShowBanner(true);
-    }
-
-    if (cfg.popup.enabled && !popupDismissed) {
-      const timer = setTimeout(() => setShowPopup(true), cfg.popup.delayMs || 5000);
-      return () => clearTimeout(timer);
-    }
-
-    if (cfg.exitPopup.enabled && popupDismissed && !exitDismissed) {
-      const onExit = (e: MouseEvent) => {
-        if (e.clientY <= 0) {
-          setShowExit(true);
-          window.removeEventListener("mousemove", onExit);
+        if (cfg.banner.enabled && !bannerDismissed) setShowBanner(true);
+        if (cfg.popup.enabled && !popupDismissed) {
+          const timer = setTimeout(() => setShowPopup(true), cfg.popup.delayMs || 5000);
+          return () => clearTimeout(timer);
         }
-      };
-      window.addEventListener("mousemove", onExit);
-      return () => window.removeEventListener("mousemove", onExit);
-    }
+        if (cfg.exitPopup.enabled && popupDismissed && !exitDismissed) {
+          const onExit = (e: MouseEvent) => {
+            if (e.clientY <= 0) { setShowExit(true); window.removeEventListener("mousemove", onExit); }
+          };
+          window.addEventListener("mousemove", onExit);
+          return () => window.removeEventListener("mousemove", onExit);
+        }
+      }
+      // safeFetch returns { status: "error" } on failure — fall back to DEFAULT_CONFIG (all disabled)
+    };
+    loadFromDB();
   }, []);
 
   const closeBanner = () => {

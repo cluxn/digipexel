@@ -12,7 +12,7 @@ import {
   CheckCircle2, XCircle, TrendingUp, AlertTriangle, Lightbulb,
   BookOpen, User, Tag, Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 
 // Types
@@ -352,6 +352,9 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
         </section>
       )}
 
+      {/* Content Page Banner */}
+      <ContentPageBanner />
+
       {/* Newsletter Block */}
       <section className="bg-slate-900 py-20">
         <div className="container mx-auto px-6 max-w-3xl text-center">
@@ -391,6 +394,27 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
 
       <Footer />
     </main>
+  );
+}
+
+function ContentPageBanner() {
+  const [banner, setBanner] = React.useState<{enabled:boolean;text:string;ctaLabel:string;ctaLink:string;bgColor:string}|null>(null);
+  React.useEffect(() => {
+    safeFetch(`${API_BASE_URL}/banners.php`)
+      .then(json => {
+        if (json?.status === "success" && json.data?.banner?.enabled) {
+          setBanner(json.data.banner);
+        }
+      });
+  }, []);
+  if (!banner) return null;
+  return (
+    <div className="my-8 rounded-2xl p-6 text-white flex items-center justify-between gap-4 flex-wrap" style={{ backgroundColor: banner.bgColor || "#2563EB" }}>
+      <p className="font-semibold text-sm">{banner.text}</p>
+      <a href={banner.ctaLink} className="shrink-0 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-bold transition-colors">
+        {banner.ctaLabel}
+      </a>
+    </div>
   );
 }
 

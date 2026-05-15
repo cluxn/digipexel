@@ -88,6 +88,27 @@ const FALLBACK_GUIDES: Guide[] = [
   }
 ];
 
+function ContentPageBanner() {
+  const [banner, setBanner] = React.useState<{enabled:boolean;text:string;ctaLabel:string;ctaLink:string;bgColor:string}|null>(null);
+  React.useEffect(() => {
+    safeFetch(`${API_BASE_URL}/banners.php`)
+      .then(json => {
+        if (json?.status === "success" && json.data?.banner?.enabled) {
+          setBanner(json.data.banner);
+        }
+      });
+  }, []);
+  if (!banner) return null;
+  return (
+    <div className="my-8 rounded-2xl p-6 text-white flex items-center justify-between gap-4 flex-wrap" style={{ backgroundColor: banner.bgColor || "#2563EB" }}>
+      <p className="font-semibold text-sm">{banner.text}</p>
+      <a href={banner.ctaLink} className="shrink-0 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-bold transition-colors">
+        {banner.ctaLabel}
+      </a>
+    </div>
+  );
+}
+
 export default function GuideClient({ id }: { id: string }) {
   const [guide, setGuide] = useState<Guide | null>(null);
   const [loading, setLoading] = useState(true);
@@ -172,6 +193,9 @@ export default function GuideClient({ id }: { id: string }) {
           )}
         </div>
       </section>
+
+      {/* Content Page Banner */}
+      <ContentPageBanner />
 
       {/* Newsletter Block */}
       <section className="bg-slate-900 py-20">
