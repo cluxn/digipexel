@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase complete — ready for verification
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-02-PLAN.md
-last_updated: "2026-05-15T12:39:24.092Z"
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-08-PLAN.md
+last_updated: "2026-05-15T17:02:48.086Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 21
+  completed_plans: 21
 ---
 
 # Project State
@@ -66,6 +66,7 @@ Plan: 7 of 7
 | Phase 04-content-pages-blog-case-studies-guides P05 | 42 | 1 tasks | 1 files |
 | Phase 04-content-pages-blog-case-studies-guides P07 | 15 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P02 | 45 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P08 | 8 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,8 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: save_guide action uses INSERT or UPDATE by id following blogs.php save_post pattern — individual per-guide saves replace bulk update_guides in admin
 - [Phase 04-content-pages-blog-case-studies-guides]: Blog filter+sort+paginate uses client-side 3-step pipeline (filter > sort > paginate) — no server roundtrips on category/sort changes
 - [Phase 04-content-pages-blog-case-studies-guides]: Related posts algorithm: same-category sorted by recent, padded with any-category, capped at 3 — matches D-12 from CONTEXT.md
+- [Phase 04-content-pages-blog-case-studies-guides]: generateStaticParams slugs must exactly match seeded slugs in backend/init_db.php INSERT IGNORE rows
+- [Phase 04-content-pages-blog-case-studies-guides]: All fetch calls in page-client components must use API_BASE_URL from @/lib/constants, not hardcoded /backend/api paths
 
 ### Pending Todos
 
@@ -142,6 +145,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T12:39:24.085Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-02-PLAN.md
+Last session: 2026-05-15T17:02:48.075Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-08-PLAN.md
 Resume file: None
