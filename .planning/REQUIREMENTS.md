@@ -110,33 +110,33 @@
 
 ### Admin Panel — Newsletter (NEWS)
 
-- [ ] **NEWS-01**: Newsletter subscriber list viewable and exportable in admin
+- [x] **NEWS-01**: Newsletter subscriber list viewable and exportable in admin
 - [ ] **NEWS-02**: Newsletter signup form in footer on all public pages
 - [ ] **NEWS-03**: Newsletter signup at end of blog posts and guide pages
 
 ### Admin Panel — Popups & Banners (POP)
 
-- [ ] **POP-01**: Exit-intent popup — editable message, CTA text, link — actually shows on live site
-- [ ] **POP-02**: Announcement bar — toggle on/off, edit text, link, background color — shows on all public pages
-- [ ] **POP-03**: Content page banners — 1 per blog post, 1 per guide — editable from admin, actually shows on live site
+- [x] **POP-01**: Exit-intent popup — editable message, CTA text, link — actually shows on live site
+- [x] **POP-02**: Announcement bar — toggle on/off, edit text, link, background color — shows on all public pages
+- [x] **POP-03**: Content page banners — 1 per blog post, 1 per guide — editable from admin, actually shows on live site
 
 ### Admin Panel — Analytics (ANA)
 
-- [ ] **ANA-01**: Admin section to paste and save Google Analytics, Search Console, and other embed codes
-- [ ] **ANA-02**: Pasted codes automatically injected into site `<head>` on all public pages
+- [x] **ANA-01**: Admin section to paste and save Google Analytics, Search Console, and other embed codes
+- [x] **ANA-02**: Pasted codes automatically injected into site `<head>` on all public pages
 
 ### Admin Panel — Users (USR)
 
-- [ ] **USR-01**: Admin can create users with name, designation, login ID, and password (stored in DB)
-- [ ] **USR-02**: Admin login passcode manageable from Users panel (changeable without code)
+- [x] **USR-01**: Admin can create users with name, designation, login ID, and password (stored in DB)
+- [x] **USR-02**: Admin login passcode manageable from Users panel (changeable without code)
 
 ### Admin Panel — Settings (SET)
 
-- [ ] **SET-01**: Social links editable (Facebook, Instagram, YouTube, LinkedIn URLs)
-- [ ] **SET-02**: Contact info editable (phone number, email address)
-- [ ] **SET-03**: Site name and tagline editable
-- [ ] **SET-04**: WhatsApp button toggle on/off + phone number editable
-- [ ] **SET-05**: Default CTA button link editable (used across all pages for "Book a call" etc.)
+- [x] **SET-01**: Social links editable (Facebook, Instagram, YouTube, LinkedIn URLs)
+- [x] **SET-02**: Contact info editable (phone number, email address)
+- [x] **SET-03**: Site name and tagline editable
+- [x] **SET-04**: WhatsApp button toggle on/off + phone number editable
+- [x] **SET-05**: Default CTA button link editable (used across all pages for "Book a call" etc.)
 
 ---
 
@@ -227,22 +227,22 @@
 | TADM-02 | Phase 5 — Testimonials System Upgrade | Complete |
 | ADM-01 | Phase 6 — Admin Panel Completion | Pending |
 | ADM-02 | Phase 6 — Admin Panel Completion | Pending |
-| NEWS-01 | Phase 6 — Admin Panel Completion | Pending |
+| NEWS-01 | Phase 6 — Admin Panel Completion | Complete |
 | NEWS-02 | Phase 6 — Admin Panel Completion | Pending |
 | NEWS-03 | Phase 6 — Admin Panel Completion | Pending |
-| POP-01 | Phase 6 — Admin Panel Completion | Pending |
-| POP-02 | Phase 6 — Admin Panel Completion | Pending |
-| POP-03 | Phase 6 — Admin Panel Completion | Pending |
-| ANA-01 | Phase 6 — Admin Panel Completion | Pending |
-| ANA-02 | Phase 6 — Admin Panel Completion | Pending |
-| USR-01 | Phase 6 — Admin Panel Completion | Pending |
-| USR-02 | Phase 6 — Admin Panel Completion | Pending |
+| POP-01 | Phase 6 — Admin Panel Completion | Complete |
+| POP-02 | Phase 6 — Admin Panel Completion | Complete |
+| POP-03 | Phase 6 — Admin Panel Completion | Complete |
+| ANA-01 | Phase 6 — Admin Panel Completion | Complete |
+| ANA-02 | Phase 6 — Admin Panel Completion | Complete |
+| USR-01 | Phase 6 — Admin Panel Completion | Complete |
+| USR-02 | Phase 6 — Admin Panel Completion | Complete |
 | USR-03 | v2 (Deferred from Phase 6) | Deferred |
-| SET-01 | Phase 6 — Admin Panel Completion | Pending |
-| SET-02 | Phase 6 — Admin Panel Completion | Pending |
-| SET-03 | Phase 6 — Admin Panel Completion | Pending |
-| SET-04 | Phase 6 — Admin Panel Completion | Pending |
-| SET-05 | Phase 6 — Admin Panel Completion | Pending |
+| SET-01 | Phase 6 — Admin Panel Completion | Complete |
+| SET-02 | Phase 6 — Admin Panel Completion | Complete |
+| SET-03 | Phase 6 — Admin Panel Completion | Complete |
+| SET-04 | Phase 6 — Admin Panel Completion | Complete |
+| SET-05 | Phase 6 — Admin Panel Completion | Complete |
 | STATIC-01 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
 | STATIC-02 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
 | STATIC-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |

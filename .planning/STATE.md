@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 06-admin-panel-completion/06-01-PLAN.md
-last_updated: "2026-05-15T18:18:00.962Z"
+stopped_at: Completed 06-admin-panel-completion/06-03-PLAN.md
+last_updated: "2026-05-15T18:19:32.939Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 06 (admin-panel-completion) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Plan: 2 of 5
 | Phase 05-testimonials-system-upgrade P01 | 2 | 1 tasks | 2 files |
 | Phase 05-testimonials-system-upgrade P03 | 15 | 2 tasks | 3 files |
 | Phase 06-admin-panel-completion P01 | 3 | 3 tasks | 6 files |
+| Phase 06-admin-panel-completion P03 | 4 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,8 @@ Recent decisions affecting current work:
 - [Phase 06-admin-panel-completion]: users table GET excludes password_hash from response for security
 - [Phase 06-admin-panel-completion]: admin_passcode seeded as plain string in settings table — login page reads from DB (USR-02)
 - [Phase 06-admin-panel-completion]: banners/analytics_codes seeded with disabled/empty defaults on init_db.php run
+- [Phase 06-admin-panel-completion]: Login page fetches admin_passcode from settings API at runtime — hardcoded comparison removed, '12345' kept as network-failure fallback only
+- [Phase 06-admin-panel-completion]: USR-03 activity tracking deferred to v2 — hooking all write actions across every admin page is disproportionate for v1 launch
 
 ### Pending Todos
 
@@ -156,6 +159,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T18:18:00.942Z
-Stopped at: Completed 06-admin-panel-completion/06-01-PLAN.md
+Last session: 2026-05-15T18:19:32.932Z
+Stopped at: Completed 06-admin-panel-completion/06-03-PLAN.md
 Resume file: None
