@@ -107,7 +107,7 @@ Plans:
 - [x] 04-01-PLAN.md — Backend: blogs.php scheduling support (scheduled_at column + filter) + init_db.php rich sample content seeds
 - [ ] 04-02-PLAN.md — Blog listing: pagination + sort + search/filter; Blog detail: related posts + newsletter block
 - [x] 04-03-PLAN.md — Case studies listing: pagination + sort + filter; Case study detail: sections render + related studies
-- [ ] 04-04-PLAN.md — Guides listing: pagination + category filter + sort + fix card links; Guide detail: content render + newsletter block
+- [x] 04-04-PLAN.md — Guides listing: pagination + category filter + sort + fix card links; Guide detail: content render + newsletter block
 - [ ] 04-05-PLAN.md — Admin blog editor: three-state scheduling (Publish Now / Schedule / Draft) + category autocomplete
 - [x] 04-06-PLAN.md — Admin case studies editor: full CRUD (info, hero stats, structured sections, settings)
 - [ ] 04-07-PLAN.md — Admin guides editor: full CRUD (individual save/delete, content HTML field)
@@ -160,7 +160,7 @@ Plans:
 | 2. Homepage & Site Content Admin | 4/4 | Complete | 2026-05-14 |
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
 | 3. Service Pages | 3/4 | In Progress|  |
-| 4. Content Pages — Blog, Case Studies & Guides | 3/7 | In Progress|  |
+| 4. Content Pages — Blog, Case Studies & Guides | 4/7 | In Progress|  |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |

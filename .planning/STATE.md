@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-03-PLAN.md
-last_updated: "2026-05-15T12:31:43.278Z"
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-06-PLAN.md
+last_updated: "2026-05-15T12:32:10.523Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 20
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 04 (content-pages-blog-case-studies-guides) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Plan: 4 of 7
 | Phase 03-service-pages P04 | 5 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P01 | 6 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P03 | 12 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P06 | 37 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,7 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: CaseStudy interface extended with position and published_date for sort/pagination support
 - [Phase 04-content-pages-blog-case-studies-guides]: Related algorithm: same-industry sorted by published_date DESC, padded with other-industry sorted by position ASC, sliced at 3
 - [Phase 04-content-pages-blog-case-studies-guides]: CaseSectionBlock helper renders all section types with unified points+metrics layout
+- [Phase 04-content-pages-blog-case-studies-guides]: Admin case studies page wrapped in AdminLayout for auth guard consistency with all other admin content pages
 
 ### Pending Todos
 
@@ -128,6 +130,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T12:31:34.839Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-03-PLAN.md
+Last session: 2026-05-15T12:31:57.772Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-06-PLAN.md
 Resume file: None
