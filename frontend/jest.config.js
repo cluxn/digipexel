@@ -5,6 +5,7 @@ const createJestConfig = nextJest({
 });
 
 module.exports = createJestConfig({
+  workerIdleMemoryLimit: "256MB",
   coverageProvider: "v8",
   testEnvironment: "jsdom",
   moduleNameMapper: {
