@@ -13,6 +13,9 @@ import { useRouter } from "next/navigation";
 interface ConnectProps {
   variant?: "dark" | "light";
   isHomepage?: boolean;
+  badge?: string;   // per-service CTA badge override (e.g. "Deployment Ready")
+  title?: string;   // per-service CTA heading override (plain text — do NOT split into line1/line2)
+  copy?: string;    // per-service CTA body copy override
 }
 
 /* ─── Animated service tags panel ────────────────────────────────────────── */
@@ -115,7 +118,7 @@ function ServiceAnimation() {
 }
 
 /* ─── Main Component ──────────────────────────────────────────────────────── */
-export function Connect({ variant = "light", isHomepage = false }: ConnectProps) {
+export function Connect({ variant = "light", isHomepage = false, badge, title, copy }: ConnectProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -335,14 +338,18 @@ export function Connect({ variant = "light", isHomepage = false }: ConnectProps)
             <div className={cn("absolute bottom-0 left-0 w-1/3 h-full blur-[120px] rounded-full -ml-32 -mb-32 transition-transform group-hover:scale-125 pointer-events-none", isDark ? "bg-brand/5" : "bg-brand/10")} />
             <div className="relative z-10 space-y-8 max-w-4xl mx-auto">
               <Badge variant="outline" className={cn("tracking-[0.4em] uppercase py-1.5 px-4 rounded-full text-[10px] font-bold", isDark ? "border-white/10 bg-white/5 text-white/60" : "border-brand/10 bg-brand/5 text-brand/70")}>
-                Deployment Ready
+                {badge ?? "Deployment Ready"}
               </Badge>
               <h2 className={cn("text-4xl md:text-6xl font-display font-bold tracking-tight leading-[1.1]", isDark ? "text-white" : "text-primary")}>
-                Ready to architect your <br />
-                <span className="text-brand">autonomous future?</span>
+                {title ?? (
+                  <>
+                    Ready to architect your <br />
+                    <span className="text-brand">autonomous future?</span>
+                  </>
+                )}
               </h2>
               <p className={cn("text-lg font-medium leading-relaxed max-w-2xl mx-auto", isDark ? "text-white/50" : "text-secondary/70")}>
-                Get a tailored plan and deployment timeline in days, not weeks. Start building your autonomous future today.
+                {copy ?? "Get a tailored plan and deployment timeline in days, not weeks. Start building your autonomous future today."}
               </p>
               <div className="pt-4 flex justify-center">
                 <Button asChild variant="brand" className="h-16 px-12 text-xl font-bold uppercase tracking-wider hover:-translate-y-1">
