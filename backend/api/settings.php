@@ -44,6 +44,16 @@ try {
             );
             $stmt->execute([$key, $value]);
             json_resp('success', null, 'Setting saved');
+        } elseif ($action === 'save_all_settings') {
+            $settings = $input['settings'] ?? [];
+            if (!is_array($settings) || empty($settings)) {
+                json_resp('error', null, 'settings object is required');
+            }
+            $stmt = $pdo->prepare("INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)");
+            foreach ($settings as $key => $value) {
+                $stmt->execute([$key, $value]);
+            }
+            json_resp('success', null, 'All settings saved');
         } else {
             json_resp('error', null, 'Unknown action');
         }
