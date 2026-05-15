@@ -26,6 +26,18 @@ A launch-ready agency website where every section is editable from the admin pan
 - ✓ Hero section eyebrow label editable from admin — Validated in Phase 02.1
 - ✓ Footer restructured to 4-column equal grid (brand | nav1 | nav2 | newsletter) — Validated in Phase 02.1
 - ✓ Admin Hero tab shows SVG icon previews beside each slot dropdown — Validated in Phase 02.1
+- ✓ Dashboard stats show live counts from DB — Validated in Phase 06: admin-panel-completion
+- ✓ Newsletter subscriber list view and CSV export — Validated in Phase 06
+- ✓ Banners admin page — announcement bar + content page banners, live on site — Validated in Phase 06
+- ✓ Analytics admin page — paste GA4, Search Console, custom scripts, injected into head — Validated in Phase 06
+- ✓ Users admin page — create/edit/delete admin users, DB-backed passcode change — Validated in Phase 06
+- ✓ Settings admin page — social links, contact info, site name/tagline, WhatsApp toggle + number, default CTA link — Validated in Phase 06
+- ✓ WhatsApp floating button on every public page, pulls number and enabled flag from settings — Validated in Phase 06
+- ✓ Footer social icons dynamic from settings API — Validated in Phase 06
+- ✓ Connect CTA default link from settings API — Validated in Phase 06
+- ✓ Nudges/Popups wired to banners.php (DB-backed, no localStorage) — Validated in Phase 06
+- ✓ Admin sidebar: Analytics and Users links added — Validated in Phase 06
+- ✓ Admin login passcode changeable from Users page without editing code (USR-02) — Validated in Phase 06
 
 ### Active
 
@@ -136,7 +148,7 @@ A launch-ready agency website where every section is editable from the admin pan
 
 **Existing stack:** Next.js 16 (static export) + PHP REST API (no framework) + MySQL on Hostinger shared hosting. Frontend deployed as static HTML/CSS/JS. Backend at `https://digi.cluxn.com/backend/api/`.
 
-**Current state:** Phase 02.1 complete (2026-05-14) — Homepage admin CMS now covers Hero (eyebrow, heading, icons with previews), Navbar, Stats, Footer, and Problem stat cards, all editable without code. All 6 homepage section eyebrow labels updated. Footer in 4-column equal grid with newsletter. Next: Phase 3 — service pages.
+**Current state:** Phase 06 complete (2026-05-16) — Admin panel is now fully functional: all 5 sidebar "Coming Soon" stubs replaced (Newsletter, Settings, Banners, Analytics, Users), dashboard shows live DB stats, WhatsApp button and footer social links are DB-driven, analytics codes injected into head, content page banners live. Next: Phase 7 — SEO, static pages & launch readiness.
 
 **Design references:**
 - Blog, Case Studies, Guides → radixweb.com
@@ -184,4 +196,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-15 — Phase 05 complete: testimonials system upgraded*
+*Last updated: 2026-05-16 — Phase 06 complete: admin panel fully functional*
