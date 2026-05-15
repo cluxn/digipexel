@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-08-PLAN.md
-last_updated: "2026-05-15T17:05:57.538Z"
+status: Ready to execute
+stopped_at: Completed 05-testimonials-system-upgrade/05-01-PLAN.md
+last_updated: "2026-05-15T17:21:36.106Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 21
-  completed_plans: 21
+  total_plans: 24
+  completed_plans: 22
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-14)
 
 **Core value:** A launch-ready agency website where every section is editable from the admin panel and every lead is captured — no hardcoded content, no broken links, no fake data.
-**Current focus:** Phase 04 — content-pages-blog-case-studies-guides
+**Current focus:** Phase 05 — testimonials-system-upgrade
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (testimonials-system-upgrade) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Plan: Not started
 | Phase 04-content-pages-blog-case-studies-guides P07 | 15 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P02 | 45 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P08 | 8 | 3 tasks | 3 files |
+| Phase 05-testimonials-system-upgrade P01 | 2 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: Related posts algorithm: same-category sorted by recent, padded with any-category, capped at 3 — matches D-12 from CONTEXT.md
 - [Phase 04-content-pages-blog-case-studies-guides]: generateStaticParams slugs must exactly match seeded slugs in backend/init_db.php INSERT IGNORE rows
 - [Phase 04-content-pages-blog-case-studies-guides]: All fetch calls in page-client components must use API_BASE_URL from @/lib/constants, not hardcoded /backend/api paths
+- [Phase 05-testimonials-system-upgrade]: GET returns flat array under data key by default — matches ALL existing frontend consumers (json.data array check)
+- [Phase 05-testimonials-system-upgrade]: ?with_focus=1 query param returns structured {items, focus} object for admin page only — preserves backward compat
+- [Phase 05-testimonials-system-upgrade]: display_context as CSV string (homepage,service,testimonials-page) — supports per-row context filtering without extra join table
 
 ### Pending Todos
 
@@ -145,6 +149,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T17:02:48.075Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-08-PLAN.md
+Last session: 2026-05-15T17:21:36.095Z
+Stopped at: Completed 05-testimonials-system-upgrade/05-01-PLAN.md
 Resume file: None
