@@ -54,17 +54,17 @@
 ### Case Studies (CS)
 
 - [x] **CS-01**: 2-3 sample case studies added (problem → approach → results format)
-- [ ] **CS-02**: Pagination, filter, sort, search — same as blog
-- [ ] **CS-03**: All case study content editable from admin
-- [ ] **CS-04**: Design aligned to radixweb.com/case-studies reference
+- [x] **CS-02**: Pagination, filter, sort, search — same as blog
+- [x] **CS-03**: All case study content editable from admin
+- [x] **CS-04**: Design aligned to radixweb.com/case-studies reference
 
 ### Guides (GUIDE)
 
 - [x] **GUIDE-01**: Guides work as lead magnets — capture lead before or during guide access
-- [ ] **GUIDE-02**: Pagination, filter, sort, search — same as blog
-- [ ] **GUIDE-03**: Newsletter signup at end of each guide
+- [x] **GUIDE-02**: Pagination, filter, sort, search — same as blog
+- [x] **GUIDE-03**: Newsletter signup at end of each guide
 - [ ] **GUIDE-04**: All guide content editable from admin
-- [ ] **GUIDE-05**: Design aligned to radixweb.com/guides reference
+- [x] **GUIDE-05**: Design aligned to radixweb.com/guides reference
 
 ### Testimonials (TEST)
 
@@ -210,14 +210,14 @@
 | BLOG-10 | Phase 4 — Content Pages | Complete |
 | BLOG-11 | Phase 4 — Content Pages | Pending |
 | CS-01 | Phase 4 — Content Pages | Complete |
-| CS-02 | Phase 4 — Content Pages | Pending |
-| CS-03 | Phase 4 — Content Pages | Pending |
-| CS-04 | Phase 4 — Content Pages | Pending |
+| CS-02 | Phase 4 — Content Pages | Complete |
+| CS-03 | Phase 4 — Content Pages | Complete |
+| CS-04 | Phase 4 — Content Pages | Complete |
 | GUIDE-01 | Phase 4 — Content Pages | Complete |
-| GUIDE-02 | Phase 4 — Content Pages | Pending |
-| GUIDE-03 | Phase 4 — Content Pages | Pending |
+| GUIDE-02 | Phase 4 — Content Pages | Complete |
+| GUIDE-03 | Phase 4 — Content Pages | Complete |
 | GUIDE-04 | Phase 4 — Content Pages | Pending |
-| GUIDE-05 | Phase 4 — Content Pages | Pending |
+| GUIDE-05 | Phase 4 — Content Pages | Complete |
 | TEST-01 | Phase 5 — Testimonials System Upgrade | Pending |
 | TEST-02 | Phase 5 — Testimonials System Upgrade | Pending |
 | TEST-03 | Phase 5 — Testimonials System Upgrade | Pending |
