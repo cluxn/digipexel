@@ -14,7 +14,7 @@ export function WhatsAppButton() {
         // whatsapp_enabled is stored as string "true"/"false" in settings table
         setWhatsappEnabled(json.data.whatsapp_enabled !== "false");
         if (json.data.whatsapp_number) {
-          setWhatsappNumber(json.data.whatsapp_number);
+          setWhatsappNumber(json.data.whatsapp_number.replace(/\D/g, ''));
         }
       }
       // On fetch failure safeFetch returns { status: "error" } — keep defaults (button stays visible with fallback number)

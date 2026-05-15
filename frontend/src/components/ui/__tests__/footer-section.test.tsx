@@ -25,17 +25,24 @@ const { safeFetch } = require("@/lib/utils");
 describe("Footer newsletter form", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: settings fetch returns error gracefully (social URLs stay empty)
+    safeFetch.mockResolvedValue({ status: "error" });
   });
 
-  it("renders an email input and Subscribe button", () => {
+  it("renders an email input and Subscribe button", async () => {
     render(<Footer />);
+    // Wait for the settings fetch to resolve before asserting
+    await waitFor(() => expect(safeFetch).toHaveBeenCalled());
     expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /subscribe/i })).toBeInTheDocument();
   });
 
   it("shows success message after subscribing with new email", async () => {
-    safeFetch.mockResolvedValue({ status: "success" });
+    safeFetch
+      .mockResolvedValueOnce({ status: "error" }) // settings fetch on mount
+      .mockResolvedValueOnce({ status: "success" }); // newsletter subscribe
     render(<Footer />);
+    await waitFor(() => expect(safeFetch).toHaveBeenCalledTimes(1));
     const input = screen.getByPlaceholderText(/email/i);
     fireEvent.change(input, { target: { value: "test@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: /subscribe/i }));
@@ -43,8 +50,11 @@ describe("Footer newsletter form", () => {
   });
 
   it("shows already-subscribed message on duplicate", async () => {
-    safeFetch.mockResolvedValue({ status: "error", message: "Already subscribed with this email" });
+    safeFetch
+      .mockResolvedValueOnce({ status: "error" }) // settings fetch on mount
+      .mockResolvedValueOnce({ status: "error", message: "Already subscribed with this email" }); // newsletter subscribe
     render(<Footer />);
+    await waitFor(() => expect(safeFetch).toHaveBeenCalledTimes(1));
     const input = screen.getByPlaceholderText(/email/i);
     fireEvent.change(input, { target: { value: "existing@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: /subscribe/i }));
