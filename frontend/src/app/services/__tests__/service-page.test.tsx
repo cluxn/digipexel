@@ -296,12 +296,12 @@ describe("ServicePage — SVC-01 through SVC-08 requirement coverage", () => {
   });
 
   // SVC-06 — Per-service CTA content rendered via Connect component
-  // Post-implementation: Connect receives ctaBadge prop from API data.
-  // Pre-implementation: Connect renders hardcoded "Deployment Ready" badge.
-  // TODO (Plan 03): Remove todo and un-skip once Connect accepts ctaBadge prop.
-  it.todo(
-    "renders per-service CTA content — awaiting Plan 03 Connect ctaBadge prop"
-  );
+  it("renders per-service CTA content", async () => {
+    await renderPage();
+    await waitFor(() => {
+      expect(screen.getByText("SEO Ready")).toBeInTheDocument();
+    });
+  });
 
   // SVC-07 — Testimonial quotes from API data
   // Post-implementation: quotes come from API; pre-implementation: from service.testimonials.
