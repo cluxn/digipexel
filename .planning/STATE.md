@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-01-PLAN.md
-last_updated: "2026-05-15T07:37:17.979Z"
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-03-PLAN.md
+last_updated: "2026-05-15T12:31:43.278Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 20
-  completed_plans: 14
+  completed_plans: 16
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 04 (content-pages-blog-case-studies-guides) — EXECUTING
-Plan: 2 of 7
+Plan: 4 of 7
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Plan: 2 of 7
 | Phase 03-service-pages P03 | 4 | 2 tasks | 2 files |
 | Phase 03-service-pages P04 | 5 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P01 | 6 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P03 | 12 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: INSERT IGNORE pattern used for all content seeds in init_db.php — idempotent, admin edits never overwritten on re-run
 - [Phase 04-content-pages-blog-case-studies-guides]: Blog scheduling uses three-state status (published/scheduled/draft) — scheduled posts become public when scheduled_at <= NOW()
 - [Phase 04-content-pages-blog-case-studies-guides]: Case studies seeded with distinct published_date values (2025-03-14, 2025-04-10) so Recent sort on listing page has real ordering data
+- [Phase 04-content-pages-blog-case-studies-guides]: CaseStudy interface extended with position and published_date for sort/pagination support
+- [Phase 04-content-pages-blog-case-studies-guides]: Related algorithm: same-industry sorted by published_date DESC, padded with other-industry sorted by position ASC, sliced at 3
+- [Phase 04-content-pages-blog-case-studies-guides]: CaseSectionBlock helper renders all section types with unified points+metrics layout
 
 ### Pending Todos
 
@@ -124,6 +128,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T07:37:17.970Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-01-PLAN.md
+Last session: 2026-05-15T12:31:34.839Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-03-PLAN.md
 Resume file: None
