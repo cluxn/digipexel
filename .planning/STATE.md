@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-04-PLAN.md
-last_updated: "2026-05-15T12:32:38.184Z"
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-05-PLAN.md
+last_updated: "2026-05-15T12:36:25.200Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 20
-  completed_plans: 17
+  completed_plans: 18
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 04 (content-pages-blog-case-studies-guides) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Plan: 5 of 7
 | Phase 04-content-pages-blog-case-studies-guides P03 | 12 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P06 | 37 | 1 tasks | 1 files |
 | Phase 04-content-pages-blog-case-studies-guides P04 | 12 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P05 | 42 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: Guide cards navigate to /guides/{id} via absolute Link overlay; CTA bottom area replaced with div+ArrowRight per D-21
 - [Phase 04-content-pages-blog-case-studies-guides]: Guide detail newsletter block uses API_BASE_URL from @/lib/constants (not hardcoded path) -- works in both local dev and production
 - [Phase 04-content-pages-blog-case-studies-guides]: Recent sort for guides falls back to position DESC since guides table has no published_at column
+- [Phase 04-content-pages-blog-case-studies-guides]: Three-state blog scheduling radio group (Publish Now/Schedule/Save as Draft) with conditional datetime-local picker — scheduled_at included in payload via BlogPost interface automatically
+- [Phase 04-content-pages-blog-case-studies-guides]: Category autocomplete uses HTML datalist (zero extra dependencies, browser-native, accessible) derived inline from existing post categories
 
 ### Pending Todos
 
@@ -134,6 +137,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T12:32:38.164Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-04-PLAN.md
+Last session: 2026-05-15T12:36:25.192Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-05-PLAN.md
 Resume file: None

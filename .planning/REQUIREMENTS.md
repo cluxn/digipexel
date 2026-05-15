@@ -46,7 +46,7 @@
 - [ ] **BLOG-05**: Search functionality on blog listing page
 - [ ] **BLOG-06**: Related posts section on blog detail page
 - [x] **BLOG-07**: Blog scheduling from admin (publish now, schedule date/time, save as draft)
-- [ ] **BLOG-08**: Categories manageable from admin (add/edit/delete)
+- [x] **BLOG-08**: Categories manageable from admin (add/edit/delete)
 - [ ] **BLOG-09**: Newsletter signup at end of each blog post
 - [x] **BLOG-10**: All CTAs and links working on blog pages
 - [ ] **BLOG-11**: Design aligned to radixweb.com reference
@@ -205,7 +205,7 @@
 | BLOG-05 | Phase 4 — Content Pages | Pending |
 | BLOG-06 | Phase 4 — Content Pages | Pending |
 | BLOG-07 | Phase 4 — Content Pages | Complete |
-| BLOG-08 | Phase 4 — Content Pages | Pending |
+| BLOG-08 | Phase 4 — Content Pages | Complete |
 | BLOG-09 | Phase 4 — Content Pages | Pending |
 | BLOG-10 | Phase 4 — Content Pages | Complete |
 | BLOG-11 | Phase 4 — Content Pages | Pending |
