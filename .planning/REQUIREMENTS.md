@@ -63,7 +63,7 @@
 - [x] **GUIDE-01**: Guides work as lead magnets — capture lead before or during guide access
 - [x] **GUIDE-02**: Pagination, filter, sort, search — same as blog
 - [x] **GUIDE-03**: Newsletter signup at end of each guide
-- [ ] **GUIDE-04**: All guide content editable from admin
+- [x] **GUIDE-04**: All guide content editable from admin
 - [x] **GUIDE-05**: Design aligned to radixweb.com/guides reference
 
 ### Testimonials (TEST)
@@ -216,7 +216,7 @@
 | GUIDE-01 | Phase 4 — Content Pages | Complete |
 | GUIDE-02 | Phase 4 — Content Pages | Complete |
 | GUIDE-03 | Phase 4 — Content Pages | Complete |
-| GUIDE-04 | Phase 4 — Content Pages | Pending |
+| GUIDE-04 | Phase 4 — Content Pages | Complete |
 | GUIDE-05 | Phase 4 — Content Pages | Complete |
 | TEST-01 | Phase 5 — Testimonials System Upgrade | Pending |
 | TEST-02 | Phase 5 — Testimonials System Upgrade | Pending |

@@ -110,7 +110,7 @@ Plans:
 - [x] 04-04-PLAN.md — Guides listing: pagination + category filter + sort + fix card links; Guide detail: content render + newsletter block
 - [x] 04-05-PLAN.md — Admin blog editor: three-state scheduling (Publish Now / Schedule / Draft) + category autocomplete
 - [x] 04-06-PLAN.md — Admin case studies editor: full CRUD (info, hero stats, structured sections, settings)
-- [ ] 04-07-PLAN.md — Admin guides editor: full CRUD (individual save/delete, content HTML field)
+- [x] 04-07-PLAN.md — Admin guides editor: full CRUD (individual save/delete, content HTML field)
 
 ### Phase 5: Testimonials System Upgrade
 **Goal**: The testimonials page is redesigned to look professional and genuine, the admin can upload any testimonial format, and the same testimonials DB renders correctly in three different display contexts (homepage, service pages, testimonials page)
