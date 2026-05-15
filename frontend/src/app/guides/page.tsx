@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/blocks/floating-icons-hero-demo";
 import { Footer } from "@/components/ui/footer-section";
 import { Connect } from "@/components/blocks/connect-cta";
 import { motion } from "framer-motion";
-import { BookOpen, ArrowRight, Download, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import Link from "next/link";
 import { api, endpoints } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -20,12 +19,18 @@ interface Guide {
   category: string;
   cta_label: string;
   cta_link: string;
+  position: number;
 }
+
+const PAGE_SIZE = 10;
 
 export default function GuidesPage() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState<"popular" | "recent">("popular");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     async function fetchGuides() {
@@ -43,36 +48,58 @@ export default function GuidesPage() {
     fetchGuides();
   }, []);
 
-  const filteredGuides = guides.filter(g => 
-    g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    g.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
+
+  const categories = ["All", ...Array.from(new Set(guides.map(g => g.category).filter(Boolean)))];
+
+  // Step 1: filter
+  const filteredGuides = guides.filter(g => {
+    const matchesSearch =
+      g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      g.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "All" || g.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Step 2: sort
+  const sortedGuides = [...filteredGuides].sort((a, b) => {
+    if (sortBy === "popular") return (a.position ?? 0) - (b.position ?? 0);
+    // Recent: fall back to position DESC for "newest" order (guides have no published_at)
+    return (b.position ?? 0) - (a.position ?? 0);
+  });
+
+  // Step 3: paginate
+  const totalPages = Math.ceil(sortedGuides.length / PAGE_SIZE);
+  const paginatedGuides = sortedGuides.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <main className="min-h-screen bg-base">
       <Navbar className="top-0" darkHero={false} />
-      
-      {/* Hero Section - Standardized for Single Screen Fit */}
+
+      {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center pt-32 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.05),transparent_50%)]" />
         <div className="container mx-auto px-6 max-w-6xl relative z-10 text-center">
           <Badge variant="outline" className="section-eyebrow mb-6 mx-auto">
-            Resources & Guides
+            Resources &amp; Guides
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Master the <span className="hero-title-accent">Automation Era</span><br /> 
+            Master the <span className="hero-title-accent">Automation Era</span><br />
             with Our Playbooks
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto mb-10 opacity-70">
             Step-by-step deep dives and technical whitepapers on building high-performance AI workflows for your scale.
           </p>
-          
+
           <div className="max-w-xl mx-auto relative group">
             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-secondary/40 group-focus-within:text-brand transition-colors">
               <Search className="w-5 h-5" />
             </div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search guides by title or category..."
               className="w-full h-16 bg-surface border border-border-subtle rounded-3xl pl-14 pr-6 text-sm focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand/30 transition-all shadow-xl shadow-black/5"
               value={searchQuery}
@@ -82,28 +109,105 @@ export default function GuidesPage() {
         </div>
       </section>
 
+      {/* Category Filter + Sort */}
+      <section className="pb-8 pt-4">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            {/* Category chips */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-200",
+                    selectedCategory === cat
+                      ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-brand/30 hover:text-brand"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {/* Sort buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-[10px] font-black uppercase tracking-widest text-secondary/40 mr-1">Sort:</span>
+              {(["popular", "recent"] as const).map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setSortBy(opt)}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                    sortBy === opt
+                      ? "bg-primary border-primary text-white"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-primary/30 hover:text-primary"
+                  )}
+                >
+                  {opt === "popular" ? "Popular" : "Recent"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Guides Grid */}
-      <section className="pb-40">
+      <section className="pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
           {loading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {[1, 2, 3].map(i => (
-                 <div key={i} className="h-[450px] rounded-[2.5rem] bg-surface/50 animate-pulse border border-border-subtle" />
-               ))}
-             </div>
-          ) : filteredGuides.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredGuides.map((guide, idx) => (
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-[450px] rounded-[2.5rem] bg-surface/50 animate-pulse border border-border-subtle" />
+              ))}
+            </div>
+          ) : paginatedGuides.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {paginatedGuides.map((guide, idx) => (
                 <GuideCard key={guide.id} guide={guide} index={idx} />
               ))}
             </div>
           ) : (
             <div className="text-center py-20">
               <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-surface border border-border-subtle mb-6">
-                 <Search className="w-8 h-8 text-secondary/40" />
+                <Search className="w-8 h-8 text-secondary/40" />
               </div>
               <h3 className="text-xl font-bold text-primary">No guides found</h3>
-              <p className="text-secondary/60 mt-2">Try adjusting your search terms.</p>
+              <p className="text-secondary/60 mt-2">Try adjusting your search terms or filters.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-16">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-border-subtle bg-surface text-secondary/60 hover:border-brand/30 hover:text-brand disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={cn(
+                    "w-10 h-10 rounded-full text-[10px] font-black border transition-all",
+                    currentPage === page
+                      ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-brand/30 hover:text-brand"
+                  )}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-border-subtle bg-surface text-secondary/60 hover:border-brand/30 hover:text-brand disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
             </div>
           )}
         </div>
@@ -126,9 +230,9 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
     >
       <Link href={`/guides/${guide.id}`} className="absolute inset-0 z-10" />
       <div className="relative h-60 overflow-hidden">
-        <img 
-          src={guide.image_url} 
-          alt={guide.title} 
+        <img
+          src={guide.image_url}
+          alt={guide.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         <div className="absolute top-6 left-6">
@@ -137,7 +241,7 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
           </Badge>
         </div>
       </div>
-      
+
       <div className="p-10 flex flex-col flex-1">
         <h3 className="text-xl font-bold text-primary mb-4 leading-tight group-hover:text-brand transition-colors">
           {guide.title}
@@ -145,19 +249,16 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
         <p className="text-secondary/70 text-sm leading-relaxed mb-8 line-clamp-3">
           {guide.description}
         </p>
-        
+
         <div className="mt-auto pt-8 border-t border-border-subtle/30">
-          <a 
-            href={guide.cta_link} 
-            className="flex items-center justify-between group/link"
-          >
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary group-hover/link:text-brand transition-colors">
-              {guide.cta_label}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary group-hover:text-brand transition-colors">
+              {guide.cta_label || "Read Guide"}
             </span>
-            <div className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center group-hover/link:bg-brand group-hover/link:border-brand group-hover/link:text-white transition-all duration-300">
-              <Download className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center group-hover:bg-brand group-hover:border-brand group-hover:text-white transition-all duration-300">
+              <ArrowRight className="w-4 h-4" />
             </div>
-          </a>
+          </div>
         </div>
       </div>
     </motion.div>
