@@ -86,7 +86,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Test scaffold: failing stubs for SVC-01 through SVC-08
+- [x] 03-01-PLAN.md — Test scaffold: failing stubs for SVC-01 through SVC-08
 - [ ] 03-02-PLAN.md — Backend: service_content.php endpoint + init_db.php table + 66 INSERT IGNORE seed rows
 - [ ] 03-03-PLAN.md — Frontend: service page hybrid fetch (API + SERVICES fallback) + Connect CTA optional props
 - [ ] 03-04-PLAN.md — Admin: /admin/services editor page (service selector + 6 section tabs) + sidebar entry
@@ -151,7 +151,7 @@ Plans:
 | 1. Bugs & Foundation | 1/1 | Complete    | 2026-05-14 |
 | 2. Homepage & Site Content Admin | 4/4 | Complete | 2026-05-14 |
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
-| 3. Service Pages | 0/4 | Not started | - |
+| 3. Service Pages | 1/4 | In Progress|  |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
