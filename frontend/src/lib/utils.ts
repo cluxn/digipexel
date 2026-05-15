@@ -9,7 +9,9 @@ export async function safeFetch(url: string, options?: RequestInit, timeoutMs = 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
+    const fetchPromise = fetch(url, { ...options, signal: controller.signal });
+    fetchPromise.catch(() => {});
+    const res = await fetchPromise;
     clearTimeout(timeoutId);
     if (!res.ok) {
       console.warn(`Fetch to ${url} returned status ${res.status}`);
