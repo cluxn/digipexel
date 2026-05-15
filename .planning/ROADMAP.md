@@ -75,16 +75,21 @@ Plans:
 - [x] 02.1-04-PLAN.md — Admin Problem tab (3 stat card rows) + icon SVG previews in Hero tab + context-problem.tsx API fetch
 
 ### Phase 3: Service Pages
-**Goal**: All 12 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel
+**Goal**: All 11 service pages follow a consistent, polished section format, every button links to the correct destination, and all per-service content (hero, features, roadmap, market impact, CTA, testimonials) is editable from the admin panel
 **Depends on**: Phase 2
 **Requirements**: SVC-01, SVC-02, SVC-03, SVC-04, SVC-05, SVC-06, SVC-07, SVC-08
 **Success Criteria** (what must be TRUE):
-  1. Visiting any of the 12 service pages shows the same consistent section structure: eyebrow label → heading → 2-line paragraph, matching the benai.co/custom-solutions visual reference
+  1. Visiting any of the 11 service pages shows the same consistent section structure: eyebrow label → heading → 2-line paragraph, matching the benai.co/custom-solutions visual reference
   2. Every button on every service page navigates to its correct destination (no dead links or `#` placeholders)
   3. An admin can edit the hero, features list, 6-step delivery roadmap (with 2-line descriptions per step), market impact numbers, CTA copy, and testimonials for each service individually from the admin panel
   4. Market impact numbers look genuine and are distinct per service; testimonials on service pages look real and are pulled from admin
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Test scaffold: failing stubs for SVC-01 through SVC-08
+- [ ] 03-02-PLAN.md — Backend: service_content.php endpoint + init_db.php table + 66 INSERT IGNORE seed rows
+- [ ] 03-03-PLAN.md — Frontend: service page hybrid fetch (API + SERVICES fallback) + Connect CTA optional props
+- [ ] 03-04-PLAN.md — Admin: /admin/services editor page (service selector + 6 section tabs) + sidebar entry
 
 ### Phase 4: Content Pages — Blog, Case Studies & Guides
 **Goal**: Blog, case studies, and guides are fully functional content hubs with pagination, filtering, search, and scheduling — all editable from admin — and guides capture leads
@@ -146,7 +151,7 @@ Plans:
 | 1. Bugs & Foundation | 1/1 | Complete    | 2026-05-14 |
 | 2. Homepage & Site Content Admin | 4/4 | Complete | 2026-05-14 |
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
-| 3. Service Pages | 0/0 | Not started | - |
+| 3. Service Pages | 0/4 | Not started | - |
 | 4. Content Pages — Blog, Case Studies & Guides | 0/0 | Not started | - |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
