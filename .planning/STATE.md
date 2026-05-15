@@ -96,6 +96,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260515-a8v | fix AdminSiteContentPage Failed to fetch error in fetchAll useEffect | 2026-05-15 | 3bc7278 | [260515-a8v-fix-adminsitecontentpage-failed-to-fetch](./quick/260515-a8v-fix-adminsitecontentpage-failed-to-fetch/) |
 | 260515-aee | add image upload replace delete to admin hero icons and logos sections | 2026-05-15 | 4b29ebc | [260515-aee-add-image-upload-replace-delete-to-admin](./quick/260515-aee-add-image-upload-replace-delete-to-admin/) |
+| 260515-akk | wire admin dashboard stats and actions to live API data | 2026-05-15 | 09b5a30 | [260515-akk-wire-admin-dashboard-stats-and-actions-t](./quick/260515-akk-wire-admin-dashboard-stats-and-actions-t/) |
 
 ### Blockers/Concerns
 
