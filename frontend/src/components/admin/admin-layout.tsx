@@ -19,7 +19,9 @@ import {
   Briefcase,
   Mail,
   Layers,
-  Settings
+  Settings,
+  BarChart2,
+  UserCog
 } from "lucide-react";
 
 const sidebarItems = [
@@ -35,6 +37,8 @@ const sidebarItems = [
   { name: "NEWSLETTER",    icon: Mail,              href: "/admin/newsletter",   status: "Active" },
   { name: "POPUPS",        icon: Sparkles,          href: "/admin/nudges",       status: "Active" },
   { name: "BANNERS",       icon: Layers,            href: "/admin/banners",      status: "Active" },
+  { name: "ANALYTICS",     icon: BarChart2,         href: "/admin/analytics",    status: "Active" },
+  { name: "USERS",         icon: UserCog,           href: "/admin/users",        status: "Active" },
   { name: "SETTINGS",      icon: Settings,          href: "/admin/settings",     status: "Active" },
 ];
 
