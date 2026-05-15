@@ -2,10 +2,8 @@ import BlogDetailsClient from "@/components/page-clients/blog-details-client";
 
 export async function generateStaticParams() {
   return [
-    { slug: "ai-automation-eliminating-manual-work" },
-    { slug: "lead-qualification-bot" },
-    { slug: "automation-platform-comparison" },
-    { slug: "roi-framework-ai-automation" },
+    { slug: "ai-automation-eliminates-manual-work" },
+    { slug: "seo-age-of-ai-llm-answers" },
   ];
 }
 
