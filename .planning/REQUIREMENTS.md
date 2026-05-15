@@ -111,8 +111,8 @@
 ### Admin Panel — Newsletter (NEWS)
 
 - [x] **NEWS-01**: Newsletter subscriber list viewable and exportable in admin
-- [ ] **NEWS-02**: Newsletter signup form in footer on all public pages
-- [ ] **NEWS-03**: Newsletter signup at end of blog posts and guide pages
+- [x] **NEWS-02**: Newsletter signup form in footer on all public pages
+- [x] **NEWS-03**: Newsletter signup at end of blog posts and guide pages
 
 ### Admin Panel — Popups & Banners (POP)
 
@@ -228,8 +228,8 @@
 | ADM-01 | Phase 6 — Admin Panel Completion | Pending |
 | ADM-02 | Phase 6 — Admin Panel Completion | Pending |
 | NEWS-01 | Phase 6 — Admin Panel Completion | Complete |
-| NEWS-02 | Phase 6 — Admin Panel Completion | Pending |
-| NEWS-03 | Phase 6 — Admin Panel Completion | Pending |
+| NEWS-02 | Phase 6 — Admin Panel Completion | Complete |
+| NEWS-03 | Phase 6 — Admin Panel Completion | Complete |
 | POP-01 | Phase 6 — Admin Panel Completion | Complete |
 | POP-02 | Phase 6 — Admin Panel Completion | Complete |
 | POP-03 | Phase 6 — Admin Panel Completion | Complete |

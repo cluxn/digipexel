@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 06-admin-panel-completion/06-03-PLAN.md
-last_updated: "2026-05-15T18:19:32.939Z"
+stopped_at: Completed 06-admin-panel-completion/06-04-PLAN.md
+last_updated: "2026-05-15T18:20:49.232Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 29
-  completed_plans: 26
+  completed_plans: 27
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 06 (admin-panel-completion) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Plan: 3 of 5
 | Phase 05-testimonials-system-upgrade P03 | 15 | 2 tasks | 3 files |
 | Phase 06-admin-panel-completion P01 | 3 | 3 tasks | 6 files |
 | Phase 06-admin-panel-completion P03 | 4 | 3 tasks | 5 files |
+| Phase 06-admin-panel-completion P04 | 18 | 5 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,9 @@ Recent decisions affecting current work:
 - [Phase 06-admin-panel-completion]: banners/analytics_codes seeded with disabled/empty defaults on init_db.php run
 - [Phase 06-admin-panel-completion]: Login page fetches admin_passcode from settings API at runtime — hardcoded comparison removed, '12345' kept as network-failure fallback only
 - [Phase 06-admin-panel-completion]: USR-03 activity tracking deferred to v2 — hooking all write actions across every admin page is disproportionate for v1 launch
+- [Phase 06-admin-panel-completion]: AnalyticsInjector uses DOM manipulation instead of Next.js Metadata API — required for static export compatibility
+- [Phase 06-admin-panel-completion]: Connect CTA effectiveCtaLink = ctaHref prop || fetchedLink from DB — prop override pattern for service pages
+- [Phase 06-admin-panel-completion]: WhatsApp button defaults to visible with fallback number — never disappears on fetch failure
 
 ### Pending Todos
 
@@ -159,6 +163,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T18:19:32.932Z
-Stopped at: Completed 06-admin-panel-completion/06-03-PLAN.md
+Last session: 2026-05-15T18:20:49.219Z
+Stopped at: Completed 06-admin-panel-completion/06-04-PLAN.md
 Resume file: None
