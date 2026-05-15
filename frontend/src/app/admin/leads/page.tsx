@@ -30,7 +30,7 @@ export default function AdminLeadsPage() {
 
   const fetchLeads = async () => {
     try {
-      const response = await fetch("/api/leads.php");
+      const response = await fetch(`${API_BASE_URL}/leads.php`);
       const data = await response.json();
       if (data.status === "success") {
         setLeads(data.data);
@@ -48,7 +48,7 @@ export default function AdminLeadsPage() {
 
   const updateStatus = async (id: number, status: Lead['status']) => {
     try {
-      await fetch("/api/leads.php", {
+      await fetch(`${API_BASE_URL}/leads.php`, {
         method: "POST",
         body: JSON.stringify({ action: "update_status", id, status }),
       });
@@ -61,7 +61,7 @@ export default function AdminLeadsPage() {
   const deleteLead = async (id: number) => {
     if(!confirm("Are you sure you want to delete this lead?")) return;
     try {
-      await fetch("/api/leads.php", {
+      await fetch(`${API_BASE_URL}/leads.php`, {
         method: "POST",
         body: JSON.stringify({ action: "delete_lead", id }),
       });

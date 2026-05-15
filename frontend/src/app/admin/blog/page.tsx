@@ -105,7 +105,7 @@ export default function AdminBlogPage() {
 
   const fetchPosts = async () => {
     try {
-      const data = await safeFetch("/api/blogs.php?admin=1");
+      const data = await safeFetch(`${API_BASE_URL}/blogs.php?admin=1`);
       if (data && data.status === "success") setPosts(data.data);
     } catch {}
     finally { setLoading(false); }
@@ -126,7 +126,7 @@ export default function AdminBlogPage() {
     if (!confirm("Delete this article?")) return;
     const p = posts[idx];
     if (p.id) {
-      fetch("/api/blogs.php", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_post", id: p.id }) });
+      fetch(`${API_BASE_URL}/blogs.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_post", id: p.id }) });
     }
     setPosts(prev => prev.filter((_, i) => i !== idx));
   };
@@ -135,7 +135,7 @@ export default function AdminBlogPage() {
     const p = posts[idx];
     setSaving(idx);
     try {
-      const data = await safeFetch("/api/blogs.php", {
+      const data = await safeFetch(`${API_BASE_URL}/blogs.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "save_post", post: p }),

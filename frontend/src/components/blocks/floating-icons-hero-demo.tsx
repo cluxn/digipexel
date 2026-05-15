@@ -213,7 +213,7 @@ export default function FloatingIconsHeroDemo() {
 
   useEffect(() => {
     async function fetchHero() {
-      const json = await safeFetch("/api/site_content.php?section=hero");
+      const json = await safeFetch(`${API_BASE_URL}/site_content.php?section=hero`);
       if (json.status === "success" && json.data) {
         const { iconSlots: slots, ...text } = json.data;
         setHeroText({ ...FALLBACK_HERO_TEXT, ...text });
@@ -275,7 +275,7 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
 
   useEffect(() => {
     async function fetchNav() {
-      const json = await safeFetch("/api/site_content.php?section=nav");
+      const json = await safeFetch(`${API_BASE_URL}/site_content.php?section=nav`);
       if (json.status === "success" && json.data) {
         setNavCta({ text: json.data.ctaText ?? "Book a Call", href: json.data.ctaHref ?? "/contact-us" });
       }

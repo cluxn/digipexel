@@ -139,7 +139,7 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
     };
     try {
-      const data = await safeFetch("/api/leads.php", {
+      const data = await safeFetch(`${API_BASE_URL}/leads.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -66,7 +66,7 @@ export function ContextProblem() {
 
   useEffect(() => {
     async function fetchProblem() {
-      const json = await safeFetch("/api/site_content.php?section=problem");
+      const json = await safeFetch(`${API_BASE_URL}/site_content.php?section=problem`);
       if (json.status === "success" && json.data) {
         setPs({ ...FALLBACK_PROBLEM_STATS, ...json.data });
       }

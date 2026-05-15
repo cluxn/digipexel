@@ -57,7 +57,7 @@ export default function ContactPage() {
                   };
 
                   try {
-                    const res = await fetch("/api/leads.php", {
+                    const res = await fetch(`${API_BASE_URL}/leads.php`, {
                       method: "POST",
                       body: JSON.stringify(formData),
                     });

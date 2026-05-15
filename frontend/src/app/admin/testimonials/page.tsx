@@ -41,7 +41,7 @@ export default function AdminTestimonialsPage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/testimonials.php");
+      const response = await fetch(`${API_BASE_URL}/testimonials.php`);
       const data = await response.json();
       if (data.status === "success") {
         setTestimonials(data.data || []);
@@ -111,7 +111,7 @@ export default function AdminTestimonialsPage() {
     setSaving(true);
     localStorage.setItem("PREVIEW_TESTIMONIALS", JSON.stringify(testimonials));
     try {
-      await fetch("/api/testimonials.php", {
+      await fetch(`${API_BASE_URL}/testimonials.php`, {
         method: "POST",
         body: JSON.stringify({ action: "update_testimonials", testimonials }),
       });
@@ -124,7 +124,7 @@ export default function AdminTestimonialsPage() {
     setSavingFocus(true);
     localStorage.setItem("PREVIEW_FOCUS_ASSETS", JSON.stringify(focusAssets));
     try {
-      await fetch("/api/testimonials.php", {
+      await fetch(`${API_BASE_URL}/testimonials.php`, {
         method: "POST",
         body: JSON.stringify({ action: "update_focus", focus: focusAssets }),
       });

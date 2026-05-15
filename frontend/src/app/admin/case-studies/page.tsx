@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE_URL } from "@/lib/constants";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -137,7 +138,7 @@ export default function AdminCaseStudyPage() {
 
   const fetchCases = async () => {
     try {
-      const data = await safeFetch("/api/case_studies.php?admin=1");
+      const data = await safeFetch(`${API_BASE_URL}/case_studies.php?admin=1`);
       if (data && data.status === "success") setCases(data.data);
     } catch {}
     finally { setLoading(false); }
@@ -158,7 +159,7 @@ export default function AdminCaseStudyPage() {
     if (!confirm("Delete this case study?")) return;
     const c = cases[idx];
     if (c.id) {
-      fetch("/api/case_studies.php", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_case", id: c.id }) });
+      fetch(`${API_BASE_URL}/case_studies.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_case", id: c.id }) });
     }
     setCases(prev => prev.filter((_, i) => i !== idx));
   };
@@ -167,7 +168,7 @@ export default function AdminCaseStudyPage() {
     const c = cases[idx];
     setSaving(idx);
     try {
-      const data = await safeFetch("/api/case_studies.php", {
+      const data = await safeFetch(`${API_BASE_URL}/case_studies.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "save_case", case: c }),

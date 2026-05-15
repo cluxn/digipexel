@@ -112,7 +112,7 @@ export default function TestimonialsPage() {
   useEffect(() => {
     async function fetchTestimonials() {
       try {
-        const data = await safeFetch("/api/testimonials.php");
+        const data = await safeFetch(`${API_BASE_URL}/testimonials.php`);
         if (data && data.status === "success" && data.data && data.data.length > 0) {
           setTestimonials(data.data);
         } else {

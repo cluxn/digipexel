@@ -90,7 +90,7 @@ export function Footer() {
 		e.preventDefault();
 		if (!email || subLoading) return;
 		setSubLoading(true);
-		const res = await safeFetch("/api/newsletter.php", {
+		const res = await safeFetch(`${API_BASE_URL}/newsletter.php`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ action: "subscribe", email }),

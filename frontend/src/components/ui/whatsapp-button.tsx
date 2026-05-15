@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE_URL } from "@/lib/constants";
 
 import React, { useEffect, useState } from "react";
 import { safeFetch } from "@/lib/utils";
@@ -8,7 +9,7 @@ export function WhatsAppButton() {
 
   useEffect(() => {
     async function fetchNumber() {
-      const json = await safeFetch("/api/settings.php?key=whatsapp_number");
+      const json = await safeFetch(`${API_BASE_URL}/settings.php?key=whatsapp_number`);
       if (json.status === "success" && json.data?.value) {
         const cleaned = (json.data.value as string).replace(/\D/g, "");
         if (cleaned.length >= 7) {

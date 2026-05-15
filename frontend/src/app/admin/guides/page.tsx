@@ -46,7 +46,7 @@ export default function AdminGuidesPage() {
 
   const fetchGuides = async () => {
     try {
-      const data = await safeFetch("/api/guides.php?admin=1");
+      const data = await safeFetch(`${API_BASE_URL}/guides.php?admin=1`);
       if (data && data.status === "success") setGuides(data.data);
     } catch {}
     finally { setLoading(false); }
@@ -66,7 +66,7 @@ export default function AdminGuidesPage() {
     if (!confirm("Delete this guide?")) return;
     const g = guides[idx];
     if (g.id) {
-      fetch("/api/guides.php", {
+      fetch(`${API_BASE_URL}/guides.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete_guide", id: g.id }),
@@ -79,7 +79,7 @@ export default function AdminGuidesPage() {
     const g = guides[idx];
     setSaving(idx);
     try {
-      const data = await safeFetch("/api/guides.php", {
+      const data = await safeFetch(`${API_BASE_URL}/guides.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "save_guide", guide: g }),
