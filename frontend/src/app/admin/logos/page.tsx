@@ -31,7 +31,7 @@ export default function AdminLogosPage() {
 
   const fetchData = async () => {
     try {
-      const data = await safeFetch("/api/logos.php");
+      const data = await safeFetch(`${API_BASE_URL}/logos.php`);
       if (data && data.status === "success") {
         setLogos(data.data.logos);
         setIsEnabled(data.data.enabled);
@@ -64,8 +64,9 @@ export default function AdminLogosPage() {
       setIsEnabled(nuevoEstado);
       localStorage.setItem("PREVIEW_LOGOS_ENABLED", String(nuevoEstado));
       
-      await fetch("/api/logos.php", {
+      await safeFetch(`${API_BASE_URL}/logos.php`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "toggle_section", enabled: nuevoEstado }),
       });
     } catch (error) {
@@ -126,8 +127,9 @@ export default function AdminLogosPage() {
     localStorage.setItem("PREVIEW_LOGOS", JSON.stringify(logos));
     
     try {
-      const data = await safeFetch("/api/logos.php", {
+      const data = await safeFetch(`${API_BASE_URL}/logos.php`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update_logos", logos }),
       });
       if (data && data.status === "success") {
