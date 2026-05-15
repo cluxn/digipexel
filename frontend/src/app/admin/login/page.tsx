@@ -5,30 +5,46 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight, Lock, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 export default function AdminLoginPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(false);
+    setChecking(true);
 
-    // Artificial delay for premium feel
-    setTimeout(() => {
-      if (code === "12345") {
+    try {
+      const res = await fetch(`${API_BASE_URL}/settings.php?key=admin_passcode`);
+      const json = await res.json();
+      const storedPasscode = json?.status === 'success' ? (json.data?.value ?? '12345') : '12345';
+      if (code === storedPasscode) {
         localStorage.setItem("admin_auth", "true");
         router.push("/admin");
       } else {
         setError(true);
         setLoading(false);
-        // Reset code on error
         setCode("");
       }
-    }, 800);
+    } catch {
+      // Network error — fall back to hardcoded default so admin is never fully locked out
+      if (code === '12345') {
+        localStorage.setItem("admin_auth", "true");
+        router.push("/admin");
+      } else {
+        setError(true);
+        setLoading(false);
+        setCode("");
+      }
+    } finally {
+      setChecking(false);
+    }
   };
 
   return (
@@ -85,7 +101,7 @@ export default function AdminLoginPage() {
               disabled={loading || code.length === 0}
               className="w-full bg-[#1A1C1E] hover:bg-black text-white h-16 rounded-[1.5rem] font-bold text-lg shadow-xl shadow-black/10 transition-all active:scale-[0.98]"
             >
-              {loading ? (
+              {loading || checking ? (
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   <span>Verifying...</span>
