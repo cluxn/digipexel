@@ -6,7 +6,7 @@ import {
   FileText, AlertTriangle, Lightbulb, BarChart3, Zap, Clock,
   Table2, BookOpen, Image as ImageIcon, User,
 } from "lucide-react";
-import { safeFetch } from "@/lib/utils";
+import { safeFetch, cn } from "@/lib/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SectionType = "overview" | "challenge" | "solution" | "timeline" | "comparison" | "metrics" | "results" | "text" | "mid_cta";
@@ -46,7 +46,8 @@ interface BlogPost {
   sections: BlogSection[];
   show_related: boolean;
   show_category_section: boolean;
-  status: "published" | "draft";
+  status: "published" | "draft" | "scheduled";
+  scheduled_at: string;
   featured: boolean;
   published_at: string;
   position: number;
@@ -71,6 +72,7 @@ const defaultPost = (): BlogPost => ({
   show_related: true,
   show_category_section: false,
   status: "draft",
+  scheduled_at: "",
   featured: false,
   published_at: new Date().toISOString().slice(0, 10),
   position: 0,
@@ -194,7 +196,18 @@ export default function AdminBlogPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-slate-900 text-sm truncate max-w-xs">{p.title || "Untitled"}</span>
-                      <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${p.status === "published" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>{p.status}</span>
+                      <span className={cn(
+                        "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                        p.status === "published"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                          : p.status === "scheduled"
+                          ? "bg-blue-50 text-blue-600 border-blue-200"
+                          : "bg-amber-50 text-amber-600 border-amber-200"
+                      )}>
+                        {p.status === "scheduled" && p.scheduled_at
+                          ? `Scheduled · ${new Date(p.scheduled_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+                          : p.status}
+                      </span>
                       {p.featured && <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200">Featured</span>}
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">{p.category} · {p.author_name} · {p.sections.length} sections · {p.published_at}</p>
@@ -244,7 +257,19 @@ export default function AdminBlogPage() {
                         <div className="md:col-span-2">
                           <Field label="Excerpt (card summary)" value={p.excerpt} textarea rows={2} onChange={v => updatePost(idx, { excerpt: v })} />
                         </div>
-                        <Field label="Category" value={p.category} onChange={v => updatePost(idx, { category: v })} placeholder="Technology, Strategy…" />
+                        <div>
+                          <label className="field-label">Category</label>
+                          <input
+                            list={`cats-${p.id ?? p.slug}`}
+                            value={p.category}
+                            onChange={e => updatePost(idx, { category: e.target.value })}
+                            placeholder="Technology, Strategy…"
+                            className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1"
+                          />
+                          <datalist id={`cats-${p.id ?? p.slug}`}>
+                            {Array.from(new Set(posts.map(post => post.category).filter(Boolean))).map(cat => <option key={cat} value={cat} />)}
+                          </datalist>
+                        </div>
                         <Field label="Tags (comma-separated)" value={p.tags} onChange={v => updatePost(idx, { tags: v })} placeholder="AI, Automation, SEO" />
                         <Field label="Publish Date" value={p.published_at} type="date" onChange={v => updatePost(idx, { published_at: v })} />
                         <div className="md:col-span-2">
@@ -331,13 +356,59 @@ export default function AdminBlogPage() {
                           <ToggleSetting label="Featured" desc="Highlight this article on the listing page" value={p.featured} onChange={v => updatePost(idx, { featured: v })} />
                         </div>
                         <div className="space-y-5">
+
+                          {/* Three-state publish control */}
                           <div>
-                            <label className="field-label">Status</label>
-                            <select value={p.status} onChange={e => updatePost(idx, { status: e.target.value as any })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white">
-                              <option value="draft">Draft (hidden from public)</option>
-                              <option value="published">Published (visible to all)</option>
-                            </select>
+                            <label className="field-label mb-3 block">Publish Status</label>
+                            <div className="space-y-2">
+                              {([
+                                { value: "published", label: "Publish Now", desc: "Visible to all visitors immediately" },
+                                { value: "scheduled", label: "Schedule", desc: "Goes live on a specific date and time" },
+                                { value: "draft",     label: "Save as Draft", desc: "Hidden from public until published" },
+                              ] as const).map(opt => (
+                                <label
+                                  key={opt.value}
+                                  className={cn(
+                                    "flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all",
+                                    p.status === opt.value
+                                      ? "border-brand bg-brand/5"
+                                      : "border-slate-200 bg-white hover:border-slate-300"
+                                  )}
+                                >
+                                  <input
+                                    type="radio"
+                                    name={`status-${p.id ?? p.slug}`}
+                                    value={opt.value}
+                                    checked={p.status === opt.value}
+                                    onChange={() => updatePost(idx, {
+                                      status: opt.value,
+                                      scheduled_at: opt.value !== "scheduled" ? "" : p.scheduled_at,
+                                    })}
+                                    className="mt-0.5 accent-brand"
+                                  />
+                                  <div>
+                                    <span className="text-xs font-bold text-slate-700 block">{opt.label}</span>
+                                    <span className="text-[10px] text-slate-400">{opt.desc}</span>
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+
+                            {/* Datetime picker — only visible when status is scheduled */}
+                            {p.status === "scheduled" && (
+                              <div className="mt-4">
+                                <label className="field-label">Scheduled Date & Time</label>
+                                <input
+                                  type="datetime-local"
+                                  value={p.scheduled_at || ""}
+                                  onChange={e => updatePost(idx, { scheduled_at: e.target.value })}
+                                  className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">Post goes live when this time is reached.</p>
+                              </div>
+                            )}
                           </div>
+
                           <Field label="Position (order)" value={String(p.position)} type="number" onChange={v => updatePost(idx, { position: Number(v) })} />
                         </div>
                         <div className="md:col-span-2 border-t border-slate-100 pt-5">
