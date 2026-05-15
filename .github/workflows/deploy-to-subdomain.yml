@@ -28,6 +28,8 @@ jobs:
         run: |
           cd frontend
           npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://digipexel.cluxn.com/backend/api
 
       - name: 🔧 Install lftp
         run: sudo apt-get install -y lftp
