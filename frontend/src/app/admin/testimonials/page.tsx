@@ -157,7 +157,7 @@ export default function AdminTestimonialsPage() {
     value: string | number
   ) => {
     const nextItems = [...testimonials];
-    (nextItems[index] as Record<string, unknown>)[field] = value;
+    (nextItems[index] as unknown as Record<string, unknown>)[field] = value;
     setTestimonials(nextItems);
   };
 
@@ -215,7 +215,7 @@ export default function AdminTestimonialsPage() {
 
   const updateFocusAsset = (index: number, field: keyof FocusAsset, value: string) => {
     const nextItems = [...focusAssets];
-    (nextItems[index] as Record<string, unknown>)[field] = value;
+    (nextItems[index] as unknown as Record<string, unknown>)[field] = value;
     setFocusAssets(nextItems);
   };
 
