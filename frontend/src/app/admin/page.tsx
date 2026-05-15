@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Users, MessageSquare, Eye, Trash2, Sparkles,
-  Briefcase, Layers, Bell, Clock, TrendingUp,
+  Briefcase, Bell, Clock, TrendingUp,
   FileText, HelpCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -43,6 +43,9 @@ export default function AdminDashboard() {
   const [blogCount, setBlogCount]         = useState(0);
   const [csCount, setCsCount]             = useState(0);
   const [guideCount, setGuideCount]       = useState(0);
+  const [testimonialCount, setTestimonialCount] = useState(0);
+  const [subscriberCount, setSubscriberCount]   = useState(0);
+  const [totalLeadsCount, setTotalLeadsCount]   = useState(0);
   const [leads, setLeads]                 = useState<Lead[]>([]);
   const [nudge, setNudge]                 = useState<NudgeConfig>(DEFAULT_NUDGE);
 
@@ -51,30 +54,32 @@ export default function AdminDashboard() {
     if (stored) { try { setNudge({ ...DEFAULT_NUDGE, ...JSON.parse(stored) }); } catch {} }
 
     Promise.all([
-      api.get("blogs", { admin: "1" }),
-      api.get("case_studies"),
-      api.get("guides"),
+      api.get("stats"),
       api.get("leads"),
-    ]).then(([b, cs, g, l]) => {
-      if (b?.status === "success"  && Array.isArray(b.data))  setBlogCount(b.data.length);
-      if (cs?.status === "success" && Array.isArray(cs.data)) setCsCount(cs.data.length);
-      if (g?.status === "success"  && Array.isArray(g.data))  setGuideCount(g.data.length);
-      if (l?.status === "success"  && Array.isArray(l.data))  setLeads(l.data);
+    ]).then(([s, l]) => {
+      if (s?.status === "success" && s.data) {
+        setBlogCount(s.data.blogs ?? 0);
+        setCsCount(s.data.case_studies ?? 0);
+        setGuideCount(s.data.guides ?? 0);
+        setTestimonialCount(s.data.testimonials ?? 0);
+        setSubscriberCount(s.data.subscribers ?? 0);
+        // totalLeadsCount stat card now comes from stats endpoint
+        setTotalLeadsCount(s.data.leads ?? 0);
+      }
+      if (l?.status === "success" && Array.isArray(l.data)) setLeads(l.data);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const totalLeads   = leads.length;
-  const newLeads     = leads.filter(l => (l.status ?? "new").toLowerCase() === "new").length;
-  const activeNudges = [nudge.banner.enabled, nudge.popup.enabled, nudge.exitPopup.enabled].filter(Boolean).length;
+  const newLeads = leads.filter(l => (l.status ?? "new").toLowerCase() === "new").length;
 
   const stats = [
-    { label: "New Leads",      value: loading ? "—" : String(newLeads),     color: "text-amber-500",  icon: Clock },
-    { label: "Case Studies",   value: loading ? "—" : String(csCount),       color: "text-[#1A1C1E]",  icon: Briefcase },
-    { label: "Web Inquiries",  value: loading ? "—" : String(totalLeads),    color: "text-rose-500",   icon: MessageSquare },
-    { label: "Active Nudges",  value: loading ? "—" : String(activeNudges),  color: "text-blue-500",   icon: Sparkles },
-    { label: "Active Banners", value: loading ? "—" : (nudge.banner.enabled ? "1" : "0"), color: "text-violet-500", icon: Layers },
-    { label: "Blog Posts",     value: loading ? "—" : String(blogCount),     color: "text-slate-500",  icon: FileText },
-    { label: "Guides",         value: loading ? "—" : String(guideCount),    color: "text-emerald-500", icon: HelpCircle },
+    { label: "New Leads",    value: loading ? "—" : String(newLeads),          color: "text-amber-500",   icon: Clock },
+    { label: "Total Leads",  value: loading ? "—" : String(totalLeadsCount),    color: "text-rose-500",    icon: MessageSquare },
+    { label: "Blog Posts",   value: loading ? "—" : String(blogCount),          color: "text-slate-500",   icon: FileText },
+    { label: "Case Studies", value: loading ? "—" : String(csCount),            color: "text-[#1A1C1E]",   icon: Briefcase },
+    { label: "Guides",       value: loading ? "—" : String(guideCount),         color: "text-emerald-500", icon: HelpCircle },
+    { label: "Testimonials", value: loading ? "—" : String(testimonialCount),   color: "text-violet-500",  icon: MessageSquare },
+    { label: "Subscribers",  value: loading ? "—" : String(subscriberCount),    color: "text-blue-500",    icon: Users },
   ];
 
   const disableNudge = (key: keyof NudgeConfig) => {
