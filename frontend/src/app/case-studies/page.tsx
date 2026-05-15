@@ -7,7 +7,7 @@ import { Navbar } from "@/components/blocks/floating-icons-hero-demo";
 import { Footer } from "@/components/ui/footer-section";
 import { Connect } from "@/components/blocks/connect-cta";
 import { motion } from "framer-motion";
-import { Search, ArrowRight, ExternalLink, Globe, Layout, TrendingUp } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { api, endpoints } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,9 @@ interface CaseStudy {
   industry: string;
   client_name: string;
   slug: string;
+  position?: number;
+  status?: string;
+  published_date?: string;
 }
 
 export default function CaseStudiesPage() {
@@ -27,6 +30,9 @@ export default function CaseStudiesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
+  const [sortBy, setSortBy] = useState<"popular" | "recent">("popular");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     async function fetchCases() {
@@ -44,20 +50,36 @@ export default function CaseStudiesPage() {
     fetchCases();
   }, []);
 
-  const industries = ["All", ...Array.from(new Set(cases.map(c => c.industry)))];
+  // Reset page when filters/sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedIndustry, sortBy]);
 
+  const categories = ["All", ...Array.from(new Set(cases.map(c => c.industry)))];
+
+  // Step 1: filter
   const filteredCases = cases.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.client_name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesIndustry = selectedIndustry === "All" || c.industry === selectedIndustry;
     return matchesSearch && matchesIndustry;
   });
 
+  // Step 2: sort
+  const sortedCases = [...filteredCases].sort((a, b) => {
+    if (sortBy === "popular") return (a.position ?? 0) - (b.position ?? 0);
+    return new Date(b.published_date ?? 0).getTime() - new Date(a.published_date ?? 0).getTime();
+  });
+
+  // Step 3: paginate
+  const totalPages = Math.ceil(sortedCases.length / PAGE_SIZE);
+  const paginatedCases = sortedCases.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <main className="min-h-screen bg-base">
       <Navbar className="top-0" darkHero={false} />
-      
+
       {/* Hero Section */}
       <section className="relative min-h-[72vh] flex items-center pt-32 pb-16 overflow-hidden">
         {/* Subtle radial glow */}
@@ -115,41 +137,98 @@ export default function CaseStudiesPage() {
       {/* Grid Section */}
       <section className="pb-32">
         <div className="container mx-auto px-6 max-w-7xl">
-            {/* Industry Filter */}
-            <div className="flex flex-wrap gap-2 mb-16 border-b border-border-subtle pb-8">
-                {industries.map(ind => (
-                    <button
-                        key={ind}
-                        onClick={() => setSelectedIndustry(ind)}
-                        className={cn(
-                            "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
-                            selectedIndustry === ind 
-                                ? "bg-primary text-white shadow-xl" 
-                                : "bg-surface text-secondary/50 hover:bg-slate-50 border border-border-subtle"
-                        )}
-                    >
-                        {ind}
-                    </button>
-                ))}
-            </div>
 
-            {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    {[1, 2].map(i => (
-                        <div key={i} className="h-[600px] rounded-[3.5rem] bg-surface/50 animate-pulse" />
-                    ))}
-                </div>
-            ) : filteredCases.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-                    {filteredCases.map((cs, idx) => (
-                        <CaseStudyCard key={cs.id} study={cs} index={idx} />
-                    ))}
-                </div>
-            ) : (
-                <div className="py-32 text-center rounded-[3rem] bg-surface/30 border-2 border-dashed border-border-subtle">
-                    <p className="text-secondary/60 font-bold uppercase tracking-widest">No matching case studies</p>
-                </div>
-            )}
+          {/* Sort + Category Controls */}
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-[10px] font-black uppercase tracking-widest text-secondary/40">Category</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-secondary/40 mr-2">Sort:</span>
+              {(["popular", "recent"] as const).map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setSortBy(opt)}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                    sortBy === opt
+                      ? "bg-primary border-primary text-white"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-primary/30 hover:text-primary"
+                  )}
+                >
+                  {opt === "popular" ? "Popular" : "Recent"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap gap-2 mb-16 border-b border-border-subtle pb-8">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedIndustry(cat)}
+                className={cn(
+                  "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                  selectedIndustry === cat
+                    ? "bg-primary text-white shadow-xl"
+                    : "bg-surface text-secondary/50 hover:bg-slate-50 border border-border-subtle"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {[1, 2].map(i => (
+                <div key={i} className="h-[600px] rounded-[3.5rem] bg-surface/50 animate-pulse" />
+              ))}
+            </div>
+          ) : paginatedCases.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
+              {paginatedCases.map((cs, idx) => (
+                <CaseStudyCard key={cs.id} study={cs} index={idx} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-32 text-center rounded-[3rem] bg-surface/30 border-2 border-dashed border-border-subtle">
+              <p className="text-secondary/60 font-bold uppercase tracking-widest">No matching case studies</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-16">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center text-secondary/60 hover:border-brand hover:text-brand disabled:opacity-30 transition-all"
+              >
+                ‹
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={cn(
+                    "w-10 h-10 rounded-full text-[11px] font-black transition-all",
+                    currentPage === page
+                      ? "bg-brand text-white shadow-lg shadow-brand/20"
+                      : "border border-border-subtle text-secondary/60 hover:border-brand hover:text-brand"
+                  )}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="w-10 h-10 rounded-full border border-border-subtle flex items-center justify-center text-secondary/60 hover:border-brand hover:text-brand disabled:opacity-30 transition-all"
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -163,39 +242,39 @@ export default function CaseStudiesPage() {
 function CaseStudyCard({ study, index }: { study: CaseStudy; index: number }) {
   return (
     <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: index * 0.1, duration: 0.8 }}
-        className="group relative flex flex-col"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.8 }}
+      className="group relative flex flex-col"
     >
-        <Link href={`/case-studies/${study.slug || study.id}`} className="absolute inset-0 z-20" />
-        <div className="relative aspect-[16/10] rounded-[3.5rem] overflow-hidden mb-8 border border-border-subtle shadow-2xl shadow-black/5">
-            <img src={study.image_url} alt={study.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            <div className="absolute top-8 left-8">
-                <Badge className="bg-white/90 backdrop-blur text-primary border-none shadow-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-2xl">
-                    {study.industry}
-                </Badge>
-            </div>
+      <Link href={`/case-studies/${study.slug || study.id}`} className="absolute inset-0 z-20" />
+      <div className="relative aspect-[16/10] rounded-[3.5rem] overflow-hidden mb-8 border border-border-subtle shadow-2xl shadow-black/5">
+        <img src={study.image_url} alt={study.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="absolute bottom-8 right-8 overflow-hidden">
-                <div className="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center translate-y-20 group-hover:translate-y-0 transition-transform duration-500 shadow-2xl">
-                    <ArrowRight className="w-6 h-6" />
-                </div>
-            </div>
+        <div className="absolute top-8 left-8">
+          <Badge className="bg-white/90 backdrop-blur text-primary border-none shadow-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-2xl">
+            {study.industry}
+          </Badge>
         </div>
 
-        <div className="px-4">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-brand/60 mb-3 block">{study.client_name}</span>
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-primary mb-4 leading-tight group-hover:text-brand transition-colors">
-                {study.title}
-            </h3>
-            <p className="text-secondary/70 text-base leading-relaxed line-clamp-2">
-                {study.subtitle}
-            </p>
+        <div className="absolute bottom-8 right-8 overflow-hidden">
+          <div className="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center translate-y-20 group-hover:translate-y-0 transition-transform duration-500 shadow-2xl">
+            <ArrowRight className="w-6 h-6" />
+          </div>
         </div>
+      </div>
+
+      <div className="px-4">
+        <span className="text-xs font-black uppercase tracking-[0.3em] text-brand/60 mb-3 block">{study.client_name}</span>
+        <h3 className="text-2xl md:text-3xl font-display font-bold text-primary mb-4 leading-tight group-hover:text-brand transition-colors">
+          {study.title}
+        </h3>
+        <p className="text-secondary/70 text-base leading-relaxed line-clamp-2">
+          {study.subtitle}
+        </p>
+      </div>
     </motion.div>
   );
 }
