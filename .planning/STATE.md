@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-service-pages 03-02-PLAN.md
-last_updated: "2026-05-15T02:15:38.606Z"
+stopped_at: Completed 03-service-pages 03-03-PLAN.md
+last_updated: "2026-05-15T02:19:02.475Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 03 (service-pages) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Plan: 3 of 4
 | Phase 02.1-post-phase-2-gap-fixes-inserted P04 | 10 | 2 tasks | 2 files |
 | Phase 03-service-pages P01 | 25 | 1 tasks | 1 files |
 | Phase 03-service-pages P02 | 5 | 2 tasks | 2 files |
+| Phase 03-service-pages P03 | 4 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent decisions affecting current work:
 - [Phase 03-service-pages]: SVC-06 Connect ctaBadge prop test uses it.todo() — cannot assert until Plan 03 adds the prop to Connect component
 - [Phase 03-service-pages]: service_content uses (slug, section) composite PRIMARY KEY — O(1) lookup by either slug alone or slug+section
 - [Phase 03-service-pages]: INSERT IGNORE in seed rows protects admin edits from being overwritten on re-run of init_db.php; ON DUPLICATE KEY UPDATE used only in API endpoint for admin saves
+- [Phase 03-service-pages]: 6 separate useState objects (one per section) rather than one merged state — each section updates independently, isolated re-renders per API section
+- [Phase 03-service-pages]: Connect optional props badge/title/copy use ?? fallback to hardcoded defaults — downstream component functional when parent provides nothing (per-service CTA override pattern)
+- [Phase 03-service-pages]: Icons kept from staticData.features[i].icon (D-14 locked) — only title/description come from API for feature cards
 
 ### Pending Todos
 
@@ -110,6 +114,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T02:15:38.599Z
-Stopped at: Completed 03-service-pages 03-02-PLAN.md
+Last session: 2026-05-15T02:19:02.466Z
+Stopped at: Completed 03-service-pages 03-03-PLAN.md
 Resume file: None
