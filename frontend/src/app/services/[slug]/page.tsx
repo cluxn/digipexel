@@ -1,14 +1,16 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { 
-  Zap, 
-  ShieldCheck, 
-  ArrowRight, 
-  Layers, 
-  TrendingUp, 
-  Target, 
-  Clock, 
+import {
+  Zap,
+  ShieldCheck,
+  ArrowRight,
+  Layers,
+  TrendingUp,
+  Target,
+  Clock,
   Users2,
   CheckCircle2,
   FileText
@@ -19,6 +21,8 @@ import { Navbar } from "@/components/blocks/floating-icons-hero-demo";
 import { Footer } from "@/components/ui/footer-section";
 import { Connect } from "@/components/blocks/connect-cta";
 import { Search, Workflow } from "lucide-react";
+import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 type ServiceData = {
   name: string;
@@ -43,6 +47,82 @@ type ServiceData = {
   features?: { title: string; description: string; icon: any }[];
   testimonials?: { quote: string; role: string; company?: string }[];
 };
+
+// ── API section content types (per RESEARCH.md canonical field names) ──────
+
+interface HeroSectionData {
+  badge?: string;
+  heroLine1?: string;
+  heroLine2?: string;
+  heroCopy?: string;
+  ctaPrimary?: string;
+  pills?: [string, string, string];
+  snapshotTitle?: string;
+  snapshotRows?: string[];
+  statLabel1?: string;
+  statValue1?: string;
+  statLabel2?: string;
+  statValue2?: string;
+}
+
+interface FeatureCard {
+  title: string;
+  description: string;
+}
+
+interface FeaturesSectionData {
+  cards?: FeatureCard[];
+}
+
+interface RoadmapItem {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+interface RoadmapSectionData {
+  roadmapTitle?: string;
+  roadmapTitleAccent?: string;
+  roadmapCopy?: string;
+  items?: RoadmapItem[];
+}
+
+interface OutcomeCard {
+  quote: string;
+  company: string;
+  sector: string;
+  metricValue: string;
+  metricLabel: string;
+}
+
+interface OutcomeStat {
+  value: string;
+  label: string;
+}
+
+interface MarketImpactSectionData {
+  outcomesTitle?: string;
+  outcomesTitleAccent?: string;
+  outcomesCopy?: string;
+  cards?: OutcomeCard[];
+  stats?: OutcomeStat[];
+}
+
+interface CtaSectionData {
+  ctaBadge?: string;
+  ctaTitle?: string;
+  ctaCopy?: string;
+}
+
+interface TestimonialsItem {
+  quote: string;
+  role: string;
+  company?: string;
+}
+
+interface TestimonialsSectionData {
+  items?: TestimonialsItem[];
+}
 
 const SERVICES: Record<string, ServiceData> = {
   "ai-seo": {
@@ -462,9 +542,31 @@ export async function generateStaticParams() {
 }
 
 export default function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
-  const unwrappedParams = React.use(params);
-  const service = SERVICES[unwrappedParams.slug];
-  if (!service) return notFound();
+  const { slug } = React.use(params);
+  const staticData = SERVICES[slug];
+  if (!staticData) return notFound();
+
+  // ── Section state — initialized empty, API data merges in on mount ──────
+  const [heroData, setHeroData]                     = useState<HeroSectionData>({});
+  const [featuresData, setFeaturesData]             = useState<FeaturesSectionData>({});
+  const [roadmapData, setRoadmapData]               = useState<RoadmapSectionData>({});
+  const [marketData, setMarketData]                 = useState<MarketImpactSectionData>({});
+  const [ctaData, setCtaData]                       = useState<CtaSectionData>({});
+  const [testimonialsData, setTestimonialsData]     = useState<TestimonialsSectionData>({});
+
+  useEffect(() => {
+    safeFetch(`${API_BASE_URL}/service_content.php?slug=${slug}`)
+      .then((res: any) => {
+        if (res?.status === "success" && res.data) {
+          if (res.data.hero)          setHeroData(res.data.hero);
+          if (res.data.features)      setFeaturesData(res.data.features);
+          if (res.data.roadmap)       setRoadmapData(res.data.roadmap);
+          if (res.data.market_impact) setMarketData(res.data.market_impact);
+          if (res.data.cta)           setCtaData(res.data.cta);
+          if (res.data.testimonials)  setTestimonialsData(res.data.testimonials);
+        }
+      });
+  }, [slug]);
 
   return (
     <main className="min-h-screen bg-base">
@@ -477,22 +579,22 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center">
             <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
               <Badge variant="outline" className="section-eyebrow mb-6">
-                {service.badge}
+                {heroData.badge ?? staticData.badge}
               </Badge>
               <h1 className="hero-title mb-6 leading-[1.05]">
-                {service.heroLine1} <br />
-                <span className="hero-title-accent">{service.heroLine2}</span>
+                {heroData.heroLine1 ?? staticData.heroLine1} <br />
+                <span className="hero-title-accent">{heroData.heroLine2 ?? staticData.heroLine2}</span>
               </h1>
               <p className="max-w-xl text-lg md:text-xl leading-relaxed text-secondary opacity-70 mb-10 font-medium">
-                {service.heroCopy}
+                {heroData.heroCopy ?? staticData.heroCopy}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild className="h-14 px-10 rounded-2xl text-lg font-bold bg-brand text-white hover:bg-brand/90 shadow-xl shadow-brand/20 transition-all hover:scale-105 active:scale-95">
-                  <Link href="/contact-us">{service.ctaPrimary}</Link>
+                  <Link href="/contact-us">{heroData.ctaPrimary ?? staticData.ctaPrimary}</Link>
                 </Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
-                {service.pills.map((pill) => (
+                {(heroData.pills ?? staticData.pills).map((pill) => (
                   <div key={pill} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-highlight border border-border-subtle text-[10px] font-bold uppercase tracking-widest text-secondary/70">
                     <CheckCircle2 className="w-3 h-3 text-brand" />
                     {pill}
@@ -509,10 +611,10 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                 </div>
                 <div className="text-[10px] font-black uppercase tracking-[0.3em] text-brand mb-6 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-                  {service.snapshotTitle}
+                  {heroData.snapshotTitle ?? staticData.snapshotTitle}
                 </div>
                 <div className="space-y-3">
-                  {service.snapshotRows.map((item, idx) => (
+                  {(heroData.snapshotRows ?? staticData.snapshotRows).map((item, idx) => (
                     <div
                       key={item}
                       className="flex items-center justify-between rounded-2xl border border-border-subtle bg-white/50 px-5 py-3.5 transition-all hover:border-brand/30 group"
@@ -524,12 +626,12 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                 </div>
                 <div className="mt-8 grid grid-cols-2 gap-4">
                    <div className="p-5 rounded-3xl bg-brand/5 border border-brand/10">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-brand/60 mb-0.5">{service.statLabel1}</div>
-                      <div className="text-2xl font-display font-black text-primary">{service.statValue1}</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-brand/60 mb-0.5">{heroData.statLabel1 ?? staticData.statLabel1}</div>
+                      <div className="text-2xl font-display font-black text-primary">{heroData.statValue1 ?? staticData.statValue1}</div>
                    </div>
                    <div className="p-5 rounded-3xl bg-brand/5 border border-brand/10">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-brand/60 mb-0.5">{service.statLabel2}</div>
-                      <div className="text-2xl font-display font-black text-primary">{service.statValue2}</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-brand/60 mb-0.5">{heroData.statLabel2 ?? staticData.statLabel2}</div>
+                      <div className="text-2xl font-display font-black text-primary">{heroData.statValue2 ?? staticData.statValue2}</div>
                    </div>
                 </div>
               </div>
@@ -546,7 +648,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
               The Reality Check
             </Badge>
             <h2 className="text-3xl md:text-5xl font-display font-bold text-primary max-w-3xl mx-auto leading-tight">
-               {service.gapHeading}
+               {staticData.gapHeading}
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -556,10 +658,10 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
               </div>
               <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-3">
                  <div className="w-2 h-2 rounded-full bg-slate-300" />
-                 {service.gapLeftTitle}
+                 {staticData.gapLeftTitle}
               </h3>
               <ul className="space-y-5">
-                {service.gapLeftItems.map((item) => (
+                {staticData.gapLeftItems.map((item) => (
                   <li key={item} className="flex gap-3 text-sm font-medium text-secondary/70">
                     <span className="text-slate-300">—</span> {item}
                   </li>
@@ -572,10 +674,10 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
               </div>
               <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-3">
                  <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-                 {service.gapRightTitle}
+                 {staticData.gapRightTitle}
               </h3>
               <ul className="space-y-5">
-                {service.gapRightItems.map((item) => (
+                {staticData.gapRightItems.map((item) => (
                   <li key={item} className="flex gap-3 text-sm font-bold text-primary/80">
                     <CheckCircle2 className="w-5 h-5 text-brand shrink-0" /> {item}
                   </li>
@@ -601,7 +703,10 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
             <p className="section-subtitle max-w-2xl mx-auto">{DEFAULT_SECTIONS.platformCopy}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {(service.features || DEFAULT_SECTIONS.platformCards).map((card, idx) => (
+            {(featuresData.cards
+              ? featuresData.cards.map((card, i) => ({ ...card, icon: staticData.features?.[i]?.icon ?? Zap }))
+              : (staticData.features ?? DEFAULT_SECTIONS.platformCards)
+            ).map((card, idx) => (
               <div key={card.title} className="group relative rounded-[3rem] border border-border-subtle bg-surface p-10 shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-brand/5 hover:-translate-y-2">
                 <div className="mb-8 w-16 h-16 rounded-2xl bg-brand/5 flex items-center justify-center text-brand transition-all group-hover:bg-brand group-hover:text-white group-hover:scale-110">
                    {card.icon && <card.icon className="w-8 h-8" />}
@@ -627,16 +732,16 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
               The Delivery Process
             </Badge>
             <h2 className="section-title">
-              {DEFAULT_SECTIONS.roadmapTitle} <br />
-              <span className="section-title-accent">{DEFAULT_SECTIONS.roadmapTitleAccent}</span>
+              {roadmapData.roadmapTitle ?? DEFAULT_SECTIONS.roadmapTitle} <br />
+              <span className="section-title-accent">{roadmapData.roadmapTitleAccent ?? DEFAULT_SECTIONS.roadmapTitleAccent}</span>
             </h2>
             <p className="section-subtitle max-w-2xl mx-auto">
-              {DEFAULT_SECTIONS.roadmapCopy}
+              {roadmapData.roadmapCopy ?? DEFAULT_SECTIONS.roadmapCopy}
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {DEFAULT_SECTIONS.roadmapItems.map((item) => (
+            {(roadmapData.items ?? DEFAULT_SECTIONS.roadmapItems).map((item) => (
               <div key={item.step} className="p-8 rounded-[2.5rem] border border-border-subtle bg-white relative group hover:border-brand/30 transition-colors">
                 <div className="text-5xl font-display font-black text-slate-50 absolute top-4 right-8 group-hover:text-brand/5 transition-colors">
                     {item.step}
@@ -696,13 +801,16 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
               Market Impact
             </Badge>
             <h2 className="section-title">
-              {DEFAULT_SECTIONS.outcomesTitle} <br />
-              <span className="section-title-accent">{DEFAULT_SECTIONS.outcomesTitleAccent}</span>
+              {marketData.outcomesTitle ?? DEFAULT_SECTIONS.outcomesTitle} <br />
+              <span className="section-title-accent">{marketData.outcomesTitleAccent ?? DEFAULT_SECTIONS.outcomesTitleAccent}</span>
             </h2>
-            <p className="section-subtitle max-w-2xl mx-auto">{DEFAULT_SECTIONS.outcomesCopy}</p>
+            <p className="section-subtitle max-w-2xl mx-auto">{marketData.outcomesCopy ?? DEFAULT_SECTIONS.outcomesCopy}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {DEFAULT_SECTIONS.outcomesCards.map(([quote, company, sector, value, label]) => (
+            {(marketData.cards
+              ? marketData.cards.map((c) => [c.quote, c.company, c.sector, c.metricValue, c.metricLabel] as [string, string, string, string, string])
+              : DEFAULT_SECTIONS.outcomesCards
+            ).map(([quote, company, sector, value, label]) => (
               <div key={quote} className="group rounded-[3rem] border border-border-subtle bg-surface p-12 transition-all hover:border-brand/20 shadow-sm hover:shadow-2xl">
                 <div className="mb-8 p-3 rounded-full bg-slate-50 w-fit">
                     <FileText className="w-8 h-8 text-slate-200" />
@@ -728,10 +836,13 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
           </div>
 
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-            {DEFAULT_SECTIONS.outcomesStats.map(([value, label], idx) => (
+            {(marketData.stats
+              ? marketData.stats.map((s) => [s.value, s.label] as [string, string])
+              : DEFAULT_SECTIONS.outcomesStats
+            ).map(([value, label]) => (
               <div key={value} className="bg-white/50 border border-border-subtle rounded-3xl p-8 text-center group hover:bg-brand hover:border-brand transition-all duration-500">
                 <p className="text-4xl font-display font-black text-primary group-hover:text-white transition-colors">{value}</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/40 mt-2 mt-2 group-hover:text-white/60 transition-colors">{label}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/40 mt-2 group-hover:text-white/60 transition-colors">{label}</p>
               </div>
             ))}
           </div>
@@ -751,7 +862,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
             <p className="section-subtitle max-w-2xl mx-auto">{DEFAULT_SECTIONS.testimonialsCopy}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(service.testimonials || DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" }))).map((t: any, idx) => (
+            {(testimonialsData.items ?? staticData.testimonials ?? DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" }))).map((t: any, idx) => (
               <div key={idx} className="group relative rounded-[3rem] border border-border-subtle bg-white p-10 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500 flex flex-col h-full overflow-hidden">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative mb-8">
@@ -782,7 +893,12 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
         </div>
       </section>
 
-      <Connect variant="light" />
+      <Connect
+          variant="light"
+          badge={ctaData.ctaBadge}
+          title={ctaData.ctaTitle}
+          copy={ctaData.ctaCopy}
+        />
 
       <Footer />
     </main>
