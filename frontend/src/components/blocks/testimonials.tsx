@@ -5,14 +5,16 @@ import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface ApiTestimonial {
   id: number;
   name: string;
   role: string;
   company: string;
-  content: string;    // DB column name
-  image_url: string;  // DB column name
+  content: string;          // DB column name
+  image_url: string;        // DB column name
+  display_context: string;  // comma-separated context values
 }
 
 interface ColumnTestimonial {
@@ -84,10 +86,11 @@ export function Testimonials() {
 
   useEffect(() => {
     async function fetchTestimonials() {
-      const json = await safeFetch("/api/testimonials.php");
+      const json = await safeFetch(`${API_BASE_URL}/testimonials.php`);
       if (json.status === "success" && Array.isArray(json.data) && json.data.length > 0) {
-        // Take first 9, map DB field names to component field names
+        // Filter to homepage context only, then take first 9
         const mapped: ColumnTestimonial[] = (json.data as ApiTestimonial[])
+          .filter((t) => (t.display_context || '').split(',').map(s => s.trim()).includes('homepage'))
           .slice(0, 9)
           .map((t) => ({
             name:  t.name,
