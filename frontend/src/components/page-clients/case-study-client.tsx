@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Connect } from "@/components/blocks/connect-cta";
 import { CheckCircle2, ArrowRight } from "lucide-react";
+import { API_BASE_URL } from "@/lib/constants";
 
 // Types
 interface HeroStat   { label: string; value: string }
@@ -168,13 +169,13 @@ export default function CaseStudyClient({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/backend/api/case_studies.php?slug=${slug}`)
+    fetch(`${API_BASE_URL}/case_studies.php?slug=${slug}`)
       .then(r => r.json())
       .then(d => {
         if (d.status === "success") {
           setCs(d.data);
           // Fetch all for related case studies
-          fetch("/backend/api/case_studies.php")
+          fetch(`${API_BASE_URL}/case_studies.php`)
             .then(r => r.json())
             .then(rd => {
               if (rd.status === "success") {
