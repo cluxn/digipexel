@@ -88,7 +88,7 @@ const Icon = ({
           ease: 'easeInOut',
         }}
       >
-        {iconData.icon ? (
+        {(iconData.icon || iconData.imageUrl) ? (
           /* AI tool card — premium frosted glass */
           <div
             className="flex flex-col items-center gap-3 px-5 pt-5 pb-4 rounded-2xl"
@@ -110,7 +110,11 @@ const Icon = ({
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.3)',
               }}
             >
-              <iconData.icon className="w-7 h-7 text-white" style={{ filter: 'drop-shadow(0 0 6px rgba(167,139,250,0.35))' }} />
+              {iconData.imageUrl ? (
+                <img src={iconData.imageUrl} alt={iconData.label || ''} className="w-7 h-7 object-contain" style={{ filter: 'drop-shadow(0 0 6px rgba(167,139,250,0.35))' }} />
+              ) : iconData.icon ? (
+                <iconData.icon className="w-7 h-7 text-white" style={{ filter: 'drop-shadow(0 0 6px rgba(167,139,250,0.35))' }} />
+              ) : null}
             </div>
             {iconData.label && (
               <span className="text-[9px] font-black uppercase tracking-[0.18em] text-white/50 whitespace-nowrap">{iconData.label}</span>

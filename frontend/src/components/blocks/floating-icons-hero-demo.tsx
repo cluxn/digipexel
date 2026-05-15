@@ -233,12 +233,16 @@ export default function FloatingIconsHeroDemo() {
   ];
 
   // Build aiIcons from current iconSlots state + static positioning classes
-  const aiIcons = iconSlots.map(({ slot, icon, label }) => ({
-    id: slot,
-    icon: (ICON_REGISTRY[icon] ?? IconOpenAI) as React.FC<React.SVGProps<SVGSVGElement>>, // fallback to OpenAI if unknown key
-    label,
-    className: SLOT_CLASSES[slot] ?? SLOT_CLASSES[1],
-  }));
+  const aiIcons = iconSlots.map(({ slot, icon, label }) => {
+    const isUrl = icon.startsWith('http') || icon.startsWith('/');
+    return {
+      id: slot,
+      icon: isUrl ? undefined : (ICON_REGISTRY[icon] ?? IconOpenAI) as React.FC<React.SVGProps<SVGSVGElement>>,
+      imageUrl: isUrl ? icon : undefined,
+      label,
+      className: SLOT_CLASSES[slot] ?? SLOT_CLASSES[1],
+    };
+  });
 
   return (
     <div className="relative w-full">

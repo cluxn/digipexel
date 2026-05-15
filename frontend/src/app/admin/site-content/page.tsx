@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
 import { ICON_REGISTRY } from "@/components/blocks/floating-icons-hero-demo";
+import { API_BASE_URL } from "@/lib/constants";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -169,6 +170,16 @@ export default function AdminSiteContentPage() {
   const [footerContent,  setFooterContent]  = useState<FooterContent>(DEFAULT_FOOTER);
   const [problemContent, setProblemContent] = useState<ProblemContent>(DEFAULT_PROBLEM);
 
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const iconFileRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
+
   const [heroStatus,    setHeroStatus]    = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [navStatus,     setNavStatus]     = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [statsStatus,   setStatsStatus]   = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -260,6 +271,25 @@ export default function AdminSiteContentPage() {
       stats[index] = { ...stats[index], [field]: value };
       return { ...prev, stats };
     });
+  };
+
+  // ── Icon image upload ──────────────────────────────────────────────────
+
+  const uploadIconImage = async (file: File, slotIndex: number) => {
+    setUploadingSlot(slotIndex);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
+      const json = await res.json();
+      if (json.status === "success" && json.url) {
+        updateIconSlot(slotIndex, "icon", json.url as string);
+      }
+    } catch {
+      // upload failed — leave existing icon unchanged
+    } finally {
+      setUploadingSlot(null);
+    }
   };
 
   // ── Loading state ──────────────────────────────────────────────────────
@@ -394,14 +424,22 @@ export default function AdminSiteContentPage() {
             <div>
               <p className={labelCls}>Floating Icon Slots (6)</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-                {heroContent.iconSlots.map((slot, i) => (
+                {heroContent.iconSlots.map((slot, i) => {
+                  const isCustomUrl = slot.icon.startsWith('http') || slot.icon.startsWith('/');
+                  return (
                   <div key={slot.slot} className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 space-y-3">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Icon Slot {slot.slot}</p>
+
+                    {/* Preset icon picker */}
                     <div>
-                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">Icon</label>
+                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">Preset Icon</label>
                       <div className="flex items-center gap-3">
-                        {/* 20px SVG preview of currently selected icon */}
-                        {(() => {
+                        {/* Preview — SVG component or custom image */}
+                        {isCustomUrl ? (
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0">
+                            <img src={slot.icon} alt="" className="w-5 h-5 object-contain" />
+                          </span>
+                        ) : (() => {
                           const IconComponent = ICON_REGISTRY[slot.icon];
                           return IconComponent ? (
                             <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0">
@@ -410,16 +448,61 @@ export default function AdminSiteContentPage() {
                           ) : null;
                         })()}
                         <select
-                          value={slot.icon}
+                          value={isCustomUrl ? "" : slot.icon}
                           onChange={(e) => updateIconSlot(i, "icon", e.target.value)}
-                          className={inputCls + " flex-1"}
+                          disabled={isCustomUrl}
+                          className={inputCls + " flex-1" + (isCustomUrl ? " opacity-40" : "")}
                         >
+                          {isCustomUrl && <option value="">— custom image —</option>}
                           {ICON_OPTIONS.map((opt) => (
                             <option key={opt} value={opt}>{opt}</option>
                           ))}
                         </select>
                       </div>
                     </div>
+
+                    {/* Custom image upload */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">Custom Image (overrides preset)</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Paste image URL…"
+                          value={isCustomUrl ? slot.icon : ""}
+                          onChange={(e) => updateIconSlot(i, "icon", e.target.value || ICON_OPTIONS[0])}
+                          className={inputCls + " flex-1 text-xs"}
+                        />
+                        <input
+                          ref={iconFileRefs[i]}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadIconImage(file, i);
+                            e.target.value = "";
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => iconFileRefs[i].current?.click()}
+                          disabled={uploadingSlot === i}
+                          className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-brand/10 text-brand hover:bg-brand/20 rounded-xl transition-all flex-shrink-0 disabled:opacity-50"
+                        >
+                          {uploadingSlot === i ? "…" : "Upload"}
+                        </button>
+                        {isCustomUrl && (
+                          <button
+                            type="button"
+                            onClick={() => updateIconSlot(i, "icon", ICON_OPTIONS[0])}
+                            className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-rose-50 text-rose-400 hover:bg-rose-100 rounded-xl transition-all flex-shrink-0"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-[9px] text-slate-400 mb-1 ml-1">Display Label</label>
                       <input
@@ -430,7 +513,8 @@ export default function AdminSiteContentPage() {
                       />
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

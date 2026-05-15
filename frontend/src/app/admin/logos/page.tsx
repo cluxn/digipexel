@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Trash2, Plus, Save, Power, Image as ImageIcon } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Plus, Save, Power, Image as ImageIcon, Upload, X } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
 import { cn, safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface Logo {
   id?: number;
@@ -21,6 +21,9 @@ export default function AdminLogosPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState<number | null>(null);
+  const [uploadTargetIndex, setUploadTargetIndex] = useState<number | null>(null);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchData();
@@ -95,6 +98,30 @@ export default function AdminLogosPage() {
     setLogos(newLogos);
   };
 
+  const handleLogoUploadClick = (index: number) => {
+    setUploadTargetIndex(index);
+    logoFileInputRef.current?.click();
+  };
+
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || uploadTargetIndex === null) return;
+    const index = uploadTargetIndex;
+    setUploadingLogo(index);
+    e.target.value = "";
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
+      const json = await res.json();
+      if (json.status === "success" && json.url) {
+        updateLogo(index, "src", json.url as string);
+      }
+    } catch {}
+    setUploadingLogo(null);
+    setUploadTargetIndex(null);
+  };
+
   const saveChanges = async () => {
     setSaving(true);
     localStorage.setItem("PREVIEW_LOGOS", JSON.stringify(logos));
@@ -126,6 +153,15 @@ export default function AdminLogosPage() {
 
   return (
     <AdminLayout>
+      {/* Shared hidden file input for logo image uploads */}
+      <input
+        ref={logoFileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleLogoFileChange}
+      />
+
       <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -175,12 +211,24 @@ export default function AdminLogosPage() {
                 key={index} 
                 className="group flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl bg-slate-50/50 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-black/[0.02] transition-all duration-300"
               >
-                {/* Preview */}
-                <div className="w-24 h-14 flex items-center justify-center bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
-                  {logo.src ? (
-                    <img src={logo.src} alt={logo.name} className="max-h-full max-w-full object-contain" />
-                  ) : (
-                    <div className="text-[10px] uppercase font-bold tracking-widest text-slate-300 italic">Nil</div>
+                {/* Preview with clear button */}
+                <div className="relative w-24 h-14 flex-shrink-0">
+                  <div className="w-full h-full flex items-center justify-center bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                    {logo.src ? (
+                      <img src={logo.src} alt={logo.name} className="max-h-full max-w-full object-contain" />
+                    ) : (
+                      <div className="text-[10px] uppercase font-bold tracking-widest text-slate-300 italic">Nil</div>
+                    )}
+                  </div>
+                  {logo.src && (
+                    <button
+                      type="button"
+                      onClick={() => updateLogo(index, "src", "")}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center shadow-sm transition-colors"
+                      title="Clear image"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   )}
                 </div>
 
@@ -197,18 +245,35 @@ export default function AdminLogosPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">SVG URL / Path</label>
-                    <input 
-                      type="text" 
-                      placeholder="Logo SVG URL"
-                      value={logo.src}
-                      onChange={(e) => updateLogo(index, "src", e.target.value)}
-                      disabled={logo.display_type === 'text'}
-                      className={cn(
-                        "w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-500 font-medium h-[46px]",
-                        logo.display_type === 'text' ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed" : "bg-white text-slate-500 border-slate-100"
-                      )}
-                    />
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Image URL or Upload</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Paste image URL…"
+                        value={logo.src}
+                        onChange={(e) => updateLogo(index, "src", e.target.value)}
+                        disabled={logo.display_type === 'text'}
+                        className={cn(
+                          "flex-1 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-500 font-medium h-[46px]",
+                          logo.display_type === 'text' ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed" : "bg-white text-slate-500 border-slate-100"
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        disabled={logo.display_type === 'text' || uploadingLogo === index}
+                        onClick={() => handleLogoUploadClick(index)}
+                        className="h-[46px] w-[46px] rounded-xl border-slate-200 text-slate-400 hover:text-brand hover:border-brand/30 flex-shrink-0"
+                        title="Upload image file"
+                      >
+                        {uploadingLogo === index ? (
+                          <span className="text-[10px] font-bold">…</span>
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-1.5 flex flex-col justify-end">
                     <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Display Mode</label>
