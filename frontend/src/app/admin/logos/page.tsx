@@ -33,8 +33,8 @@ export default function AdminLogosPage() {
     try {
       const data = await safeFetch("/api/logos.php");
       if (data && data.status === "success") {
-        setLogos(data.data);
-        setIsEnabled(data.enabled);
+        setLogos(data.data.logos);
+        setIsEnabled(data.data.enabled);
         setLoading(false);
         return;
       }
@@ -94,7 +94,7 @@ export default function AdminLogosPage() {
 
   const updateLogo = (index: number, field: keyof Logo, value: string) => {
     const newLogos = [...logos];
-    (newLogos[index] as any)[field] = value;
+    newLogos[index] = { ...newLogos[index], [field]: value };
     setLogos(newLogos);
   };
 
@@ -114,8 +114,8 @@ export default function AdminLogosPage() {
       formData.append("file", file);
       const res = await fetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
       const json = await res.json();
-      if (json.status === "success" && json.url) {
-        updateLogo(index, "src", json.url as string);
+      if (json.status === "success" && json.data?.url) {
+        updateLogo(index, "src", json.data.url as string);
       }
     } catch {}
     setUploadingLogo(null);
@@ -168,7 +168,7 @@ export default function AdminLogosPage() {
           <div className="space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand">Portfolio Management</p>
             <h1 className="text-5xl font-display font-bold text-[#1A1C1E] tracking-tight">Logo Marquee</h1>
-            <p className="text-slate-400 text-sm max-w-lg">Curate the list of partners and clients that appear in your landing page's main scrolling marquee.</p>
+            <p className="text-slate-400 text-sm max-w-lg">Curate the list of partners and clients that appear in your landing page&apos;s main scrolling marquee.</p>
           </div>
           
           <div className="flex gap-4">

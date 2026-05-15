@@ -282,8 +282,8 @@ export default function AdminSiteContentPage() {
       formData.append("file", file);
       const res = await fetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
       const json = await res.json();
-      if (json.status === "success" && json.url) {
-        updateIconSlot(slotIndex, "icon", json.url as string);
+      if (json.status === "success" && json.data?.url) {
+        updateIconSlot(slotIndex, "icon", json.data.url as string);
       }
     } catch {
       // upload failed — leave existing icon unchanged
