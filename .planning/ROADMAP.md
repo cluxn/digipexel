@@ -141,7 +141,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Backend: 3 new DB tables (users, analytics_codes, banners) + users.php + analytics.php + banners.php + newsletter.php list/export + settings.php bulk save
+- [x] 06-01-PLAN.md — Backend: 3 new DB tables (users, analytics_codes, banners) + users.php + analytics.php + banners.php + newsletter.php list/export + settings.php bulk save
 - [ ] 06-02-PLAN.md — Admin: newsletter subscriber list + CSV export; settings page (social links, contact, site name, WhatsApp, CTA)
 - [ ] 06-03-PLAN.md — Admin: banners/popups (DB-backed), analytics code paste UI, users CRUD + sidebar links
 - [ ] 06-04-PLAN.md — Frontend: nudges.tsx fetches from banners.php, AnalyticsInjector in layout.tsx, content-page banners on blog/guide pages, WhatsApp toggle + number from settings, Connect CTA link from settings
@@ -172,5 +172,5 @@ Plans:
 | 3. Service Pages | 3/4 | In Progress|  |
 | 4. Content Pages — Blog, Case Studies & Guides | 7/7 | Complete   | 2026-05-15 |
 | 5. Testimonials System Upgrade | 3/3 | Complete   | 2026-05-15 |
-| 6. Admin Panel Completion | 0/5 | Not started | - |
+| 6. Admin Panel Completion | 1/5 | In Progress|  |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |
