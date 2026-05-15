@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-07-PLAN.md
-last_updated: "2026-05-15T12:37:24.418Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 04-content-pages-blog-case-studies-guides/04-02-PLAN.md
+last_updated: "2026-05-15T12:39:24.092Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 20
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Plan: 7 of 7
 | Phase 04-content-pages-blog-case-studies-guides P04 | 12 | 2 tasks | 2 files |
 | Phase 04-content-pages-blog-case-studies-guides P05 | 42 | 1 tasks | 1 files |
 | Phase 04-content-pages-blog-case-studies-guides P07 | 15 | 2 tasks | 2 files |
+| Phase 04-content-pages-blog-case-studies-guides P02 | 45 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,8 @@ Recent decisions affecting current work:
 - [Phase 04-content-pages-blog-case-studies-guides]: Three-state blog scheduling radio group (Publish Now/Schedule/Save as Draft) with conditional datetime-local picker — scheduled_at included in payload via BlogPost interface automatically
 - [Phase 04-content-pages-blog-case-studies-guides]: Category autocomplete uses HTML datalist (zero extra dependencies, browser-native, accessible) derived inline from existing post categories
 - [Phase 04-content-pages-blog-case-studies-guides]: save_guide action uses INSERT or UPDATE by id following blogs.php save_post pattern — individual per-guide saves replace bulk update_guides in admin
+- [Phase 04-content-pages-blog-case-studies-guides]: Blog filter+sort+paginate uses client-side 3-step pipeline (filter > sort > paginate) — no server roundtrips on category/sort changes
+- [Phase 04-content-pages-blog-case-studies-guides]: Related posts algorithm: same-category sorted by recent, padded with any-category, capped at 3 — matches D-12 from CONTEXT.md
 
 ### Pending Todos
 
@@ -139,6 +142,6 @@ None yet.
 
 Last activity: 2026-05-15
 
-Last session: 2026-05-15T12:37:24.408Z
-Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-07-PLAN.md
+Last session: 2026-05-15T12:39:24.085Z
+Stopped at: Completed 04-content-pages-blog-case-studies-guides/04-02-PLAN.md
 Resume file: None

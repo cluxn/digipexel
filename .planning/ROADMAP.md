@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Homepage & Site Content Admin** - Connect every homepage section to the admin CMS and give the admin panel full control over hero, navbar, footer, and agency stats
 - [ ] **Phase 2.1: Post-Phase-2 Gap Fixes** [INSERTED] - Close 5 UI/admin gaps identified after phase 2 execution: icon previews in admin, hero eyebrow field, section eyebrow text polish, problem stats in admin, footer layout restructure
 - [ ] **Phase 3: Service Pages** - Build all 12 service pages to a consistent, admin-editable format aligned to the benai.co reference
-- [ ] **Phase 4: Content Pages — Blog, Case Studies & Guides** - Deliver fully functional blog, case studies, and guides with pagination, filtering, search, scheduling, and lead capture
+- [x] **Phase 4: Content Pages — Blog, Case Studies & Guides** - Deliver fully functional blog, case studies, and guides with pagination, filtering, search, scheduling, and lead capture (completed 2026-05-15)
 - [ ] **Phase 5: Testimonials System Upgrade** - Redesign the testimonials page, make testimonials multi-format, and wire different display contexts to the same DB
 - [ ] **Phase 6: Admin Panel Completion** - Complete every unfinished admin section: dashboard, newsletter, popups, banners, analytics, users, and settings — all live on the public site
 - [ ] **Phase 7: SEO, Static Pages & Launch Readiness** - Add all static/legal pages, implement SEO management, generate sitemap, configure schemas, connect Calendly, and pass a page speed audit
@@ -105,7 +105,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Backend: blogs.php scheduling support (scheduled_at column + filter) + init_db.php rich sample content seeds
-- [ ] 04-02-PLAN.md — Blog listing: pagination + sort + search/filter; Blog detail: related posts + newsletter block
+- [x] 04-02-PLAN.md — Blog listing: pagination + sort + search/filter; Blog detail: related posts + newsletter block
 - [x] 04-03-PLAN.md — Case studies listing: pagination + sort + filter; Case study detail: sections render + related studies
 - [x] 04-04-PLAN.md — Guides listing: pagination + category filter + sort + fix card links; Guide detail: content render + newsletter block
 - [x] 04-05-PLAN.md — Admin blog editor: three-state scheduling (Publish Now / Schedule / Draft) + category autocomplete
@@ -160,7 +160,7 @@ Plans:
 | 2. Homepage & Site Content Admin | 4/4 | Complete | 2026-05-14 |
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
 | 3. Service Pages | 3/4 | In Progress|  |
-| 4. Content Pages — Blog, Case Studies & Guides | 5/7 | In Progress|  |
+| 4. Content Pages — Blog, Case Studies & Guides | 7/7 | Complete   | 2026-05-15 |
 | 5. Testimonials System Upgrade | 0/0 | Not started | - |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |
