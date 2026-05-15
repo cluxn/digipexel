@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useAnimate } from "framer-motion";
 import { Sparkles } from "lucide-react";
@@ -14,9 +14,10 @@ import { useRouter } from "next/navigation";
 interface ConnectProps {
   variant?: "dark" | "light";
   isHomepage?: boolean;
-  badge?: string;   // per-service CTA badge override (e.g. "Deployment Ready")
-  title?: string;   // per-service CTA heading override (plain text — do NOT split into line1/line2)
-  copy?: string;    // per-service CTA body copy override
+  badge?: string;     // per-service CTA badge override (e.g. "Deployment Ready")
+  title?: string;     // per-service CTA heading override (plain text — do NOT split into line1/line2)
+  copy?: string;      // per-service CTA body copy override
+  ctaHref?: string;   // per-page CTA link override — takes precedence over settings DB value
 }
 
 /* ─── Animated service tags panel ────────────────────────────────────────── */
@@ -119,10 +120,21 @@ function ServiceAnimation() {
 }
 
 /* ─── Main Component ──────────────────────────────────────────────────────── */
-export function Connect({ variant = "light", isHomepage = false, badge, title, copy }: ConnectProps) {
+export function Connect({ variant = "light", isHomepage = false, badge, title, copy, ctaHref }: ConnectProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [fetchedLink, setFetchedLink] = useState("/contact-us");
+  const effectiveCtaLink = ctaHref || fetchedLink;
+
+  useEffect(() => {
+    safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
+      if (json?.status === "success" && json.data?.default_cta_link) {
+        setFetchedLink(json.data.default_cta_link);
+      }
+      // On fetch failure, fetchedLink stays as "/contact-us" fallback
+    });
+  }, []);
 
   const isDark = variant === "dark";
 
@@ -354,7 +366,7 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
               </p>
               <div className="pt-4 flex justify-center">
                 <Button asChild variant="brand" className="h-16 px-12 text-xl font-bold uppercase tracking-wider hover:-translate-y-1">
-                  <Link href="/contact-us">Start Building Now</Link>
+                  <Link href={effectiveCtaLink}>Start Building Now</Link>
                 </Button>
               </div>
             </div>
