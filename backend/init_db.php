@@ -124,6 +124,29 @@ try {
         PRIMARY KEY (slug, section)
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        designation VARCHAR(255),
+        login_id VARCHAR(100) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS analytics_codes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code_key VARCHAR(50) UNIQUE NOT NULL,
+        code_value LONGTEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS banners (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        config_key VARCHAR(50) UNIQUE NOT NULL,
+        config_value LONGTEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
     -- Insert default logos if table is empty
     INSERT INTO logos (name, src, position) 
     SELECT 'Dish', 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg', 0
@@ -151,6 +174,21 @@ try {
     ";
 
     $pdo->exec($sql);
+
+    // Seed default analytics_codes rows
+    $pdo->exec("INSERT INTO analytics_codes (code_key, code_value) SELECT 'google_analytics', '' WHERE NOT EXISTS (SELECT 1 FROM analytics_codes WHERE code_key = 'google_analytics')");
+    $pdo->exec("INSERT INTO analytics_codes (code_key, code_value) SELECT 'search_console', '' WHERE NOT EXISTS (SELECT 1 FROM analytics_codes WHERE code_key = 'search_console')");
+    $pdo->exec("INSERT INTO analytics_codes (code_key, code_value) SELECT 'custom_head_scripts', '' WHERE NOT EXISTS (SELECT 1 FROM analytics_codes WHERE code_key = 'custom_head_scripts')");
+
+    // Seed default banners config
+    $pdo->exec("INSERT INTO banners (config_key, config_value) SELECT 'banner', '{\"enabled\":false,\"text\":\"AI automation audit slots open for next week.\",\"ctaLabel\":\"Book a Call\",\"ctaLink\":\"/contact-us\",\"bgColor\":\"#2563EB\"}' WHERE NOT EXISTS (SELECT 1 FROM banners WHERE config_key = 'banner')");
+    $pdo->exec("INSERT INTO banners (config_key, config_value) SELECT 'popup', '{\"enabled\":false,\"title\":\"Ready to automate your ops?\",\"body\":\"Get a 20-minute discovery call and a quick automation roadmap.\",\"ctaLabel\":\"Schedule a Call\",\"ctaLink\":\"/contact-us\",\"delayMs\":5000}' WHERE NOT EXISTS (SELECT 1 FROM banners WHERE config_key = 'popup')");
+    $pdo->exec("INSERT INTO banners (config_key, config_value) SELECT 'exit_popup', '{\"enabled\":false,\"title\":\"Before you go\",\"body\":\"Want a quick audit checklist? We will send it in minutes.\",\"ctaLabel\":\"Get the Checklist\",\"ctaLink\":\"/contact-us\"}' WHERE NOT EXISTS (SELECT 1 FROM banners WHERE config_key = 'exit_popup')");
+
+    // Seed default admin passcode in settings table (per USR-02 — login page reads this instead of hardcoding)
+    // Value is the plain passcode string. The login page compares user input against this value directly.
+    // Admin can update it via Settings panel → save_all_settings action.
+    $pdo->exec("INSERT INTO settings (`key`, `value`) SELECT 'admin_passcode', '12345' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'admin_passcode')");
 
     // ALTER TABLE to add new testimonials columns (MySQL silently ignores if column already exists)
     $sql_alter = "
