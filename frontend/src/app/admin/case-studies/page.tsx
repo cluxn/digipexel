@@ -7,6 +7,7 @@ import {
   Table2, BookOpen, Image as ImageIcon, Quote, Layers, LayoutGrid,
 } from "lucide-react";
 import { safeFetch } from "@/lib/utils";
+import AdminLayout from "@/components/admin/admin-layout";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SectionType =
@@ -188,292 +189,298 @@ export default function AdminCaseStudyPage() {
     setCases(n);
   };
 
-  if (loading) return <div className="p-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Case Vault...</div>;
+  if (loading) return (
+    <AdminLayout>
+      <div className="p-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Case Vault...</div>
+    </AdminLayout>
+  );
 
   return (
-    <div className="pb-32 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-10">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Case Vault</h1>
-          <p className="text-slate-500 text-sm mt-1">Build, manage, and publish detailed client case studies.</p>
-        </div>
-        <button onClick={addCase} className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-brand/90 transition-all shadow-lg shadow-brand/20">
-          <Plus className="w-4 h-4" /> New Case Study
-        </button>
-      </div>
-
-      {/* Case list */}
-      <div className="space-y-4">
-        {cases.length === 0 && (
-          <div className="border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center text-slate-400 text-sm font-bold uppercase tracking-widest">
-            No case studies yet — click "New Case Study" to begin
+    <AdminLayout>
+      <div className="pb-32 max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-10">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Case Vault</h1>
+            <p className="text-slate-500 text-sm mt-1">Build, manage, and publish detailed client case studies.</p>
           </div>
-        )}
+          <button onClick={addCase} className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-brand/90 transition-all shadow-lg shadow-brand/20">
+            <Plus className="w-4 h-4" /> New Case Study
+          </button>
+        </div>
 
-        {cases.map((c, idx) => {
-          const isExpanded = expandedId === (c.id ? String(c.id) : c.slug);
-          const toggleId   = c.id ? String(c.id) : c.slug;
+        {/* Case list */}
+        <div className="space-y-4">
+          {cases.length === 0 && (
+            <div className="border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center text-slate-400 text-sm font-bold uppercase tracking-widest">
+              No case studies yet — click &quot;New Case Study&quot; to begin
+            </div>
+          )}
 
-          return (
-            <div key={c.id ?? c.slug} className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+          {cases.map((c, idx) => {
+            const isExpanded = expandedId === (c.id ? String(c.id) : c.slug);
+            const toggleId   = c.id ? String(c.id) : c.slug;
 
-              {/* ── Card Header ── */}
-              <div className="flex items-center justify-between px-7 py-5 cursor-pointer hover:bg-slate-50/50 transition-colors" onClick={() => { setExpandedId(isExpanded ? null : toggleId); setActiveTab("info"); }}>
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-14 h-10 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
-                    {c.image_url ? <img src={c.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-4 h-4 text-slate-300" /></div>}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-slate-900 text-sm truncate max-w-xs">{c.title || "Untitled"}</span>
-                      <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${c.status === "published" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>{c.status}</span>
-                      {c.featured && <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200">Featured</span>}
+            return (
+              <div key={c.id ?? c.slug} className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+
+                {/* ── Card Header ── */}
+                <div className="flex items-center justify-between px-7 py-5 cursor-pointer hover:bg-slate-50/50 transition-colors" onClick={() => { setExpandedId(isExpanded ? null : toggleId); setActiveTab("info"); }}>
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-14 h-10 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                      {c.image_url ? <img src={c.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-4 h-4 text-slate-300" /></div>}
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">{c.client_name || "—"} · {c.industry || "—"} · {c.sections.length} sections</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                  <button onClick={e => { e.stopPropagation(); moveCase(idx, "up"); }} className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveUp className="w-3.5 h-3.5" /></button>
-                  <button onClick={e => { e.stopPropagation(); moveCase(idx, "down"); }} className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveDown className="w-3.5 h-3.5" /></button>
-                  <button onClick={e => { e.stopPropagation(); saveCase(idx); }} disabled={saving === idx}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand/90 transition-all disabled:opacity-50">
-                    <Save className="w-3.5 h-3.5" /> {saving === idx ? "Saving…" : "Save"}
-                  </button>
-                  <button onClick={e => { e.stopPropagation(); removeCase(idx); }} className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
-                  {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                </div>
-              </div>
-
-              {/* ── Expanded Editor ── */}
-              {isExpanded && (
-                <div className="border-t border-slate-100">
-                  {/* Tab bar */}
-                  <div className="flex border-b border-slate-100 bg-slate-50/50 px-7">
-                    {(["info", "hero", "sections", "settings"] as const).map(tab => (
-                      <button key={tab} onClick={() => setActiveTab(tab)}
-                        className={`py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-colors border-b-2 -mb-px ${activeTab === tab ? "border-brand text-brand" : "border-transparent text-slate-400 hover:text-slate-600"}`}>
-                        {tab === "info" ? "Basic Info" : tab === "hero" ? "Hero & Stats" : tab === "sections" ? `Sections (${c.sections.length})` : "Settings"}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="p-7">
-
-                    {/* ── TAB: Info ── */}
-                    {activeTab === "info" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2 grid grid-cols-3 gap-4">
-                          <Field label="Eyebrow Badge" value={c.eyebrow} onChange={v => updateCase(idx, { eyebrow: v })} />
-                          <Field label="Slug (URL)" value={c.slug} mono onChange={v => updateCase(idx, { slug: v })} />
-                          <Field label="Read Time" value={c.read_time} onChange={v => updateCase(idx, { read_time: v })} placeholder="8 min read" />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Field label="Title" value={c.title} large onChange={v => updateCase(idx, { title: v, slug: c.id ? c.slug : slugify(v) })} />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Field label="Subtitle / Punchline" value={c.subtitle} onChange={v => updateCase(idx, { subtitle: v })} />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Field label="Description (hero paragraph)" value={c.description} textarea rows={3} onChange={v => updateCase(idx, { description: v })} placeholder="A brief paragraph shown in the hero section describing the case study…" />
-                        </div>
-                        <Field label="Client Name" value={c.client_name} onChange={v => updateCase(idx, { client_name: v })} />
-                        <Field label="Industry" value={c.industry} onChange={v => updateCase(idx, { industry: v })} placeholder="FinTech, E-commerce…" />
-                        <Field label="Published Date" value={c.published_date} type="date" onChange={v => updateCase(idx, { published_date: v })} />
-                        <TagsField label="Service Tags" tags={c.service_tags} onChange={v => updateCase(idx, { service_tags: v })} />
-                        <div className="md:col-span-2">
-                          <ImageField label="Hero Product Image (right side of hero)" value={c.image_url} onChange={v => updateCase(idx, { image_url: v })} />
-                        </div>
-                        <div className="md:col-span-2">
-                          <ImageField label="Client / Person Image URL" value={c.client_image} onChange={v => updateCase(idx, { client_image: v })} />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Field label="Client Logo URL (shown inverted/white in dark hero)" value={c.client_logo} onChange={v => updateCase(idx, { client_logo: v })} />
-                        </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-slate-900 text-sm truncate max-w-xs">{c.title || "Untitled"}</span>
+                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${c.status === "published" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>{c.status}</span>
+                        {c.featured && <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200">Featured</span>}
                       </div>
-                    )}
+                      <p className="text-xs text-slate-400 mt-0.5">{c.client_name || "—"} · {c.industry || "—"} · {c.sections.length} sections</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                    <button onClick={e => { e.stopPropagation(); moveCase(idx, "up"); }} className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveUp className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); moveCase(idx, "down"); }} className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveDown className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); saveCase(idx); }} disabled={saving === idx}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand/90 transition-all disabled:opacity-50">
+                      <Save className="w-3.5 h-3.5" /> {saving === idx ? "Saving…" : "Save"}
+                    </button>
+                    <button onClick={e => { e.stopPropagation(); removeCase(idx); }} className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </div>
+                </div>
 
-                    {/* ── TAB: Hero & Stats ── */}
-                    {activeTab === "hero" && (
-                      <div className="space-y-8">
-                        {/* CTA button */}
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Hero CTA Button</p>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Button Label" value={c.hero_cta_label} onChange={v => updateCase(idx, { hero_cta_label: v })} placeholder="View Case Study" />
-                            <Field label="Button URL" value={c.hero_cta_url} onChange={v => updateCase(idx, { hero_cta_url: v })} placeholder="#contact" />
+                {/* ── Expanded Editor ── */}
+                {isExpanded && (
+                  <div className="border-t border-slate-100">
+                    {/* Tab bar */}
+                    <div className="flex border-b border-slate-100 bg-slate-50/50 px-7">
+                      {(["info", "hero", "sections", "settings"] as const).map(tab => (
+                        <button key={tab} onClick={() => setActiveTab(tab)}
+                          className={`py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-colors border-b-2 -mb-px ${activeTab === tab ? "border-brand text-brand" : "border-transparent text-slate-400 hover:text-slate-600"}`}>
+                          {tab === "info" ? "Basic Info" : tab === "hero" ? "Hero & Stats" : tab === "sections" ? `Sections (${c.sections.length})` : "Settings"}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="p-7">
+
+                      {/* ── TAB: Info ── */}
+                      {activeTab === "info" && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="md:col-span-2 grid grid-cols-3 gap-4">
+                            <Field label="Eyebrow Badge" value={c.eyebrow} onChange={v => updateCase(idx, { eyebrow: v })} />
+                            <Field label="Slug (URL)" value={c.slug} mono onChange={v => updateCase(idx, { slug: v })} />
+                            <Field label="Read Time" value={c.read_time} onChange={v => updateCase(idx, { read_time: v })} placeholder="8 min read" />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Field label="Title" value={c.title} large onChange={v => updateCase(idx, { title: v, slug: c.id ? c.slug : slugify(v) })} />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Field label="Subtitle / Punchline" value={c.subtitle} onChange={v => updateCase(idx, { subtitle: v })} />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Field label="Description (hero paragraph)" value={c.description} textarea rows={3} onChange={v => updateCase(idx, { description: v })} placeholder="A brief paragraph shown in the hero section describing the case study…" />
+                          </div>
+                          <Field label="Client Name" value={c.client_name} onChange={v => updateCase(idx, { client_name: v })} />
+                          <Field label="Industry" value={c.industry} onChange={v => updateCase(idx, { industry: v })} placeholder="FinTech, E-commerce…" />
+                          <Field label="Published Date" value={c.published_date} type="date" onChange={v => updateCase(idx, { published_date: v })} />
+                          <TagsField label="Service Tags" tags={c.service_tags} onChange={v => updateCase(idx, { service_tags: v })} />
+                          <div className="md:col-span-2">
+                            <ImageField label="Hero Product Image (right side of hero)" value={c.image_url} onChange={v => updateCase(idx, { image_url: v })} />
+                          </div>
+                          <div className="md:col-span-2">
+                            <ImageField label="Client / Person Image URL" value={c.client_image} onChange={v => updateCase(idx, { client_image: v })} />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Field label="Client Logo URL (shown inverted/white in dark hero)" value={c.client_logo} onChange={v => updateCase(idx, { client_logo: v })} />
                           </div>
                         </div>
+                      )}
 
-                        {/* Hero Stats strip */}
-                        <div>
-                          <div className="flex items-center justify-between mb-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Hero Stats Strip (up to 4)</p>
-                            {(c.hero_stats ?? []).length < 4 && (
-                              <button
-                                onClick={() => updateCase(idx, { hero_stats: [...(c.hero_stats ?? []), { value: "", label: "" }] })}
-                                className="flex items-center gap-1.5 text-xs font-bold text-brand hover:underline">
-                                <Plus className="w-3.5 h-3.5" /> Add Stat
-                              </button>
+                      {/* ── TAB: Hero & Stats ── */}
+                      {activeTab === "hero" && (
+                        <div className="space-y-8">
+                          {/* CTA button */}
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Hero CTA Button</p>
+                            <div className="grid grid-cols-2 gap-4">
+                              <Field label="Button Label" value={c.hero_cta_label} onChange={v => updateCase(idx, { hero_cta_label: v })} placeholder="View Case Study" />
+                              <Field label="Button URL" value={c.hero_cta_url} onChange={v => updateCase(idx, { hero_cta_url: v })} placeholder="#contact" />
+                            </div>
+                          </div>
+
+                          {/* Hero Stats strip */}
+                          <div>
+                            <div className="flex items-center justify-between mb-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Hero Stats Strip (up to 4)</p>
+                              {(c.hero_stats ?? []).length < 4 && (
+                                <button
+                                  onClick={() => updateCase(idx, { hero_stats: [...(c.hero_stats ?? []), { value: "", label: "" }] })}
+                                  className="flex items-center gap-1.5 text-xs font-bold text-brand hover:underline">
+                                  <Plus className="w-3.5 h-3.5" /> Add Stat
+                                </button>
+                              )}
+                            </div>
+
+                            {(c.hero_stats ?? []).length === 0 && (
+                              <div className="border-2 border-dashed border-slate-200 rounded-2xl py-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                                No stats yet — click &quot;Add Stat&quot; to create hero metrics
+                              </div>
+                            )}
+
+                            <div className="space-y-3">
+                              {(c.hero_stats ?? []).map((stat, si) => (
+                                <div key={si} className="flex gap-3 items-start">
+                                  <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl p-4 grid grid-cols-2 gap-3">
+                                    <Field
+                                      label="Value (big number)"
+                                      value={stat.value}
+                                      onChange={v => {
+                                        const stats = [...(c.hero_stats ?? [])];
+                                        stats[si] = { ...stats[si], value: v };
+                                        updateCase(idx, { hero_stats: stats });
+                                      }}
+                                      placeholder="85%"
+                                      large
+                                    />
+                                    <Field
+                                      label="Label"
+                                      value={stat.label}
+                                      onChange={v => {
+                                        const stats = [...(c.hero_stats ?? [])];
+                                        stats[si] = { ...stats[si], label: v };
+                                        updateCase(idx, { hero_stats: stats });
+                                      }}
+                                      placeholder="Reduction in manual work"
+                                    />
+                                  </div>
+                                  <button
+                                    onClick={() => updateCase(idx, { hero_stats: (c.hero_stats ?? []).filter((_, i) => i !== si) })}
+                                    className="p-2.5 mt-6 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+
+                            {(c.hero_stats ?? []).length > 0 && (
+                              <div className="mt-4 bg-slate-900 rounded-2xl p-4">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Preview (dark hero strip)</p>
+                                <div className={`grid gap-4 ${(c.hero_stats ?? []).length > 2 ? "grid-cols-4" : "grid-cols-2"}`}>
+                                  {(c.hero_stats ?? []).map((stat, si) => (
+                                    <div key={si} className="text-center">
+                                      <div className="text-2xl font-black text-white">{stat.value || "—"}</div>
+                                      <div className="text-xs text-slate-400 mt-1">{stat.label || "Label"}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             )}
                           </div>
+                        </div>
+                      )}
 
-                          {(c.hero_stats ?? []).length === 0 && (
-                            <div className="border-2 border-dashed border-slate-200 rounded-2xl py-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-                              No stats yet — click "Add Stat" to create hero metrics
+                      {/* ── TAB: Sections ── */}
+                      {activeTab === "sections" && (
+                        <div>
+                          {c.sections.length === 0 && (
+                            <div className="border-2 border-dashed border-slate-200 rounded-2xl py-10 text-center text-slate-400 text-xs font-bold uppercase tracking-widest mb-6">
+                              No sections yet — add your first section below
                             </div>
                           )}
 
-                          <div className="space-y-3">
-                            {(c.hero_stats ?? []).map((stat, si) => (
-                              <div key={si} className="flex gap-3 items-start">
-                                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl p-4 grid grid-cols-2 gap-3">
-                                  <Field
-                                    label="Value (big number)"
-                                    value={stat.value}
-                                    onChange={v => {
-                                      const stats = [...(c.hero_stats ?? [])];
-                                      stats[si] = { ...stats[si], value: v };
-                                      updateCase(idx, { hero_stats: stats });
-                                    }}
-                                    placeholder="85%"
-                                    large
-                                  />
-                                  <Field
-                                    label="Label"
-                                    value={stat.label}
-                                    onChange={v => {
-                                      const stats = [...(c.hero_stats ?? [])];
-                                      stats[si] = { ...stats[si], label: v };
-                                      updateCase(idx, { hero_stats: stats });
-                                    }}
-                                    placeholder="Reduction in manual work"
-                                  />
-                                </div>
-                                <button
-                                  onClick={() => updateCase(idx, { hero_stats: (c.hero_stats ?? []).filter((_, i) => i !== si) })}
-                                  className="p-2.5 mt-6 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
+                          <div className="space-y-4 mb-6">
+                            {c.sections.map((sec, si) => (
+                              <SectionEditor
+                                key={sec.id}
+                                section={sec}
+                                onChange={updated => {
+                                  const secs = [...c.sections];
+                                  secs[si] = updated;
+                                  updateCase(idx, { sections: secs });
+                                }}
+                                onRemove={() => { const secs = c.sections.filter((_, i) => i !== si); updateCase(idx, { sections: secs }); }}
+                                onMove={(dir) => {
+                                  if (dir === "up" && si === 0) return;
+                                  if (dir === "down" && si === c.sections.length - 1) return;
+                                  const secs = [...c.sections];
+                                  const t = dir === "up" ? si - 1 : si + 1;
+                                  [secs[si], secs[t]] = [secs[t], secs[si]];
+                                  updateCase(idx, { sections: secs });
+                                }}
+                              />
                             ))}
                           </div>
 
-                          {(c.hero_stats ?? []).length > 0 && (
-                            <div className="mt-4 bg-slate-900 rounded-2xl p-4">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Preview (dark hero strip)</p>
-                              <div className={`grid gap-4 ${(c.hero_stats ?? []).length > 2 ? "grid-cols-4" : "grid-cols-2"}`}>
-                                {(c.hero_stats ?? []).map((stat, si) => (
-                                  <div key={si} className="text-center">
-                                    <div className="text-2xl font-black text-white">{stat.value || "—"}</div>
-                                    <div className="text-xs text-slate-400 mt-1">{stat.label || "Label"}</div>
-                                  </div>
+                          {/* Add section picker */}
+                          <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                            <button className="w-full flex items-center justify-between px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
+                              onClick={() => setAddSectionOpen(!addSectionOpen)}>
+                              <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Section</span>
+                              {addSectionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+                            {addSectionOpen && (
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 border-t border-slate-100 bg-slate-50/30">
+                                {SECTION_TYPES.map(st => (
+                                  <button key={st.type}
+                                    onClick={() => {
+                                      const ns = buildDefaultSection(st.type);
+                                      updateCase(idx, { sections: [...c.sections, ns] });
+                                      setAddSectionOpen(false);
+                                    }}
+                                    className="flex flex-col items-start gap-1.5 p-4 rounded-2xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
+                                    <span className="text-brand">{st.icon}</span>
+                                    <span className="text-xs font-bold text-slate-700">{st.label}</span>
+                                    <span className="text-[10px] text-slate-400">{st.desc}</span>
+                                  </button>
                                 ))}
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── TAB: Sections ── */}
-                    {activeTab === "sections" && (
-                      <div>
-                        {c.sections.length === 0 && (
-                          <div className="border-2 border-dashed border-slate-200 rounded-2xl py-10 text-center text-slate-400 text-xs font-bold uppercase tracking-widest mb-6">
-                            No sections yet — add your first section below
+                            )}
                           </div>
-                        )}
-
-                        <div className="space-y-4 mb-6">
-                          {c.sections.map((sec, si) => (
-                            <SectionEditor
-                              key={sec.id}
-                              section={sec}
-                              onChange={updated => {
-                                const secs = [...c.sections];
-                                secs[si] = updated;
-                                updateCase(idx, { sections: secs });
-                              }}
-                              onRemove={() => { const secs = c.sections.filter((_, i) => i !== si); updateCase(idx, { sections: secs }); }}
-                              onMove={(dir) => {
-                                if (dir === "up" && si === 0) return;
-                                if (dir === "down" && si === c.sections.length - 1) return;
-                                const secs = [...c.sections];
-                                const t = dir === "up" ? si - 1 : si + 1;
-                                [secs[si], secs[t]] = [secs[t], secs[si]];
-                                updateCase(idx, { sections: secs });
-                              }}
-                            />
-                          ))}
                         </div>
+                      )}
 
-                        {/* Add section picker */}
-                        <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                          <button className="w-full flex items-center justify-between px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
-                            onClick={() => setAddSectionOpen(!addSectionOpen)}>
-                            <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Section</span>
-                            {addSectionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </button>
-                          {addSectionOpen && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 border-t border-slate-100 bg-slate-50/30">
-                              {SECTION_TYPES.map(st => (
-                                <button key={st.type}
-                                  onClick={() => {
-                                    const ns = buildDefaultSection(st.type);
-                                    updateCase(idx, { sections: [...c.sections, ns] });
-                                    setAddSectionOpen(false);
-                                  }}
-                                  className="flex flex-col items-start gap-1.5 p-4 rounded-2xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
-                                  <span className="text-brand">{st.icon}</span>
-                                  <span className="text-xs font-bold text-slate-700">{st.label}</span>
-                                  <span className="text-[10px] text-slate-400">{st.desc}</span>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── TAB: Settings ── */}
-                    {activeTab === "settings" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <ToggleSetting label="Show Related Case Studies" desc="Display 3 related case studies after the content" value={c.show_related} onChange={v => updateCase(idx, { show_related: v })} />
-                          <ToggleSetting label="Show Industry Section" desc="Show industry-filtered case studies section" value={c.show_industry_section} onChange={v => updateCase(idx, { show_industry_section: v })} />
-                          <ToggleSetting label="Featured" desc="Highlight this case study on the listing page" value={c.featured} onChange={v => updateCase(idx, { featured: v })} />
-                        </div>
-                        <div className="space-y-5">
+                      {/* ── TAB: Settings ── */}
+                      {activeTab === "settings" && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
-                            <label className="field-label">Status</label>
-                            <select value={c.status} onChange={e => updateCase(idx, { status: e.target.value as any })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white">
-                              <option value="draft">Draft (hidden from public)</option>
-                              <option value="published">Published (visible to all)</option>
-                            </select>
+                            <ToggleSetting label="Show Related Case Studies" desc="Display 3 related case studies after the content" value={c.show_related} onChange={v => updateCase(idx, { show_related: v })} />
+                            <ToggleSetting label="Show Industry Section" desc="Show industry-filtered case studies section" value={c.show_industry_section} onChange={v => updateCase(idx, { show_industry_section: v })} />
+                            <ToggleSetting label="Featured" desc="Highlight this case study on the listing page" value={c.featured} onChange={v => updateCase(idx, { featured: v })} />
                           </div>
-                          {c.show_industry_section && (
-                            <Field label="Industry Section Title" value={c.industry_section_title} onChange={v => updateCase(idx, { industry_section_title: v })} placeholder={`More ${c.industry || "Industry"} Case Studies`} />
-                          )}
-                          <Field label="Position (order in listing)" value={String(c.position)} type="number" onChange={v => updateCase(idx, { position: Number(v) })} />
+                          <div className="space-y-5">
+                            <div>
+                              <label className="field-label">Status</label>
+                              <select value={c.status} onChange={e => updateCase(idx, { status: e.target.value as "published" | "draft" })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white">
+                                <option value="draft">Draft (hidden from public)</option>
+                                <option value="published">Published (visible to all)</option>
+                              </select>
+                            </div>
+                            {c.show_industry_section && (
+                              <Field label="Industry Section Title" value={c.industry_section_title} onChange={v => updateCase(idx, { industry_section_title: v })} placeholder={`More ${c.industry || "Industry"} Case Studies`} />
+                            )}
+                            <Field label="Position (order in listing)" value={String(c.position)} type="number" onChange={v => updateCase(idx, { position: Number(v) })} />
+                          </div>
+                          <div className="md:col-span-2 border-t border-slate-100 pt-5">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Preview URL</p>
+                            <p className="font-mono text-xs text-brand bg-brand/5 border border-brand/10 rounded-xl px-4 py-2">
+                              /case-studies/{c.slug || "your-slug"}
+                            </p>
+                          </div>
                         </div>
-                        <div className="md:col-span-2 border-t border-slate-100 pt-5">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Preview URL</p>
-                          <p className="font-mono text-xs text-brand bg-brand/5 border border-brand/10 rounded-xl px-4 py-2">
-                            /case-studies/{c.slug || "your-slug"}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                      )}
 
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 
