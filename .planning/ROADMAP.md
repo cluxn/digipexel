@@ -138,13 +138,14 @@ Plans:
   3. Exit-intent popup appears on the live public site when a user moves to close the tab; announcement bar appears across all public pages when toggled on; content page banners show on their respective blog/guide pages
   4. Admin can paste Google Analytics and Search Console embed codes and they are automatically injected into the site `<head>` on all public pages
   5. Admin can create and manage users (name, designation, login ID, password) from the Users panel; settings changes (social links, contact info, site name, WhatsApp number) are reflected on the live public site immediately
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] 06-01-PLAN.md — Backend: 3 new DB tables (users, analytics_codes, banners) + users.php + analytics.php + banners.php + newsletter.php list/export + settings.php bulk save
 - [ ] 06-02-PLAN.md — Admin: newsletter subscriber list + CSV export; settings page (social links, contact, site name, WhatsApp, CTA)
 - [ ] 06-03-PLAN.md — Admin: banners/popups (DB-backed), analytics code paste UI, users CRUD + sidebar links
-- [ ] 06-04-PLAN.md — Frontend: nudges.tsx fetches from banners.php, AnalyticsInjector in layout.tsx, content-page banners on blog/guide pages
+- [ ] 06-04-PLAN.md — Frontend: nudges.tsx fetches from banners.php, AnalyticsInjector in layout.tsx, content-page banners on blog/guide pages, WhatsApp toggle + number from settings, Connect CTA link from settings
+- [ ] 06-05-PLAN.md — Admin: live dashboard stats from DB + captured leads section
 
 ### Phase 7: SEO, Static Pages & Launch Readiness
 **Goal**: The site has branded static/legal pages, every public page has editable SEO metadata, a sitemap is auto-generated, schema markup is in place, Calendly is connected to all CTAs, and the site passes a page speed audit
@@ -171,5 +172,5 @@ Plans:
 | 3. Service Pages | 3/4 | In Progress|  |
 | 4. Content Pages — Blog, Case Studies & Guides | 7/7 | Complete   | 2026-05-15 |
 | 5. Testimonials System Upgrade | 3/3 | Complete   | 2026-05-15 |
-| 6. Admin Panel Completion | 0/4 | Not started | - |
+| 6. Admin Panel Completion | 0/5 | Not started | - |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |
