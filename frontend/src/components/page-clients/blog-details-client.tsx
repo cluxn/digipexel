@@ -13,6 +13,7 @@ import {
   BookOpen, User, Tag, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 // Types
 interface BlogSection {
@@ -164,18 +165,28 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
-    fetch(`/backend/api/blogs.php?slug=${slug}`)
+    fetch(`${API_BASE_URL}/blogs.php?slug=${slug}`)
       .then(r => r.json())
       .then(d => {
         if (d.status === "success") {
           setPost(d.data);
-          fetch("/backend/api/blogs.php")
+          fetch(`${API_BASE_URL}/blogs.php`)
             .then(r => r.json())
             .then(rd => {
               if (rd.status === "success") {
-                setRelated(rd.data.filter((p: any) => p.id !== d.data.id).slice(0, 3));
+                const allOtherPosts = rd.data.filter((p: any) => p.id !== d.data.id);
+                const sameCategory = allOtherPosts
+                  .filter((p: any) => p.category === d.data.category)
+                  .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+                const otherPosts = allOtherPosts
+                  .filter((p: any) => p.category !== d.data.category)
+                  .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+                const relatedResult = [...sameCategory, ...otherPosts].slice(0, 3);
+                setRelated(relatedResult);
               }
             });
         } else {
@@ -214,13 +225,30 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch("/backend/api/leads.php", {
+      await fetch(`${API_BASE_URL}/leads.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "add_lead", full_name: form.name, email: form.email, company: form.company, message: form.message, service: `Blog Inquiry: ${post?.title}` }),
       });
       setFormSent(true);
     } catch {}
+  };
+
+  const submitNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterStatus("sending");
+    try {
+      const res = await fetch(`${API_BASE_URL}/newsletter.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const d = await res.json();
+      setNewsletterStatus(d.status === "success" ? "sent" : "error");
+    } catch {
+      setNewsletterStatus("error");
+    }
   };
 
   if (loading) return <PageSkeleton />;
@@ -297,6 +325,70 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
           </aside>
         </div>
       </div>
+      {/* Related Articles */}
+      {related.length > 0 && (
+        <section className="border-t border-slate-100 py-16">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <h2 className="text-2xl font-display font-bold text-primary mb-10">
+              Related <span className="text-brand">Articles</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {related.map(rel => (
+                <Link key={rel.id} href={`/blog/${rel.slug || rel.id}`} className="group flex flex-col rounded-3xl border border-border-subtle bg-surface overflow-hidden hover:border-brand/30 hover:shadow-xl hover:shadow-brand/5 transition-all duration-300">
+                  {rel.image_url && (
+                    <div className="h-44 overflow-hidden">
+                      <img src={rel.image_url} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    </div>
+                  )}
+                  <div className="p-6 flex flex-col flex-1">
+                    <Badge className="bg-brand/10 text-brand border-none text-[9px] font-bold uppercase tracking-widest mb-3 self-start px-3 py-1 rounded-full">{rel.category}</Badge>
+                    <h3 className="text-sm font-bold text-primary leading-tight group-hover:text-brand transition-colors">{rel.title}</h3>
+                    <p className="text-xs text-secondary/60 mt-2 line-clamp-2">{rel.excerpt}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Newsletter Block */}
+      <section className="bg-slate-900 py-20">
+        <div className="container mx-auto px-6 max-w-3xl text-center">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand/70 mb-4 block">Stay Ahead</span>
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+            Get insights before they become common knowledge.
+          </h2>
+          <p className="text-white/60 text-base mb-10 leading-relaxed">
+            Weekly deep dives on AI automation, growth strategy, and the tools shaping the future of business — direct to your inbox.
+          </p>
+          {newsletterStatus === "sent" ? (
+            <p className="text-emerald-400 font-bold text-base">You are subscribed. Welcome aboard.</p>
+          ) : (
+            <form onSubmit={submitNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                placeholder="your@email.com"
+                value={newsletterEmail}
+                onChange={e => setNewsletterEmail(e.target.value)}
+                className="flex-1 h-14 bg-white/10 border border-white/20 text-white placeholder:text-white/30 rounded-2xl px-5 text-sm focus:outline-none focus:border-brand/50 transition-all"
+              />
+              <button
+                type="submit"
+                disabled={newsletterStatus === "sending"}
+                className="h-14 px-8 bg-brand text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand/90 disabled:opacity-50 transition-all flex-shrink-0 shadow-lg shadow-brand/30"
+              >
+                {newsletterStatus === "sending" ? "Subscribing..." : "Subscribe"}
+              </button>
+            </form>
+          )}
+          {newsletterStatus === "error" && (
+            <p className="text-red-400 text-xs mt-3">Something went wrong. Please try again.</p>
+          )}
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
