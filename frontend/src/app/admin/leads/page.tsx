@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, Mail, Calendar, User, Search, CheckCircle2, Phone, Building2, MessageSquare, MoreHorizontal } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface Lead {
   id: number;

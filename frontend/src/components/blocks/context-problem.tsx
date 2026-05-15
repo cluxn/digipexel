@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 import {
   BrainCircuit,
   Layers,

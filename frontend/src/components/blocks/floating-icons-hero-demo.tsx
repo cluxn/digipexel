@@ -8,6 +8,7 @@ import { FloatingIconsHero } from '@/components/ui/floating-icons-hero-section';
 import { Sparkles, Plug, Activity, Cpu, Search, Youtube, Instagram, Linkedin, Database, Workflow, Layers, Calculator, UserPlus, TrendingUp, FileText, HelpCircle, Phone } from 'lucide-react';
 import { Menu, MenuItem, ServiceMenu, WorkMenu, InsightsMenu } from "@/components/ui/navbar-menu";
 import { cn, safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 import Link from "next/link";
 
 // --- Original Stylized Company Logo SVG Components ---

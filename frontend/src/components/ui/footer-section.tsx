@@ -4,6 +4,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { safeFetch } from '@/lib/utils';
+import { API_BASE_URL } from '@/lib/constants';
 
 const navLinks = [
 	{

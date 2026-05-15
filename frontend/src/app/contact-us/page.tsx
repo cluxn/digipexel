@@ -7,6 +7,7 @@ import { Footer } from "@/components/ui/footer-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin, ExternalLink } from "lucide-react";
+import { API_BASE_URL } from "@/lib/constants";
 
 export default function ContactPage() {
   const router = useRouter();

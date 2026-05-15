@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Particles } from "@/components/ui/highlighter";
 import { cn, safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 
 interface ConnectProps {

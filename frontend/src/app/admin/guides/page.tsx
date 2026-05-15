@@ -5,6 +5,7 @@ import {
   Image as ImageIcon, BookOpen, Tag, ExternalLink, AlignLeft,
 } from "lucide-react";
 import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 import AdminLayout from "@/components/admin/admin-layout";
 
 interface Guide {
