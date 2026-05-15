@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2.1: Post-Phase-2 Gap Fixes** [INSERTED] - Close 5 UI/admin gaps identified after phase 2 execution: icon previews in admin, hero eyebrow field, section eyebrow text polish, problem stats in admin, footer layout restructure
 - [ ] **Phase 3: Service Pages** - Build all 12 service pages to a consistent, admin-editable format aligned to the benai.co reference
 - [x] **Phase 4: Content Pages — Blog, Case Studies & Guides** - Deliver fully functional blog, case studies, and guides with pagination, filtering, search, scheduling, and lead capture (completed 2026-05-15)
-- [ ] **Phase 5: Testimonials System Upgrade** - Redesign the testimonials page, make testimonials multi-format, and wire different display contexts to the same DB
+- [x] **Phase 5: Testimonials System Upgrade** - Redesign the testimonials page, make testimonials multi-format, and wire different display contexts to the same DB (completed 2026-05-15)
 - [ ] **Phase 6: Admin Panel Completion** - Complete every unfinished admin section: dashboard, newsletter, popups, banners, analytics, users, and settings — all live on the public site
 - [ ] **Phase 7: SEO, Static Pages & Launch Readiness** - Add all static/legal pages, implement SEO management, generate sitemap, configure schemas, connect Calendly, and pass a page speed audit
 
@@ -126,7 +126,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Backend: ALTER testimonials table (star_rating, video_url, logo_url, display_context) + fix GET response key + individual save/delete actions + reseed
 - [x] 05-02-PLAN.md — Admin: multi-format testimonial form (star rating, video URL, logo URL, display context checkboxes) + individual save/delete
-- [ ] 05-03-PLAN.md — Frontend: redesigned testimonials page (star ratings, logos, context filter) + homepage block filter + service page shared DB fetch
+- [x] 05-03-PLAN.md — Frontend: redesigned testimonials page (star ratings, logos, context filter) + homepage block filter + service page shared DB fetch
 
 ### Phase 6: Admin Panel Completion
 **Goal**: Every admin panel section that was a stub or missing is now fully functional and its output is live on the public site — newsletter collects and lists subscribers, popups and banners actually appear, analytics codes are injected, users are DB-backed, and settings control live site behavior
@@ -165,6 +165,6 @@ Plans:
 | 2.1. Post-Phase-2 Gap Fixes | 0/4 | Not started | - |
 | 3. Service Pages | 3/4 | In Progress|  |
 | 4. Content Pages — Blog, Case Studies & Guides | 7/7 | Complete   | 2026-05-15 |
-| 5. Testimonials System Upgrade | 2/3 | In Progress|  |
+| 5. Testimonials System Upgrade | 3/3 | Complete   | 2026-05-15 |
 | 6. Admin Panel Completion | 0/0 | Not started | - |
 | 7. SEO, Static Pages & Launch Readiness | 0/0 | Not started | - |
