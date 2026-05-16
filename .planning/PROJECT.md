@@ -38,6 +38,15 @@ A launch-ready agency website where every section is editable from the admin pan
 - ✓ Nudges/Popups wired to banners.php (DB-backed, no localStorage) — Validated in Phase 06
 - ✓ Admin sidebar: Analytics and Users links added — Validated in Phase 06
 - ✓ Admin login passcode changeable from Users page without editing code (USR-02) — Validated in Phase 06
+- ✓ Custom 404 page ("Lost in the automation void?" — branded, server component, inherits root layout) — Validated in Phase 07: seo-static-pages-launch-readiness
+- ✓ Thank-you page redesigned with secondary nav links (Explore Services, Read Our Blog) — Validated in Phase 07
+- ✓ Privacy Policy and Terms & Conditions expanded with agency-grade legal content (GDPR, AI data, IP, SLAs) — Validated in Phase 07
+- ✓ generateMetadata on all 12 public pages (build-time SEO titles/descriptions from seo_meta DB) — Validated in Phase 07
+- ✓ Organization JSON-LD in layout.tsx, Service JSON-LD per service page, AggregateRating JSON-LD on testimonials — Validated in Phase 07
+- ✓ seo_meta PHP endpoint + DB table — admin can set per-page title/description/og_image — Validated in Phase 07
+- ✓ sitemap.xml + robots.txt generated at build time via next-sitemap postbuild (/admin disallowed) — Validated in Phase 07
+- ✓ CalendlyButton integration — Navbar and Connect CTA conditionally open Calendly popup when calendly_url is set in settings — Validated in Phase 07
+- ✓ Admin /admin/seo page — per-page SEO meta editor with rebuild notice — Validated in Phase 07
 
 ### Active
 
