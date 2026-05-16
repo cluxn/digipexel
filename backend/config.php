@@ -1,5 +1,5 @@
 <?php
-// backend/config.php (Updated for digipexel.cluxn.com)
+// backend/config.php (Updated for digi.cluxn.com)
 $db_host = 'localhost';
 $db_user = 'u723773599_digipexel'; // Assuming prefix based on FTP user
 $db_pass = 'Digipexel@12345';

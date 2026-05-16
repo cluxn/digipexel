@@ -1,7 +1,7 @@
-$ftpHost = "91.108.106.12"
+$ftpHost = "ftp.cluxn.com"
 $ftpUser = "u723773599.u723773599"
 $ftpPass = "Cluxnftp@12345"
-$baseRemotePath = "public_html/digipexel"
+$baseRemotePath = ""
 
 function Upload-Folder($localRoot, $remoteRoot) {
     if (!(Test-Path $localRoot)) { 
