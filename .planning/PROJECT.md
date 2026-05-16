@@ -47,82 +47,48 @@ A launch-ready agency website where every section is editable from the admin pan
 - ✓ sitemap.xml + robots.txt generated at build time via next-sitemap postbuild (/admin disallowed) — Validated in Phase 07
 - ✓ CalendlyButton integration — Navbar and Connect CTA conditionally open Calendly popup when calendly_url is set in settings — Validated in Phase 07
 - ✓ Admin /admin/seo page — per-page SEO meta editor with rebuild notice — Validated in Phase 07
-
-### Active
-
-**Homepage**
 - ✓ Fix image optimization error — `unoptimized: true` in next.config.ts — Validated in Phase 01: bugs-foundation
 - ✓ Hero section fully editable from admin (heading, subheading, eyebrow, paragraph, floating icons, CTA) — Validated in Phase 02 + 02.1
 - ✓ Floating icons manageable from admin (ICON_REGISTRY + slot dropdowns in admin Hero tab) — Validated in Phase 02
 - ✓ Navbar CTA button text/href editable from admin (Navbar tab in admin site-content) — Validated in Phase 02
-- ✓ All section eyebrow labels rewritten — Validated in Phase 02.1
 - ✓ Services section cards linked to `/services/*` routes (all 11 hrefs verified) — Validated in Phase 02
 - ✓ Problem section paragraph trimmed to 2 lines (16 words) — Validated in Phase 02
 - ✓ Agency stats (42%, 28%, 12k+, 4-6 wks) editable from admin (Stats tab + API fetch) — Validated in Phase 02
 - ✓ All homepage buttons and CTA links connected (service cards → /services/*, CTAs → /contact-us or settings CTA link) — Validated in Phase 02/03/06
 - ✓ Homepage testimonials block connected to admin panel, filtered to 'homepage' context — Validated in Phase 05
 - ✓ Footer menu links connected, newsletter signup in footer, WhatsApp floating button — Validated in Phase 02 + 06
-- [ ] Logo marquee updated with real partner logos (Meta, Google Ads, Anthropic, etc.) — **Content task: admin data entry needed** (go to /admin/logos, see 02-02-SUMMARY.md for exact entries)
-
-**Service Pages (12 total including AI SEO Automation)**
+- ✓ Logo marquee updated with real partner logos (OpenAI, Anthropic, n8n, Make, Zapier, Google Ads, Meta, Microsoft) — seeded in init_db.php
 - ✓ Consistent section format across all service pages — Validated in Phase 03
 - ✓ All section buttons linked to respective destinations (/contact-us) — Validated in Phase 03
 - ✓ All service page content editable per service from admin — Validated in Phase 03
 - ✓ 6-step delivery roadmap customized per service with 2-line descriptions per step — Validated in Phase 03
 - ✓ Market impact section editable from admin with genuine numbers per service — Validated in Phase 03
 - ✓ CTA section customized per service — Validated in Phase 03
-- ✓ Testimonials look genuine, editable from admin — Validated in Phase 03
-
-**Blog**
 - ✓ 2 sample SEO-focused blog posts seeded in DB — Validated in Phase 04
-- ✓ Client-side pagination, filter by category, sort by popular/recent — Validated in Phase 04
+- ✓ Client-side pagination, filter by category, sort by popular/recent (Blog) — Validated in Phase 04
 - ✓ Related posts on blog detail page (same-category capped at 3) — Validated in Phase 04
 - ✓ Blog scheduling from admin (publish now / schedule date-time / draft) — Validated in Phase 04
 - ✓ Newsletter signup at end of each blog post — Validated in Phase 04/06
-- [ ] Search functionality (free-text search box) — **not built**
-- [ ] Dedicated categories admin page — **not built** (category autocomplete exists when creating posts)
-
-**Case Studies**
+- ✓ Blog search functionality (free-text filter on title + excerpt) — built in blog-client.tsx
+- ✓ Dedicated categories admin page — /admin/categories, shows all categories across Blog, Guides, Case Studies with counts
 - ✓ 2 sample case studies seeded in DB (finflows, growthloop) — Validated in Phase 04
-- ✓ Client-side pagination, filter, sort — Validated in Phase 04
-- ✓ All content editable from admin — Validated in Phase 04
-
-**Guides**
+- ✓ Client-side pagination, filter, sort (Case Studies) — Validated in Phase 04
+- ✓ All case study content editable from admin — Validated in Phase 04
 - ✓ Guide listing + detail pages with newsletter block — Validated in Phase 04
-- ✓ Client-side pagination, filter, sort — Validated in Phase 04
+- ✓ Client-side pagination, filter, sort (Guides) — Validated in Phase 04
 - ✓ Newsletter signup at end of each guide — Validated in Phase 04/06
-- ✓ All content editable from admin — Validated in Phase 04
-- [ ] Search functionality (free-text search box) — **not built**
-
-**Testimonials Page**
-- ✓ Page redesigned (card grid with star ratings, logos, category badges) — Validated in Phase 05
+- ✓ All guide content editable from admin — Validated in Phase 04
+- ✓ Guides search functionality (free-text filter on title + description) — built in guides-client.tsx
+- ✓ Testimonials page redesigned (card grid with star ratings, logos, category badges) — Validated in Phase 05
 - ✓ Testimonials look genuine (6 professional B2B names/roles/companies seeded) — Validated in Phase 05
 - ✓ Admin can upload testimonials in multiple formats — Validated in Phase 05
 - ✓ Different display formats per page (display_context filter) — Validated in Phase 05
 - ✓ Navbar "Work" dropdown links to Case Studies + Testimonials — Validated in Phase 05
-
-**Static / Legal Pages**
-- ✓ Thank You page redesigned ("Transmission Success" + secondary nav links) — Validated in Phase 07
-- ✓ Custom 404 page ("404 — Signal Lost", branded server component) — Validated in Phase 07
-- ✓ Error page redesigned ("Try Again" + "Return Home") — Validated in Phase 07
-- ✓ Privacy Policy expanded (GDPR, AI data processing, Calendly, Google Analytics sections) — Validated in Phase 07
-- ✓ Terms & Conditions expanded (IP ownership, SLAs, liability, termination) — Validated in Phase 07
-
-**SEO & Technical**
-- ✓ SEO meta management — editable title/description/OG image per page from admin (/admin/seo) — Validated in Phase 07
-- ✓ Sitemap.xml auto-generated at build time via next-sitemap postbuild — Validated in Phase 07
-- ✓ robots.txt properly configured (disallows /admin/) — Validated in Phase 07
-- ✓ Schema markup — Organization (layout.tsx), Service (service pages), AggregateRating (testimonials) — Validated in Phase 07
 - ✓ HTTPS redirect in backend/.htaccess (301 RewriteCond) — Validated in Phase 01
-- ✓ Calendly/booking integration — CalendlyButton wired to Navbar and Connect CTA — Validated in Phase 07
 - ✓ Page speed audit before launch — human sign-off received in Phase 07 checkpoint
-- [ ] Post-deploy PageSpeed Insights score documented — **run after next deploy**
-
-**Admin Panel**
 - ✓ Sidebar scrollbar added (overflow-y-auto) — Validated in Phase 01
 - ✓ Approval Queue removed from sidebar and codebase — Validated in Phase 01
 - ✓ Waitlist removed from sidebar and codebase — Validated in Phase 01
-- ✓ Dashboard stats show live counts from DB — Validated in Phase 06
 - ✓ Dashboard "Captured Leads" shows real recent leads — Validated in Phase 06
 - ✓ Double menu bug fixed (horizontal pill tabs removed from dashboard) — Validated in Phase 01
 - ✓ All sidebar broken links replaced with real routes — Validated in Phase 01 + 06
@@ -130,14 +96,11 @@ A launch-ready agency website where every section is editable from the admin pan
 - ✓ Site Content section — manage hero, navbar, stats, footer, problem section — Validated in Phase 02 + 02.1
 - ✓ Services section — manage all content per service page — Validated in Phase 03
 - ✓ Blog scheduling (publish now, schedule date/time, draft) — Validated in Phase 04
-- ✓ Nudges/Popups — exit intent only, DB-driven — Validated in Phase 06
-- ✓ Banners — announcement bar + content page banners, live on site — Validated in Phase 06
-- ✓ Newsletter — subscriber list view and CSV export — Validated in Phase 06
-- ✓ Analytics section — GA4, Search Console, custom scripts injected into head — Validated in Phase 06
-- ✓ Users section — create/edit/delete admin users, DB-backed passcode change — Validated in Phase 06
-- ✓ Settings — social links, contact info, site name/tagline, WhatsApp toggle + number, default CTA link — Validated in Phase 06
-- ✓ WhatsApp floating button on every public page — Validated in Phase 06
-- ✓ SEO meta editor (/admin/seo) with per-page fields and rebuild notice — Validated in Phase 07
+- ✓ Categories admin page (/admin/categories) — aggregated view of all categories with per-type counts
+
+### Active
+
+- [ ] Post-deploy PageSpeed Insights score documented — **run after next deploy** (requires live site + browser)
 
 ### Out of Scope
 
