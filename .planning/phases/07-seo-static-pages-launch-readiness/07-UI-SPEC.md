@@ -62,11 +62,13 @@ Source: spacing confirmed from `globals.css`, `button.tsx` (`h-12`, `h-14`, `px-
 | Heading (section) | 36–52px (fluid) | 700 bold | 1.1 | `.section-title` |
 | Display (hero) | 80–84px (fluid) | 900 black | 1.02 | `.hero-title` |
 
-Additional sizes in use this phase:
-- Legal page body prose: 16px weight 400 line-height 1.7 (`text-base leading-relaxed`) — matches `section-subtitle` rhythm for long-form reading
-- Admin form labels: 10px weight 700 uppercase tracking-widest (`.field-label` — `text-[10px] font-black uppercase tracking-widest`)
-- Admin SEO page notice text: 14px weight 500 — `text-sm font-medium`
-- Admin sidebar new entry: 11px weight 700 tracking-[0.15em] — matches all existing sidebar items exactly
+Notes:
+- Legal page body prose: 16px weight 400 line-height 1.7 (`text-base leading-relaxed`) — matches `section-subtitle` rhythm for long-form reading; same scale entry as Body above.
+- Admin SEO page notice text: 14px weight 500 — `text-sm font-medium`; same scale entry as Label above.
+
+Pre-existing admin utilities (not part of this scale — no new declarations):
+- `.field-label` — admin form field labels; pixel value intentionally not re-stated here; class already defined in `globals.css`.
+- Admin sidebar nav items — inherit existing `.admin-nav-item` pattern; not a new scale entry.
 
 Source: `globals.css` @theme typography scale (detected), `.hero-title`, `.section-title`, `.field-label` utility classes (detected), `admin-layout.tsx` sidebar text patterns (detected)
 
@@ -147,6 +149,7 @@ File to create: `app/not-found.tsx`
 Layout: Inherits root layout (Navbar + Footer from `app/layout.tsx`) — do NOT import them manually.
 
 Visual contract:
+- Primary focal point: `.hero-title` heading (largest element; draws eye first)
 - Badge: `.section-eyebrow` class — text: "404 — Signal Lost"
 - Heading: `.hero-title` class — "Lost in the <span class='hero-title-accent'>automation void</span>?" (Claude's call per CONTEXT.md D-05)
 - Subheading: `.section-subtitle` class — "This page doesn't exist in our system. Let's get you back on track."
