@@ -224,11 +224,20 @@ export default function FloatingIconsHeroDemo() {
       if (json.status === "success" && json.data) {
         const { iconSlots: slots, ...text } = json.data;
         setHeroText({ ...FALLBACK_HERO_TEXT, ...text });
-        if (Array.isArray(slots) && slots.length > 0) {
-          setIconSlots(slots);
-        }
+        if (Array.isArray(slots) && slots.length > 0) setIconSlots(slots);
+        return;
       }
-      // On failure: keep FALLBACK values in state
+      // API unavailable — try localStorage saved by admin panel
+      try {
+        const local = localStorage.getItem("PREVIEW_hero");
+        if (local) {
+          const data = JSON.parse(local);
+          const { iconSlots: slots, ...text } = data;
+          setHeroText({ ...FALLBACK_HERO_TEXT, ...text });
+          if (Array.isArray(slots) && slots.length > 0) setIconSlots(slots);
+        }
+      } catch {}
+      // Else: keep FALLBACK_ICON_SLOTS in state
     }
     fetchHero();
   }, []);
@@ -241,7 +250,7 @@ export default function FloatingIconsHeroDemo() {
 
   // Build aiIcons from current iconSlots state + static positioning classes
   const aiIcons = iconSlots.map(({ slot, icon, label }) => {
-    const isUrl = icon.startsWith('http') || icon.startsWith('/');
+    const isUrl = icon.startsWith('http') || icon.startsWith('/') || icon.startsWith('data:');
     return {
       id: slot,
       icon: isUrl ? undefined : (ICON_REGISTRY[icon] ?? IconOpenAI) as React.FC<React.SVGProps<SVGSVGElement>>,

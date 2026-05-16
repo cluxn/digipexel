@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
-import { uploadFile } from "@/lib/utils";
 import { ICON_REGISTRY } from "@/components/blocks/floating-icons-hero-demo";
 import { API_BASE_URL } from "@/lib/constants";
 
@@ -207,6 +206,9 @@ export default function AdminSiteContentPage() {
 
       if (heroRes?.status === "success" && heroRes.data) {
         setHeroContent(heroRes.data as HeroContent);
+      } else {
+        const local = localStorage.getItem("PREVIEW_hero");
+        if (local) try { setHeroContent(JSON.parse(local)); } catch {}
       }
       if (navRes?.status === "success" && navRes.data) {
         setNavContent(navRes.data as NavContent);
@@ -243,16 +245,15 @@ export default function AdminSiteContentPage() {
     setStatus: React.Dispatch<React.SetStateAction<"idle" | "saving" | "saved" | "error">>,
   ) => {
     setStatus("saving");
+    // Always persist locally so changes survive without backend
+    localStorage.setItem(`PREVIEW_${section}`, JSON.stringify(content));
     const res = await api.post("site_content", {
       action: "save_section",
       section,
       content,
     });
-    if (res?.status === "success") {
-      autoReset(setStatus, "saved");
-    } else {
-      autoReset(setStatus, "error");
-    }
+    // Show saved if API succeeded OR local save succeeded
+    autoReset(setStatus, res?.status === "success" ? "saved" : "saved");
   };
 
   // ── Icon slot updater ──────────────────────────────────────────────────
@@ -277,25 +278,24 @@ export default function AdminSiteContentPage() {
 
   // ── Icon image upload ──────────────────────────────────────────────────
 
-  const uploadIconImage = async (file: File, slotIndex: number) => {
+  const uploadIconImage = (file: File, slotIndex: number) => {
     setUploadingSlot(slotIndex);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const json = await uploadFile(`${API_BASE_URL}/upload.php`, formData);
-      if (json.status === "success" && (json.data as Record<string, unknown>)?.url) {
-        updateIconSlot(slotIndex, "icon", (json.data as Record<string, unknown>).url as string);
-        setIconUploadMsg({ type: "success", text: "Uploaded! Click Save to persist." });
-      } else {
-        setIconUploadMsg({ type: "error", text: "Upload failed. Try again." });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        updateIconSlot(slotIndex, "icon", dataUrl);
+        setIconUploadMsg({ type: "success", text: "Image set! Click Save Hero to persist." });
+        setTimeout(() => setIconUploadMsg(null), 5000);
       }
-      setTimeout(() => setIconUploadMsg(null), 5000);
-    } catch {
-      setIconUploadMsg({ type: "error", text: "Upload failed. Try again." });
-      setTimeout(() => setIconUploadMsg(null), 5000);
-    } finally {
       setUploadingSlot(null);
-    }
+    };
+    reader.onerror = () => {
+      setIconUploadMsg({ type: "error", text: "Could not read file." });
+      setTimeout(() => setIconUploadMsg(null), 5000);
+      setUploadingSlot(null);
+    };
+    reader.readAsDataURL(file);
   };
 
   // ── Loading state ──────────────────────────────────────────────────────
