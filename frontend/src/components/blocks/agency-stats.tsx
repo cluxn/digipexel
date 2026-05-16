@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 const FALLBACK_STATS = [
   {
@@ -34,7 +35,7 @@ export function AgencyStats() {
 
   useEffect(() => {
     async function fetchStats() {
-      const json = await safeFetch("/api/site_content.php?section=stats");
+      const json = await safeFetch(`${API_BASE_URL}/site_content.php?section=stats`);
       if (json.status === "success" && json.data?.stats && Array.isArray(json.data.stats)) {
         setStats(json.data.stats);
       }

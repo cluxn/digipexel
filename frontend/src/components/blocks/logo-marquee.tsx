@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { cn, safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface Logo {
   name: string;
@@ -17,12 +18,19 @@ export function LogoMarquee() {
 
   useEffect(() => {
     async function fetchLogos() {
-      const json = await safeFetch("/api/logos.php");
-      if (json.status === "success") {
-        setLogos(json.data);
-        setIsVisible(json.enabled);
+      const json = await safeFetch(`${API_BASE_URL}/logos.php`);
+      if (json.status === "success" && json.data) {
+        setLogos(Array.isArray(json.data) ? json.data : (json.data.logos ?? []));
+        setIsVisible(json.data.enabled ?? true);
         setLoading(false);
         return;
+      }
+
+      // Clear stale preview data from older logo set versions
+      const LOGOS_VERSION = "v2";
+      if (localStorage.getItem("PREVIEW_LOGOS_VERSION") !== LOGOS_VERSION) {
+        localStorage.removeItem("PREVIEW_LOGOS");
+        localStorage.setItem("PREVIEW_LOGOS_VERSION", LOGOS_VERSION);
       }
 
       // Preview Fallback
@@ -35,9 +43,17 @@ export function LogoMarquee() {
       } else {
         // Default static logos for first-time preview
         const defaults: Logo[] = [
-          { name: "Dish", src: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg", display_type: 'image' },
-          { name: "Deloitte", src: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Deloitte.svg", display_type: 'image' },
-          { name: "Pfizer", src: "https://upload.wikimedia.org/wikipedia/commons/5/57/Pfizer_%282021%29.svg", display_type: 'image' },
+          { name: "Zapier", src: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Zapier_logo.svg", display_type: 'image' },
+          { name: "HubSpot", src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/HubSpot_Logo.svg", display_type: 'image' },
+          { name: "Salesforce", src: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg", display_type: 'image' },
+          { name: "Google Ads", src: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Ads_logo.svg", display_type: 'image' },
+          { name: "Meta", src: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg", display_type: 'image' },
+          { name: "Slack", src: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Slack_Technologies_Logo.svg", display_type: 'image' },
+          { name: "OpenAI", src: "", display_type: 'text' },
+          { name: "Anthropic", src: "", display_type: 'text' },
+          { name: "n8n", src: "", display_type: 'text' },
+          { name: "Microsoft", src: "", display_type: 'text' },
+          { name: "Make", src: "", display_type: 'text' },
         ];
         setLogos(defaults);
         setIsVisible(true);

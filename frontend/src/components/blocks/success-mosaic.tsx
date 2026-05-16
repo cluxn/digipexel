@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { safeFetch } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/constants";
 
 const PARTNER_LOGOS = [
   { src: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg", name: "Dish" },
@@ -80,7 +81,7 @@ export function SuccessMosaic() {
   React.useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await safeFetch("/api/testimonials.php");
+        const data = await safeFetch(`${API_BASE_URL}/testimonials.php`);
         if (data && data.status === "success" && Array.isArray(data.focus) && data.focus.length > 0) {
           const videoItems: VideoItem[] = data.focus
             .filter((f: any) => f.type === "video")
