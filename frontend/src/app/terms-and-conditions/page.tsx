@@ -17,7 +17,7 @@ export default function TermsAndConditionsPage() {
             Terms & Conditions
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Clear terms for <span className="hero-title-accent">reliable delivery</span><br /> 
+            Clear terms for <span className="hero-title-accent">reliable delivery</span><br />
             and long-term partnership.
           </h1>
           <p className="section-subtitle max-w-2xl opacity-70">
@@ -31,44 +31,67 @@ export default function TermsAndConditionsPage() {
       <section className="py-12">
         <div className="container mx-auto px-6 max-w-5xl space-y-10">
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Service usage</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Service Usage</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              You agree to use Digi Pexel services in compliance with applicable laws and platform policies. You are
-              responsible for any content, data, or configurations you provide.
+              You agree to use Digi Pexel services in compliance with applicable laws. You are responsible for content,
+              data, and configurations you provide. Prohibited activities include illegal use, misrepresentation, and
+              reverse-engineering our proprietary systems.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Deliverables & timelines</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Deliverables and Timelines</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              Project scopes, milestones, and timelines are defined in written statements of work. Changes in scope may
-              require updated timelines or fees.
+              Project scope, milestones, and timelines are defined in written statements of work. Scope changes require a
+              written change order. Delays caused by the client (late approvals, missing assets) adjust timelines
+              accordingly and do not constitute breach by Digi Pexel.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Payments</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Intellectual Property</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              Fees, billing schedules, and payment terms are defined in your proposal or agreement. Late payments may
-              pause delivery until accounts are current.
+              Upon full payment, the client owns all custom deliverables created specifically for their project.
+              Digi Pexel retains ownership of pre-existing tools, frameworks, and reusable components embedded in
+              deliverables (licensed for client use). Third-party tools and libraries remain under their respective
+              licenses.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Intellectual property</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Payments</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              Ownership of deliverables and IP is specified in your agreement. Pre-existing tools and libraries remain
-              the property of their respective owners.
+              Fees and billing schedules are defined in your proposal or agreement. A deposit (typically 50%) is due
+              before work commences. Remaining balance is due on delivery or per milestone schedule. Late payments
+              exceeding 14 days may pause active delivery.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Limitations</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Service Level and Liability</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              Digi Pexel is not liable for indirect damages, data loss, or third-party platform outages. We aim for
-              reliable delivery but cannot guarantee external system performance.
+              Digi Pexel targets response times of 24–48 hours for support inquiries during active projects. We are not
+              liable for indirect or consequential damages, data loss caused by third-party platforms, outages of
+              external tools (Google, Meta, n8n, etc.), or results dependent on client-provided assets or access. Our
+              maximum liability is limited to fees paid in the 30 days preceding the claim.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Contact</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Confidentiality</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              For questions about these terms, email support@digipexel.com or reach out through the contact form.
+              Both parties agree to keep proprietary information, business strategies, and client data confidential
+              during and for 2 years after the project. This obligation does not apply to publicly available information.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Termination</h2>
+            <p className="text-secondary text-sm leading-relaxed">
+              Either party may terminate the engagement with 14 days written notice. The client is responsible for fees
+              covering work completed through the termination date. Pre-paid fees for unstarted work are refunded within
+              14 days.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Governing Law</h2>
+            <p className="text-secondary text-sm leading-relaxed">
+              These terms are governed by applicable laws. Disputes are first subject to good-faith negotiation, then
+              mediation. For questions or disputes, contact us at info@digipexel.com.
             </p>
           </div>
         </div>

@@ -31,40 +31,65 @@ export default function PrivacyPolicyPage() {
       <section className="py-12">
         <div className="container mx-auto px-6 max-w-5xl space-y-10">
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Information we collect</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Information We Collect</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              We collect information you provide directly, such as contact details, company data, and project
-              requirements. We also gather usage data from our website and platforms to improve performance, security,
-              and user experience.
+              We collect information you provide directly, including contact details, company name, and project
+              requirements. We also gather usage analytics from website interactions, as well as IP address and browser
+              data for security purposes.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">How we use information</h2>
-            <ul className="text-secondary text-sm space-y-2">
-              <li>Deliver and support AI automation services</li>
-              <li>Respond to inquiries and provide proposals</li>
-              <li>Improve product performance and reliability</li>
-              <li>Maintain compliance, security, and fraud prevention</li>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">How We Use Your Information</h2>
+            <ul className="text-secondary text-sm space-y-2 leading-relaxed">
+              <li>Deliver AI automation and digital marketing services</li>
+              <li>Respond to inquiries and send relevant project proposals</li>
+              <li>Improve platform performance and user experience</li>
+              <li>Ensure legal compliance and fraud prevention</li>
+              <li>Send service updates (opt-out available at any time)</li>
             </ul>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Data security</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">AI Data Processing</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              We use access controls, encryption at rest and in transit, and strict vendor reviews to protect sensitive
-              data. Only authorized team members may access client data for delivery or support.
+              Digi Pexel uses AI tools including large language models and automation platforms (n8n, Make, Zapier) to
+              process workflow data. Client data processed through these systems is handled with strict access controls.
+              We do not use your data to train AI models without explicit consent.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Your choices</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Third-Party Tools</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              You may request access, updates, or deletion of your data at any time. Contact us to review your data
-              profile or change communication preferences.
+              We use the following third-party services that may process your data: Google Analytics (website analytics),
+              Calendly (booking and scheduling), and email service providers (newsletter delivery). Each third party has
+              their own privacy policy governing their data practices.
             </p>
           </div>
           <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-2xl font-bold text-primary mb-3">Contact</h2>
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">GDPR and Data Rights</h2>
             <p className="text-secondary text-sm leading-relaxed">
-              For privacy questions, email us at info@digipexel.com or submit a request through the contact form.
+              If you are located in the EU/EEA: you have the right to access, rectify, erase, restrict, or port your
+              data; you may withdraw consent at any time; you have the right to lodge a complaint with a supervisory
+              authority. Contact us at info@digipexel.com to exercise these rights.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Data Security</h2>
+            <p className="text-secondary text-sm leading-relaxed">
+              We use TLS encryption for data in transit, access controls, and regular security reviews. Only authorized
+              team members access client data for delivery or support purposes.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Data Retention</h2>
+            <p className="text-secondary text-sm leading-relaxed">
+              We retain client data for the duration of the service engagement and up to 3 years after project
+              completion for legal and accounting purposes. Inquiry data is retained for up to 12 months.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
+            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Contact</h2>
+            <p className="text-secondary text-sm leading-relaxed">
+              For privacy requests, email us at info@digipexel.com. We aim to respond within 5 business days.
             </p>
           </div>
         </div>
