@@ -147,6 +147,14 @@ try {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS seo_meta (
+        page_key VARCHAR(100) PRIMARY KEY,
+        seo_title VARCHAR(255),
+        meta_description TEXT,
+        og_image TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
     -- Insert default logos if table is empty
     INSERT INTO logos (name, src, position) 
     SELECT 'Dish', 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg', 0
@@ -189,6 +197,9 @@ try {
     // Value is the plain passcode string. The login page compares user input against this value directly.
     // Admin can update it via Settings panel → save_all_settings action.
     $pdo->exec("INSERT INTO settings (`key`, `value`) SELECT 'admin_passcode', '12345' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'admin_passcode')");
+
+    // Seed calendly_url in settings (empty default — admin sets their Calendly URL)
+    $pdo->exec("INSERT INTO settings (`key`, `value`) SELECT 'calendly_url', '' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'calendly_url')");
 
     // ALTER TABLE to add new testimonials columns (MySQL silently ignores if column already exists)
     $sql_alter = "
