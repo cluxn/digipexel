@@ -21,7 +21,8 @@ import {
   Layers,
   Settings,
   BarChart2,
-  UserCog
+  UserCog,
+  Search
 } from "lucide-react";
 
 const sidebarItems = [
@@ -38,6 +39,7 @@ const sidebarItems = [
   { name: "POPUPS",        icon: Sparkles,          href: "/admin/nudges",       status: "Active" },
   { name: "BANNERS",       icon: Layers,            href: "/admin/banners",      status: "Active" },
   { name: "ANALYTICS",     icon: BarChart2,         href: "/admin/analytics",    status: "Active" },
+  { name: "SEO",           icon: Search,            href: "/admin/seo",          status: "Active" },
   { name: "USERS",         icon: UserCog,           href: "/admin/users",        status: "Active" },
   { name: "SETTINGS",      icon: Settings,          href: "/admin/settings",     status: "Active" },
 ];
