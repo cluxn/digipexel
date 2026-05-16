@@ -80,15 +80,14 @@ export default function GuidesPage() {
       <Navbar className="top-0" darkHero={false} />
 
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center pt-32 pb-12 overflow-hidden">
+      <section className="relative min-h-[70vh] flex items-center pt-32 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.05),transparent_50%)]" />
         <div className="container mx-auto px-6 max-w-6xl relative z-10 text-center">
           <Badge variant="outline" className="section-eyebrow mb-6 mx-auto">
             Resources &amp; Guides
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Master the <span className="hero-title-accent">Automation Era</span><br />
-            with Our Playbooks
+            The <span className="hero-title-accent">Digi Pexel</span> Playbooks
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto mb-10 opacity-70">
             Step-by-step deep dives and technical whitepapers on building high-performance AI workflows for your scale.

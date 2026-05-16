@@ -194,7 +194,7 @@ const FALLBACK_HERO_TEXT = {
   ctaHref: "/contact-us",
 };
 
-// Default icon slots matching current hardcoded aiIcons
+// Default icon slots — core AI automation tools the agency deploys and integrates
 const FALLBACK_ICON_SLOTS = [
   { slot: 1, icon: "openai",    label: "OpenAI"    },
   { slot: 2, icon: "n8n",       label: "n8n"       },
@@ -296,7 +296,7 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
       if (json?.status === "success" && json.data?.calendly_url) {
         setCalendlyUrl(json.data.calendly_url);
       }
-    });
+    }).catch(() => {});
   }, []);
 
   // On dark-hero pages: transparent at top, frosted on scroll.
