@@ -28,6 +28,12 @@ export default function ThankYouPage() {
             <Button asChild variant="brand" className="px-8 h-14 font-bold">
               <Link href="/">Back to Station</Link>
             </Button>
+            <Button asChild variant="outline" className="px-8 h-14 font-bold">
+              <Link href="/services">Explore Services</Link>
+            </Button>
+            <Button asChild variant="outline" className="px-8 h-14 font-bold">
+              <Link href="/blog">Read Our Blog</Link>
+            </Button>
           </div>
         </div>
       </section>

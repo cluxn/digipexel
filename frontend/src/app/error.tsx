@@ -37,7 +37,10 @@ export default function GlobalError({
               variant="brand"
               className="px-8 h-14 font-bold active:scale-95"
             >
-              Retry Protocol
+              Try Again
+            </Button>
+            <Button asChild variant="outline" className="px-8 h-14 font-bold">
+              <Link href="/">Return Home</Link>
             </Button>
           </div>
           {error?.digest && (
