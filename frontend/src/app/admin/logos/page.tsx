@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowUp, ArrowDown, Trash2, Plus, Save, Power, Image as ImageIcon, Upload, X } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
-import { cn, safeFetch } from "@/lib/utils";
+import { cn, safeFetch, uploadFile } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 
 interface Logo {
@@ -23,6 +23,7 @@ export default function AdminLogosPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState<number | null>(null);
   const [uploadTargetIndex, setUploadTargetIndex] = useState<number | null>(null);
+  const [uploadMsg, setUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -51,8 +52,17 @@ export default function AdminLogosPage() {
       setIsEnabled(previewVisible);
     } else {
       setLogos([
-        { name: "Dish", src: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Dish_Network_logo.svg", display_type: 'image', position: 0 },
-        { name: "Deloitte", src: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Deloitte.svg", display_type: 'image', position: 1 },
+        { name: "Zapier", src: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Zapier_logo.svg", display_type: 'image', position: 0 },
+        { name: "HubSpot", src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/HubSpot_Logo.svg", display_type: 'image', position: 1 },
+        { name: "Salesforce", src: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg", display_type: 'image', position: 2 },
+        { name: "Google Ads", src: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Ads_logo.svg", display_type: 'image', position: 3 },
+        { name: "Meta", src: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg", display_type: 'image', position: 4 },
+        { name: "Slack", src: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Slack_Technologies_Logo.svg", display_type: 'image', position: 5 },
+        { name: "OpenAI", src: "", display_type: 'text', position: 6 },
+        { name: "Anthropic", src: "", display_type: 'text', position: 7 },
+        { name: "n8n", src: "", display_type: 'text', position: 8 },
+        { name: "Microsoft", src: "", display_type: 'text', position: 9 },
+        { name: "Make", src: "", display_type: 'text', position: 10 },
       ]);
     }
     setLoading(false);
@@ -109,17 +119,24 @@ export default function AdminLogosPage() {
     if (!file || uploadTargetIndex === null) return;
     const index = uploadTargetIndex;
     setUploadingLogo(index);
+    setUploadMsg(null);
     e.target.value = "";
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const json = await safeFetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
-      if (json.status === "success" && json.data?.url) {
-        updateLogo(index, "src", json.data.url as string);
+      const json = await uploadFile(`${API_BASE_URL}/upload.php`, formData);
+      if (json.status === "success" && (json.data as Record<string, unknown>)?.url) {
+        updateLogo(index, "src", (json.data as Record<string, unknown>).url as string);
+        setUploadMsg({ type: "success", text: "Uploaded! Click Save to persist." });
+      } else {
+        setUploadMsg({ type: "error", text: (json.message as string) ?? "Upload failed. Backend may be unreachable." });
       }
-    } catch {}
+    } catch {
+      setUploadMsg({ type: "error", text: "Upload failed. Backend may be unreachable." });
+    }
     setUploadingLogo(null);
     setUploadTargetIndex(null);
+    setTimeout(() => setUploadMsg(null), 5000);
   };
 
   const saveChanges = async () => {
@@ -184,8 +201,13 @@ export default function AdminLogosPage() {
                <Power className="w-4 h-4 mr-2" />
                {isEnabled ? "Live on Site" : "Hidden from Site"}
             </Button>
-            <Button 
-              onClick={saveChanges} 
+            {uploadMsg && (
+              <span className={`text-sm font-semibold ${uploadMsg.type === "success" ? "text-emerald-500" : "text-rose-500"}`}>
+                {uploadMsg.text}
+              </span>
+            )}
+            <Button
+              onClick={saveChanges}
               disabled={saving}
               className="bg-brand hover:bg-brand/90 text-white px-8 h-14 rounded-2xl font-bold shadow-xl shadow-brand/20 transition-all active:scale-95"
             >

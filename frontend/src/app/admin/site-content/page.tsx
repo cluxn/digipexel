@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
-import { safeFetch } from "@/lib/utils";
+import { uploadFile } from "@/lib/utils";
 import { ICON_REGISTRY } from "@/components/blocks/floating-icons-hero-demo";
 import { API_BASE_URL } from "@/lib/constants";
 
@@ -172,6 +172,7 @@ export default function AdminSiteContentPage() {
   const [problemContent, setProblemContent] = useState<ProblemContent>(DEFAULT_PROBLEM);
 
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const [iconUploadMsg, setIconUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const iconFileRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -281,12 +282,17 @@ export default function AdminSiteContentPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const json = await safeFetch(`${API_BASE_URL}/upload.php`, { method: "POST", body: formData });
-      if (json.status === "success" && json.data?.url) {
-        updateIconSlot(slotIndex, "icon", json.data.url as string);
+      const json = await uploadFile(`${API_BASE_URL}/upload.php`, formData);
+      if (json.status === "success" && (json.data as Record<string, unknown>)?.url) {
+        updateIconSlot(slotIndex, "icon", (json.data as Record<string, unknown>).url as string);
+        setIconUploadMsg({ type: "success", text: "Uploaded! Click Save to persist." });
+      } else {
+        setIconUploadMsg({ type: "error", text: "Upload failed. Try again." });
       }
+      setTimeout(() => setIconUploadMsg(null), 5000);
     } catch {
-      // upload failed — leave existing icon unchanged
+      setIconUploadMsg({ type: "error", text: "Upload failed. Try again." });
+      setTimeout(() => setIconUploadMsg(null), 5000);
     } finally {
       setUploadingSlot(null);
     }
@@ -520,6 +526,11 @@ export default function AdminSiteContentPage() {
 
             {/* Save */}
             <div className="flex items-center justify-end gap-4 pt-4 border-t border-slate-50">
+              {iconUploadMsg && (
+                <span className={`text-sm font-semibold ${iconUploadMsg.type === "success" ? "text-emerald-500" : "text-rose-500"}`}>
+                  {iconUploadMsg.text}
+                </span>
+              )}
               {heroStatus === "saved"  && <span className="text-sm font-semibold text-emerald-500">Saved!</span>}
               {heroStatus === "error"  && <span className="text-sm font-semibold text-rose-500">Save failed.</span>}
               <Button
