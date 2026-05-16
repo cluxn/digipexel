@@ -89,7 +89,7 @@
 - [x] **SEO-03**: robots.txt properly configured
 - [x] **SEO-04**: Schema markup (Organization, Service, Review schemas)
 - [x] **SEO-05**: Calendly/booking integration connected to all "Book a call" / "Book a free audit" CTAs
-- [ ] **SEO-06**: Page speed audit and optimisation before launch
+- [x] **SEO-06**: Page speed audit and optimisation before launch
 
 ### Admin Panel — Dashboard (ADM)
 
@@ -253,4 +253,4 @@
 | SEO-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | SEO-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | SEO-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
-| SEO-06 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-06 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |

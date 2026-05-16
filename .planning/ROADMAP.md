@@ -164,7 +164,7 @@ Plans:
 - [x] 07-02-PLAN.md — Backend: seo_meta table + seo_meta.php endpoint + calendly_url settings seed + next-sitemap install/config
 - [x] 07-03-PLAN.md — Frontend SEO: generateMetadata on all public pages + Organization/Service JSON-LD schemas
 - [x] 07-04-PLAN.md — Calendly integration (CalendlyButton + connect-cta extension) + Admin SEO meta editor page + sidebar entry
-- [ ] 07-05-PLAN.md — Build verification (sitemap/robots/404.html) + human checkpoint (visual + Calendly + page speed audit)
+- [x] 07-05-PLAN.md — Build verification (sitemap/robots/404.html) + human checkpoint (visual + Calendly + page speed audit)
 
 ---
 
