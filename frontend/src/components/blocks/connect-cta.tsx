@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useAnimate } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,11 @@ import { Particles } from "@/components/ui/highlighter";
 import { cn, safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+
+const CalendlyButton = dynamic(
+  () => import("@/components/ui/calendly-button").then(m => m.CalendlyButton),
+  { ssr: false }
+);
 
 interface ConnectProps {
   variant?: "dark" | "light";
@@ -125,12 +131,18 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [fetchedLink, setFetchedLink] = useState("/contact-us");
+  const [calendlyUrl, setCalendlyUrl] = useState("");
   const effectiveCtaLink = ctaHref || fetchedLink;
 
   useEffect(() => {
     safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
-      if (json?.status === "success" && json.data?.default_cta_link) {
-        setFetchedLink(json.data.default_cta_link);
+      if (json?.status === "success" && json.data) {
+        if (json.data.default_cta_link) {
+          setFetchedLink(json.data.default_cta_link);
+        }
+        if (json.data.calendly_url) {
+          setCalendlyUrl(json.data.calendly_url);
+        }
       }
       // On fetch failure, fetchedLink stays as "/contact-us" fallback
     });
@@ -365,9 +377,17 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
                 {copy ?? "Get a tailored plan and deployment timeline in days, not weeks. Start building your autonomous future today."}
               </p>
               <div className="pt-4 flex justify-center">
-                <Button asChild variant="brand" className="h-16 px-12 text-xl font-bold uppercase tracking-wider hover:-translate-y-1">
-                  <Link href={effectiveCtaLink}>Start Building Now</Link>
-                </Button>
+                {calendlyUrl ? (
+                  <CalendlyButton
+                    url={calendlyUrl}
+                    label="Start Building Now"
+                    className="h-16 px-12 text-xl font-bold uppercase tracking-wider"
+                  />
+                ) : (
+                  <Button asChild variant="brand" className="h-16 px-12 text-xl font-bold uppercase tracking-wider hover:-translate-y-1">
+                    <Link href={effectiveCtaLink}>Start Building Now</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

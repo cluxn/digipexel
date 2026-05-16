@@ -10,6 +10,12 @@ import { Menu, MenuItem, ServiceMenu, WorkMenu, InsightsMenu } from "@/component
 import { cn, safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const CalendlyButton = dynamic(
+  () => import("@/components/ui/calendly-button").then(m => m.CalendlyButton),
+  { ssr: false }
+);
 
 // --- Original Stylized Company Logo SVG Components ---
 
@@ -267,6 +273,7 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
   const [serviceCategory, setServiceCategory] = useState("strategic");
   const [scrolled, setScrolled] = React.useState(false);
   const [navCta, setNavCta] = useState({ text: "Book a Call", href: "/contact-us" });
+  const [calendlyUrl, setCalendlyUrl] = useState("");
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 72);
@@ -282,6 +289,14 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
       }
     }
     fetchNav();
+  }, []);
+
+  useEffect(() => {
+    safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
+      if (json?.status === "success" && json.data?.calendly_url) {
+        setCalendlyUrl(json.data.calendly_url);
+      }
+    });
   }, []);
 
   // On dark-hero pages: transparent at top, frosted on scroll.
@@ -455,7 +470,15 @@ export function Navbar({ className, darkHero = true }: { className?: string; dar
             </div>
 
             <div className="hidden sm:flex">
-              <Link href={navCta.href} className="btn-brand nav-btn">{navCta.text}</Link>
+              {calendlyUrl ? (
+                <CalendlyButton
+                  url={calendlyUrl}
+                  label={navCta.text}
+                  className="btn-brand nav-btn"
+                />
+              ) : (
+                <Link href={navCta.href} className="btn-brand nav-btn">{navCta.text}</Link>
+              )}
             </div>
           </div>
         </Menu>
