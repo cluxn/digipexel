@@ -44,6 +44,28 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AnalyticsInjector />
+        {/* Organization JSON-LD Schema — SEO-04 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Digi Pexel',
+              url: 'https://digipexel.cluxn.com',
+              logo: 'https://digipexel.cluxn.com/icon.svg',
+              description: 'AI automation and digital marketing agency for B2B decision makers',
+              contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'customer service',
+                url: 'https://digipexel.cluxn.com/contact-us',
+              },
+              sameAs: [
+                'https://linkedin.com/company/digipexel',
+              ],
+            }).replace(/</g, '\\u003c'),
+          }}
+        />
         <Nudges />
         {children}
         <BackToTop />

@@ -1,31 +1,23 @@
-"use client";
+import type { Metadata } from 'next'
+import HomeClient from './home-client'
 
-import FloatingIconsHeroDemo from "@/components/blocks/floating-icons-hero-demo";
-import { WorkflowDemo } from "@/components/blocks/workflow-demo";
-import { LogoMarquee } from "@/components/blocks/logo-marquee";
-import { ContextProblem } from "@/components/blocks/context-problem";
-import { ConvergedPlatform } from "@/components/blocks/converged-platform";
-import { AgencyFeatures } from "@/components/blocks/agency-features";
-import { Services } from "@/components/blocks/services";
-import { AgencyStats } from "@/components/blocks/agency-stats";
-import { Testimonials } from "@/components/blocks/testimonials";
-import { Connect } from "@/components/blocks/connect-cta";
-import { Footer } from "@/components/ui/footer-section";
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
 
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-base w-full flex flex-col items-center">
-      <FloatingIconsHeroDemo />
-      <WorkflowDemo />
-      <LogoMarquee />
-      <ContextProblem />
-      <ConvergedPlatform />
-      <AgencyFeatures />
-      <Services />
-      <AgencyStats />
-      <Testimonials />
-      <Connect isHomepage={true} />
-      <Footer />
-    </main>
-  );
+export async function generateMetadata(): Promise<Metadata> {
+  const res = await fetch(`${API}/seo_meta.php?page=home`).catch(() => null)
+  const data = res ? await res.json().catch(() => null) : null
+  const meta = data?.status === 'success' ? data.data : null
+  return {
+    title: meta?.seo_title || 'Digi Pexel — AI Automation Agency',
+    description: meta?.meta_description || 'We design reliable AI workflows that move data, decisions, and actions across your stack — so your team can scale without friction.',
+    openGraph: {
+      title: meta?.seo_title || 'Digi Pexel — AI Automation Agency',
+      description: meta?.meta_description || 'We design reliable AI workflows.',
+      images: meta?.og_image ? [{ url: meta.og_image }] : [],
+    },
+  }
+}
+
+export default function Page() {
+  return <HomeClient />
 }
