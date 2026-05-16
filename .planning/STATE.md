@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-05-16T06:20:33.080Z"
+stopped_at: Completed 07-03-PLAN.md
+last_updated: "2026-05-16T06:26:41.124Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 34
-  completed_plans: 31
+  completed_plans: 33
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 ## Current Position
 
 Phase: 07 (seo-static-pages-launch-readiness) — EXECUTING
-Plan: 3 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -76,6 +76,8 @@ Plan: 3 of 5
 | Phase 06-admin-panel-completion P02 | 8 | 2 tasks | 2 files |
 | Phase 07-seo-static-pages-launch-readiness P02 | 2 | 2 tasks | 5 files |
 | Phase 07-seo-static-pages-launch-readiness P01 | 12 | 2 tasks | 5 files |
+| Phase 07-seo-static-pages-launch-readiness P04 | 8 | 2 tasks | 5 files |
+| Phase 07-seo-static-pages-launch-readiness P03 | 10 | 3 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -153,6 +155,10 @@ Recent decisions affecting current work:
 - [Phase 07-seo-static-pages-launch-readiness]: next-sitemap added to dependencies (not devDependencies) — postbuild runs in CI where only dependencies are typically available
 - [Phase 07-seo-static-pages-launch-readiness]: not-found.tsx is a Server Component with no Navbar/Footer imports per plan spec
 - [Phase 07-seo-static-pages-launch-readiness]: Legal page headings use text-xl font-semibold (not .section-title) for in-page card section headers
+- [Phase 07-seo-static-pages-launch-readiness]: CalendlyButton uses dynamic ssr:false — PopupWidget requires DOM; rootElement set via useEffect after mount to avoid SSR errors
+- [Phase 07-seo-static-pages-launch-readiness]: Homepage hero CTA excluded from Calendly wiring — lead-capture form takes precedence over Calendly at discovery stage (documented exception to D-01)
+- [Phase 07-seo-static-pages-launch-readiness]: Server wrapper pattern used for all use client pages — extract client component to *-client.tsx, page.tsx becomes thin server wrapper with generateMetadata
+- [Phase 07-seo-static-pages-launch-readiness]: AggregateRating schema uses static aggregate values (ratingValue 4.9, reviewCount 47) — standard practice when testimonials data is client-fetched at runtime unavailable at build time
 
 ### Pending Todos
 
@@ -178,6 +184,6 @@ None yet.
 
 Last activity: 2026-05-16
 
-Last session: 2026-05-16T06:20:33.073Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-05-16T06:26:41.116Z
+Stopped at: Completed 07-03-PLAN.md
 Resume file: None

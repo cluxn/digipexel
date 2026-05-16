@@ -162,8 +162,8 @@ Plans:
 Plans:
 - [x] 07-01-PLAN.md — Static pages: 404 (not-found.tsx) + thank-you secondary nav + error page copy + legal page content expansion
 - [x] 07-02-PLAN.md — Backend: seo_meta table + seo_meta.php endpoint + calendly_url settings seed + next-sitemap install/config
-- [ ] 07-03-PLAN.md — Frontend SEO: generateMetadata on all public pages + Organization/Service JSON-LD schemas
-- [ ] 07-04-PLAN.md — Calendly integration (CalendlyButton + connect-cta extension) + Admin SEO meta editor page + sidebar entry
+- [x] 07-03-PLAN.md — Frontend SEO: generateMetadata on all public pages + Organization/Service JSON-LD schemas
+- [x] 07-04-PLAN.md — Calendly integration (CalendlyButton + connect-cta extension) + Admin SEO meta editor page + sidebar entry
 - [ ] 07-05-PLAN.md — Build verification (sitemap/robots/404.html) + human checkpoint (visual + Calendly + page speed audit)
 
 ---

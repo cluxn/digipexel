@@ -84,11 +84,11 @@
 
 ### SEO & Technical (SEO)
 
-- [ ] **SEO-01**: SEO meta management — editable title, description, OG image per page from admin
+- [x] **SEO-01**: SEO meta management — editable title, description, OG image per page from admin
 - [x] **SEO-02**: Sitemap.xml auto-generated for all public pages
 - [x] **SEO-03**: robots.txt properly configured
-- [ ] **SEO-04**: Schema markup (Organization, Service, Review schemas)
-- [ ] **SEO-05**: Calendly/booking integration connected to all "Book a call" / "Book a free audit" CTAs
+- [x] **SEO-04**: Schema markup (Organization, Service, Review schemas)
+- [x] **SEO-05**: Calendly/booking integration connected to all "Book a call" / "Book a free audit" CTAs
 - [ ] **SEO-06**: Page speed audit and optimisation before launch
 
 ### Admin Panel — Dashboard (ADM)
@@ -248,9 +248,9 @@
 | STATIC-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | STATIC-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | STATIC-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
-| SEO-01 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-01 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | SEO-02 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | SEO-03 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
-| SEO-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
-| SEO-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
+| SEO-04 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
+| SEO-05 | Phase 7 — SEO, Static Pages & Launch Readiness | Complete |
 | SEO-06 | Phase 7 — SEO, Static Pages & Launch Readiness | Pending |
