@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { safeFetch, cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import AdminLayout from "@/components/admin/admin-layout";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SectionType = "overview" | "challenge" | "solution" | "timeline" | "comparison" | "metrics" | "results" | "text" | "mid_cta";
@@ -158,9 +159,10 @@ export default function AdminBlogPage() {
     setPosts(n);
   };
 
-  if (loading) return <div className="p-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Blog Hub…</div>;
+  if (loading) return <AdminLayout><div className="p-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Blog Hub…</div></AdminLayout>;
 
   return (
+    <AdminLayout>
     <div className="pb-32 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between mb-10">
@@ -428,6 +430,7 @@ export default function AdminBlogPage() {
         })}
       </div>
     </div>
+    </AdminLayout>
   );
 }
 

@@ -22,7 +22,8 @@ import {
   Settings,
   BarChart2,
   UserCog,
-  Search
+  Search,
+  Tag
 } from "lucide-react";
 
 const sidebarItems = [
@@ -33,6 +34,7 @@ const sidebarItems = [
   { name: "CASE STUDIES",  icon: Briefcase,        href: "/admin/case-studies", status: "Active" },
   { name: "BLOG POSTS",    icon: FileText,          href: "/admin/blog",         status: "Active" },
   { name: "GUIDES",        icon: BookOpen,          href: "/admin/guides",       status: "Active" },
+  { name: "CATEGORIES",    icon: Tag,               href: "/admin/categories",   status: "Active" },
   { name: "TESTIMONIALS",  icon: MessageSquare,     href: "/admin/testimonials", status: "Active" },
   { name: "LEADS",         icon: Users,             href: "/admin/leads",        status: "Active" },
   { name: "NEWSLETTER",    icon: Mail,              href: "/admin/newsletter",   status: "Active" },
@@ -50,7 +52,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
-    // Check auth
     const auth = localStorage.getItem("admin_auth");
     if (auth !== "true") {
       router.push("/admin/login");
@@ -58,6 +59,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setIsAuthenticated(true);
     }
   }, [router]);
+
+  // Chrome extensions (e.g. frame_ant.js) monkey-patch window.fetch and create
+  // internal promise chains with no .catch(). Suppress those unhandled rejections
+  // so they don't surface as Next.js dev overlay errors.
+  React.useEffect(() => {
+    const handler = (e: PromiseRejectionEvent) => {
+      const stack = (e.reason as Error)?.stack ?? "";
+      if (stack.includes("chrome-extension://")) e.preventDefault();
+    };
+    window.addEventListener("unhandledrejection", handler);
+    return () => window.removeEventListener("unhandledrejection", handler);
+  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem("admin_auth");

@@ -10,7 +10,7 @@ import {
   Video, Star, Image as ImageIcon, Globe2
 } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
-import { cn } from "@/lib/utils";
+import { cn, safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 
 interface Testimonial {
@@ -56,8 +56,7 @@ export default function AdminTestimonialsPage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials.php?with_focus=1`);
-      const data = await response.json();
+      const data = await safeFetch(`${API_BASE_URL}/testimonials.php?with_focus=1`);
       if (data.status === "success") {
         // Handle both response shapes: {items, focus} or flat array
         if (data.data?.items) {
@@ -139,7 +138,7 @@ export default function AdminTestimonialsPage() {
     const t = testimonials[index];
     if (t.id) {
       try {
-        await fetch(`${API_BASE_URL}/testimonials.php`, {
+        await safeFetch(`${API_BASE_URL}/testimonials.php`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "delete_testimonial", id: t.id }),
@@ -177,7 +176,7 @@ export default function AdminTestimonialsPage() {
   const saveTestimonial = async (t: Testimonial, index: number) => {
     setSavingIndex(index);
     try {
-      const res = await fetch(`${API_BASE_URL}/testimonials.php`, {
+      const data = await safeFetch(`${API_BASE_URL}/testimonials.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -185,7 +184,6 @@ export default function AdminTestimonialsPage() {
           testimonial: { ...t, position: index },
         }),
       });
-      const data = await res.json();
       if (data.status === "success" && data.data?.id) {
         // Update local state with returned id if this was a new testimonial
         const updated = [...testimonials];
@@ -223,7 +221,7 @@ export default function AdminTestimonialsPage() {
     setSavingFocus(true);
     localStorage.setItem("PREVIEW_FOCUS_ASSETS", JSON.stringify(focusAssets));
     try {
-      await fetch(`${API_BASE_URL}/testimonials.php`, {
+      await safeFetch(`${API_BASE_URL}/testimonials.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update_focus", focus: focusAssets }),
