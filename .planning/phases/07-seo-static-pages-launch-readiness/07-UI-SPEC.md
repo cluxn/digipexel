@@ -60,13 +60,13 @@ Source: spacing confirmed from `globals.css`, `button.tsx` (`h-12`, `h-14`, `px-
 | Body | 16px (1rem) | 400 regular | 1.5rem | `--text-body-m` |
 | Label | 14px (0.875rem) | 700 bold | 1.3125rem | `--text-label` / `.field-label` |
 | Heading (section) | 36–52px (fluid) | 700 bold | 1.1 | `.section-title` |
-| Display (hero) | 80–84px (fluid) | 900 black | 1.02 | `.hero-title` |
 
 Notes:
 - Legal page body prose: 16px weight 400 line-height 1.7 (`text-base leading-relaxed`) — matches `section-subtitle` rhythm for long-form reading; same scale entry as Body above.
 - Admin SEO page notice text: 14px weight 500 — `text-sm font-medium`; same scale entry as Label above.
 
-Pre-existing admin utilities (not part of this scale — no new declarations):
+Pre-existing tokens (not re-declared in this phase's type scale):
+- `.hero-title` (display/hero text) — inherited from `globals.css`; weight 900 black, size 80–84px fluid. Pre-existing token — not re-declared in this phase's type scale.
 - `.field-label` — admin form field labels; pixel value intentionally not re-stated here; class already defined in `globals.css`.
 - Admin sidebar nav items — inherit existing `.admin-nav-item` pattern; not a new scale entry.
 
