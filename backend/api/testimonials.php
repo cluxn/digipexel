@@ -53,7 +53,8 @@ try {
                     (int)($t['position'] ?? 0)
                 ]);
             }
-            json_resp('success', null, 'Testimonial saved');
+            $newId = $id ?? (int)$pdo->lastInsertId();
+            json_resp('success', ['id' => $newId], 'Testimonial saved');
         }
         elseif ($action === 'delete_testimonial') {
             $id = (int)($input['id'] ?? 0);

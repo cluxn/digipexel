@@ -5,6 +5,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function uploadFile(url: string, formData: FormData): Promise<Record<string, unknown>> {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.timeout = 30000;
+    xhr.onload = () => {
+      try {
+        resolve(JSON.parse(xhr.responseText));
+      } catch {
+        resolve({ status: "error", message: "Invalid response" });
+      }
+    };
+    xhr.onerror = () => resolve({ status: "error", message: "Upload failed" });
+    xhr.ontimeout = () => resolve({ status: "error", message: "Upload timed out" });
+    xhr.send(formData);
+  });
+}
+
 export async function safeFetch(url: string, options?: RequestInit, timeoutMs = 8000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
