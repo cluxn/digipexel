@@ -12,7 +12,7 @@ export default function TermsAndConditionsPage() {
       {/* Hero Section - Standardized for Single Screen Fit */}
       <section className="relative min-h-[85vh] flex items-center pt-32 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_45%)]" />
-        <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center md:text-left">
+        <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center md:text-center">
           <Badge variant="outline" className="section-eyebrow mb-6">
             Terms & Conditions
           </Badge>
@@ -20,7 +20,7 @@ export default function TermsAndConditionsPage() {
             Clear terms for <span className="hero-title-accent">reliable delivery</span><br />
             and long-term partnership.
           </h1>
-          <p className="section-subtitle max-w-2xl opacity-70">
+          <p className="section-subtitle max-w-2xl mx-auto opacity-70">
             These terms govern your access to Digi Pexel services, platforms, and content. Please review them to
             understand responsibilities, limitations, and service guidelines.
           </p>

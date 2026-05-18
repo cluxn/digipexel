@@ -17,8 +17,7 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Your privacy, <span className="hero-title-accent">protected by design</span><br />
-            in every automation.
+            Your privacy,<br /><span className="hero-title-accent">protected by design.</span>
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto opacity-70">
             This policy explains how Digi Pexel collects, uses, and safeguards information when you engage with our
