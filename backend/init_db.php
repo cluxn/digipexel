@@ -298,12 +298,9 @@ try {
 ('The 90-Day Ops Transformation Playbook: From Manual to Automated', '90-day-ops-transformation-playbook', 'A week-by-week implementation guide for founders and COOs who want to automate their core operations without disrupting the business. Covers audit methodology, tool selection, build sprints, and go-live validation.', '<h2>Why 90 Days Is the Right Horizon</h2><p>Automation projects that try to do everything at once fail. Projects that are too narrowly scoped deliver marginal value. 90 days is long enough to automate 3-5 high-impact workflows and short enough to maintain executive sponsorship and team momentum.</p><h2>Month 1: The Audit (Weeks 1-4)</h2><p>Week 1-2: Map every operational workflow that touches more than 3 people or takes more than 4 hours per week. Create a simple spreadsheet with: workflow name, time cost per week, error rate, and strategic impact score (1-5).<br/>Week 3-4: Score workflows on an automation feasibility matrix. High time cost + high strategic impact + structured data = automate first. Low feasibility + low impact = skip entirely. Deliver an Automation Priority Report to leadership before Month 2 begins.</p><h2>Month 2: The Build (Weeks 5-10)</h2><p>Week 5-6: Select your tool stack based on workflow complexity. Simple linear flows: Zapier or Make. Complex conditional logic with AI: n8n or custom agent. Week 7-10: Build workflows in order of priority. Each workflow needs: trigger definition, logic layer, error handling with alerts, a test suite with 20+ edge cases, and a defined human escalation path. Do not move to the next workflow until the current one passes QA for 5 consecutive test runs.</p><h2>Month 3: Launch and Validate (Weeks 11-12)</h2><p>Week 11: Soft launch with real data on a shadow pipeline. Compare automated outputs against manual baseline for 5 business days. Week 12: Full go-live. Set KPI targets (time saved, error rate, throughput). Schedule a 30-day and 60-day performance review with leadership. Build a monitoring dashboard that surfaces anomalies before they escalate.</p>', 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&q=80&w=800', 'Operations', 'Read the Playbook', '#', 3)"  );
 
     // Seed default settings
-    $sql_settings = "
-    INSERT INTO settings (`key`, `value`)
-    SELECT 'whatsapp_number', ''
-    WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'whatsapp_number');
-    ";
-    $pdo->exec($sql_settings);
+    $pdo->exec("INSERT INTO settings (`key`, `value`) SELECT 'whatsapp_number', '' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'whatsapp_number')");
+    // Always ensure whatsapp_enabled is "true" — button must never be hidden by a stale DB row
+    $pdo->exec("INSERT INTO settings (`key`, `value`) VALUES ('whatsapp_enabled', 'true') ON DUPLICATE KEY UPDATE `value` = 'true'");
 
     // ── service_content seed (INSERT IGNORE so re-runs never overwrite admin edits) ──
 
