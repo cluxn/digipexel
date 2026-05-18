@@ -6,83 +6,35 @@ import { Badge } from "@/components/ui/badge";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import { FALLBACK_TESTIMONIALS } from "@/lib/testimonials-data";
 
 interface ApiTestimonial {
   id: number;
   name: string;
   role: string;
   company: string;
-  content: string;          // DB column name
-  image_url: string;        // DB column name
-  display_context: string;  // comma-separated context values
+  content: string;
+  image_url: string;
+  display_context: string;
 }
 
 interface ColumnTestimonial {
   name: string;
   role: string;
-  text: string;   // TestimonialsColumn expects "text" not "content"
-  image: string;  // TestimonialsColumn expects "image" not "image_url"
+  text: string;
+  image: string;
 }
 
-const FALLBACK_TESTIMONIALS: ColumnTestimonial[] = [
-  {
-    name: "Aarav Mehta",
-    role: "COO, Lumina Health",
-    text: "Digi Pexel replaced manual handoffs with AI workflows. Our operations now run in half the time with clear ownership.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Priya Nair",
-    role: "Head of Ops, Arrow Logistics",
-    text: "The automation system removed our QA bottleneck. We ship faster and miss fewer deadlines.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Kabir Singh",
-    role: "VP Growth, Northbridge SaaS",
-    text: "AI-driven lead workflows turned our response time from hours to minutes. Pipeline quality improved immediately.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Neha Joshi",
-    role: "Director, FinOps Hub",
-    text: "Reconciliation workflows now run nightly without human intervention. We trust the numbers every morning.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Zara Sheikh",
-    role: "Product Lead, CloudNorth",
-    text: "The AI workflows reduced escalation volume by 60%. Our support team focuses on high-value cases now.",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Rahul Verma",
-    role: "Head of RevOps, Signalstack",
-    text: "We finally have a clean pipeline and predictable follow-up. The automation stack just works.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Anika Roy",
-    role: "Operations Manager, Crest Labs",
-    text: "Our onboarding workflows went from chaotic to repeatable. New hires ramp in days, not weeks.",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Vikram Patel",
-    role: "CEO, Atlas Retail",
-    text: "Digi Pexel delivered a complete automation roadmap and executed it on time. The results are visible weekly.",
-    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=150",
-  },
-  {
-    name: "Amit Saxena",
-    role: "CEO, TechFlow",
-    text: "The automation workflows implemented by Digi Pexel save our team dozens of hours every week.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150",
-  },
-];
+// Map shared fallback format → column display format
+const FALLBACK_COLUMN: ColumnTestimonial[] = FALLBACK_TESTIMONIALS.map((t) => ({
+  name: t.name,
+  role: `${t.role}, ${t.company}`,
+  text: t.content,
+  image: t.image_url,
+}));
 
 export function Testimonials() {
-  const [allTestimonials, setAllTestimonials] = useState<ColumnTestimonial[]>(FALLBACK_TESTIMONIALS);
+  const [allTestimonials, setAllTestimonials] = useState<ColumnTestimonial[]>(FALLBACK_COLUMN);
 
   useEffect(() => {
     async function fetchTestimonials() {

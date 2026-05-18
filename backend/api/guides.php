@@ -4,11 +4,46 @@ require_once '../common.php';
 
 send_json_headers();
 
+// Auto-migrate: add columns that may not exist yet
+$migrations = [
+    "ALTER TABLE guides ADD COLUMN status VARCHAR(20) DEFAULT 'published'",
+    "ALTER TABLE guides ADD COLUMN author_name VARCHAR(255) DEFAULT 'Digi Pexel Team'",
+    "ALTER TABLE guides ADD COLUMN published_at DATE",
+    "ALTER TABLE guides ADD COLUMN scheduled_at DATETIME",
+    "ALTER TABLE guides ADD COLUMN meta_title VARCHAR(255)",
+    "ALTER TABLE guides ADD COLUMN meta_description TEXT",
+];
+$status_col_newly_added = false;
+foreach ($migrations as $sql) {
+    try {
+        $pdo->exec($sql);
+        if (strpos($sql, 'ADD COLUMN status') !== false) {
+            $status_col_newly_added = true;
+        }
+    } catch (Exception $e) { /* column already exists */ }
+}
+// If the status column already existed (added previously with DEFAULT 'draft'),
+// promote all guides that have the old default so they appear as published.
+if (!$status_col_newly_added) {
+    try {
+        $published = (int)$pdo->query("SELECT COUNT(*) FROM guides WHERE status = 'published'")->fetchColumn();
+        $total     = (int)$pdo->query("SELECT COUNT(*) FROM guides")->fetchColumn();
+        if ($total > 0 && $published === 0) {
+            $pdo->exec("UPDATE guides SET status = 'published' WHERE status IS NULL OR status = '' OR status = 'draft'");
+        }
+    } catch (Exception $e) {}
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->query("SELECT * FROM guides ORDER BY position ASC");
+        $admin = isset($_GET['admin']);
+        if ($admin) {
+            $stmt = $pdo->query("SELECT * FROM guides ORDER BY position ASC");
+        } else {
+            $stmt = $pdo->query("SELECT * FROM guides WHERE status = 'published' ORDER BY position ASC");
+        }
         json_resp('success', $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
     elseif ($method === 'POST') {
@@ -18,28 +53,32 @@ try {
         if ($action === 'save_guide') {
             $b = $input['guide'] ?? [];
             $d = [
-                'title'       => trim($b['title']       ?? ''),
-                'slug'        => trim($b['slug']        ?? ''),
-                'description' => trim($b['description'] ?? ''),
-                'content'     => trim($b['content']     ?? ''),
-                'image_url'   => trim($b['image_url']   ?? ''),
-                'category'    => trim($b['category']    ?? ''),
-                'cta_label'   => trim($b['cta_label']   ?? 'Read the Guide'),
-                'cta_link'    => trim($b['cta_link']    ?? '#'),
-                'position'    => (int)($b['position']   ?? 0),
+                'title'            => trim($b['title']            ?? ''),
+                'slug'             => trim($b['slug']             ?? ''),
+                'description'      => trim($b['description']      ?? ''),
+                'content'          => trim($b['content']          ?? ''),
+                'image_url'        => trim($b['image_url']        ?? ''),
+                'category'         => trim($b['category']         ?? ''),
+                'cta_label'        => trim($b['cta_label']        ?? 'Download the Guide'),
+                'cta_link'         => trim($b['cta_link']         ?? '#'),
+                'position'         => (int)($b['position']        ?? 0),
+                'status'           => trim($b['status']           ?? 'draft'),
+                'author_name'      => trim($b['author_name']      ?? 'Digi Pexel Team'),
+                'published_at'     => !empty($b['published_at'])  ? $b['published_at'] : null,
+                'scheduled_at'     => !empty($b['scheduled_at'])  ? $b['scheduled_at'] : null,
+                'meta_title'       => trim($b['meta_title']       ?? ''),
+                'meta_description' => trim($b['meta_description'] ?? ''),
             ];
             if (!$d['title'] || !$d['slug']) {
                 json_resp('error', null, 'title and slug required');
             }
             if (!empty($b['id'])) {
-                // UPDATE existing
                 $cols = implode(', ', array_map(fn($k) => "$k = ?", array_keys($d)));
                 $vals = array_values($d);
                 $vals[] = (int)$b['id'];
                 $pdo->prepare("UPDATE guides SET $cols WHERE id = ?")->execute($vals);
                 json_resp('success', ['id' => (int)$b['id']]);
             } else {
-                // INSERT new
                 $keys = implode(', ', array_keys($d));
                 $placeholders = implode(', ', array_fill(0, count($d), '?'));
                 $stmt = $pdo->prepare("INSERT INTO guides ($keys) VALUES ($placeholders)");
@@ -53,31 +92,6 @@ try {
             $pdo->prepare("DELETE FROM guides WHERE id = ?")->execute([$id]);
             json_resp('success');
 
-        } elseif ($action === 'update_guides') {
-            $pdo->exec("DELETE FROM guides");
-            $stmt = $pdo->prepare("INSERT INTO guides (title, slug, description, content, image_url, category, cta_label, cta_link, feature1, feature2, feature3, feature4, stat1_label, stat1_value, stat2_label, stat2_value, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            foreach ($input['guides'] as $index => $guide) {
-                $stmt->execute([
-                    $guide['title'],
-                    $guide['slug'] ?? slugify($guide['title']),
-                    $guide['description'] ?? '',
-                    $guide['content'] ?? '',
-                    $guide['image_url'] ?? '',
-                    $guide['category'] ?? 'General',
-                    $guide['cta_label'] ?? 'Download Guide',
-                    $guide['cta_link'] ?? '#',
-                    $guide['feature1'] ?? '',
-                    $guide['feature2'] ?? '',
-                    $guide['feature3'] ?? '',
-                    $guide['feature4'] ?? '',
-                    $guide['stat1_label'] ?? 'Execution',
-                    $guide['stat1_value'] ?? 'Real-time',
-                    $guide['stat2_label'] ?? 'Security',
-                    $guide['stat2_value'] ?? 'Enterprise',
-                    $index
-                ]);
-            }
-            json_resp('success', null, 'Guides updated');
         } else {
             json_resp('error', null, 'Unknown action');
         }

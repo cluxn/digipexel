@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
@@ -14,7 +16,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'export',
+  // In dev mode, skip static export so local API routes work.
+  // In production (next build for Hostinger), use static export as before.
+  ...(isDev ? {} : { output: 'export' }),
   trailingSlash: true,
 };
 

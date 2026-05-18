@@ -34,8 +34,9 @@ export default function AdminLogosPage() {
     try {
       const data = await safeFetch(`${API_BASE_URL}/logos.php`);
       if (data && data.status === "success") {
-        setLogos(data.data.logos);
-        setIsEnabled(data.data.enabled);
+        const d = data.data as { logos: typeof logos; enabled: boolean };
+        setLogos(d.logos);
+        setIsEnabled(d.enabled);
         setLoading(false);
         return;
       }

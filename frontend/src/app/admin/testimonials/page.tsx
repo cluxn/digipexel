@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Trash2, Plus, Save, User, ExternalLink,
   Briefcase, Building, Quote, Tag, MessageSquare,
-  Video, Star, Image as ImageIcon, Globe2
+  Video, Star, Image as ImageIcon, Globe2, ChevronDown, ChevronUp,
 } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
 import { cn, safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import { FALLBACK_TESTIMONIALS as SHARED_FALLBACK } from "@/lib/testimonials-data";
+import { SERVICES } from "@/app/services/[slug]/service-page-client";
 
 interface Testimonial {
   id?: number;
@@ -22,10 +23,11 @@ interface Testimonial {
   image_url: string;
   category: string;
   position: number;
-  star_rating: number;     // 0 = no stars shown, 1-5 = show N stars
-  video_url: string;       // if set, renders video embed instead of image
-  logo_url: string;        // company logo shown in card footer
-  display_context: string; // comma-separated: "homepage", "service", "testimonials-page"
+  star_rating: number;
+  video_url: string;
+  logo_url: string;
+  display_context: string;
+  service_section?: string;
 }
 
 interface FocusAsset {
@@ -38,17 +40,32 @@ interface FocusAsset {
 }
 
 const CONTEXT_OPTIONS = [
-  { value: "homepage", label: "Homepage Block" },
-  { value: "service", label: "Service Pages" },
-  { value: "testimonials-page", label: "Testimonials Page" },
+  { value: "homepage", label: "Homepage" },
+  { value: "service", label: "Services" },
+  { value: "testimonials-page", label: "Testimonials" },
+];
+
+const CONTEXT_COLORS: Record<string, string> = {
+  homepage: "bg-brand/10 text-brand",
+  service: "bg-violet-100 text-violet-600",
+  "testimonials-page": "bg-emerald-100 text-emerald-600",
+};
+
+const SERVICE_SECTION_OPTIONS = [
+  { value: "testimonials", label: "Testimonials Section", color: "bg-violet-50 text-violet-700 border-violet-200" },
+  { value: "impact",       label: "Impact Section",       color: "bg-orange-50 text-orange-600 border-orange-200" },
 ];
 
 export default function AdminTestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [focusAssets, setFocusAssets] = useState<FocusAsset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [savedIndex, setSavedIndex] = useState<number | null>(null);
   const [savingFocus, setSavingFocus] = useState(false);
+  const [focusSaved, setFocusSaved] = useState(false);
+  const [showServiceTestimonials, setShowServiceTestimonials] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -58,12 +75,13 @@ export default function AdminTestimonialsPage() {
     try {
       const data = await safeFetch(`${API_BASE_URL}/testimonials.php?with_focus=1`);
       if (data.status === "success") {
-        // Handle both response shapes: {items, focus} or flat array
-        if (data.data?.items) {
-          setTestimonials(data.data.items || []);
-          setFocusAssets(data.data.focus || []);
-        } else if (Array.isArray(data.data)) {
-          setTestimonials(data.data);
+        const d = data.data as { items?: typeof testimonials; focus?: typeof focusAssets } | typeof testimonials;
+        if (d && !Array.isArray(d) && (d as { items?: unknown }).items) {
+          const typed = d as { items: typeof testimonials; focus?: typeof focusAssets };
+          setTestimonials(typed.items || []);
+          setFocusAssets(typed.focus || []);
+        } else if (Array.isArray(d)) {
+          setTestimonials(d);
         }
         setLoading(false);
         return;
@@ -75,27 +93,12 @@ export default function AdminTestimonialsPage() {
     // Fallback preview data
     const previewData = localStorage.getItem("PREVIEW_TESTIMONIALS");
     const previewFocus = localStorage.getItem("PREVIEW_FOCUS_ASSETS");
-
     if (previewData) {
       setTestimonials(JSON.parse(previewData));
     } else {
-      setTestimonials([
-        {
-          name: "Sarah Chen",
-          role: "Product Manager",
-          company: "Stripe",
-          content: "Working with Digi Pexel transformed our marketing pipeline completely.",
-          image_url: "https://i.pravatar.cc/150?u=sarah",
-          category: "Fintech",
-          position: 0,
-          star_rating: 5,
-          video_url: "",
-          logo_url: "",
-          display_context: "homepage,testimonials-page",
-        },
-      ]);
+      // Use the same 9 testimonials shown on the public site
+      setTestimonials(SHARED_FALLBACK);
     }
-
     if (previewFocus) {
       setFocusAssets(JSON.parse(previewFocus));
     } else {
@@ -110,11 +113,11 @@ export default function AdminTestimonialsPage() {
         },
       ]);
     }
-
     setLoading(false);
   };
 
   const addTestimonial = () => {
+    const newIndex = testimonials.length;
     setTestimonials([
       ...testimonials,
       {
@@ -124,13 +127,14 @@ export default function AdminTestimonialsPage() {
         content: "",
         image_url: "",
         category: "General",
-        position: testimonials.length,
+        position: newIndex,
         star_rating: 5,
         video_url: "",
         logo_url: "",
         display_context: "homepage,testimonials-page",
       },
     ]);
+    setExpandedIndex(newIndex);
   };
 
   const removeTestimonial = async (index: number) => {
@@ -147,14 +151,13 @@ export default function AdminTestimonialsPage() {
         console.error("Failed to delete testimonial:", error);
       }
     }
-    setTestimonials(testimonials.filter((_, i) => i !== index));
+    const next = testimonials.filter((_, i) => i !== index);
+    setTestimonials(next);
+    if (expandedIndex === index) setExpandedIndex(null);
+    else if (expandedIndex !== null && expandedIndex > index) setExpandedIndex(expandedIndex - 1);
   };
 
-  const updateTestimonial = (
-    index: number,
-    field: keyof Testimonial,
-    value: string | number
-  ) => {
+  const updateTestimonial = (index: number, field: keyof Testimonial, value: string | number) => {
     const nextItems = [...testimonials];
     (nextItems[index] as unknown as Record<string, unknown>)[field] = value;
     setTestimonials(nextItems);
@@ -165,11 +168,8 @@ export default function AdminTestimonialsPage() {
     const contexts = new Set(
       (t.display_context || "").split(",").map((s) => s.trim()).filter(Boolean)
     );
-    if (contexts.has(val)) {
-      contexts.delete(val);
-    } else {
-      contexts.add(val);
-    }
+    if (contexts.has(val)) contexts.delete(val);
+    else contexts.add(val);
     updateTestimonial(index, "display_context", Array.from(contexts).join(","));
   };
 
@@ -184,27 +184,22 @@ export default function AdminTestimonialsPage() {
           testimonial: { ...t, position: index },
         }),
       });
-      if (data.status === "success" && data.data?.id) {
-        // Update local state with returned id if this was a new testimonial
+      const saved = data.data as { id?: number } | undefined;
+      if (data.status === "success" && saved?.id) {
         const updated = [...testimonials];
-        updated[index] = { ...t, id: data.data.id ?? t.id, position: index };
+        updated[index] = { ...t, id: saved.id ?? t.id, position: index };
         setTestimonials(updated);
       }
+      setSavedIndex(index);
+      setTimeout(() => setSavedIndex(null), 2000);
     } catch (error) {
       console.error("Failed to save testimonial:", error);
     }
     setSavingIndex(null);
   };
 
-  const getFormatBadge = (t: Testimonial) => {
-    if (t.video_url) return { label: "Video", color: "bg-purple-100 text-purple-700" };
-    if (t.image_url) return { label: "Image", color: "bg-blue-100 text-blue-700" };
-    return { label: "Text Only", color: "bg-slate-100 text-slate-600" };
-  };
-
   const addFocusAsset = () => {
-    const newItem: FocusAsset = { type: "logo", url: "", position: focusAssets.length };
-    setFocusAssets([...focusAssets, newItem]);
+    setFocusAssets([...focusAssets, { type: "logo", url: "", position: focusAssets.length }]);
   };
 
   const removeFocusAsset = (index: number) => {
@@ -226,11 +221,41 @@ export default function AdminTestimonialsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update_focus", focus: focusAssets }),
       });
-      alert("Focus grid updated!");
     } catch (error) {
       console.error("Failed to save focus grid:", error);
     }
     setSavingFocus(false);
+    setFocusSaved(true);
+    setTimeout(() => setFocusSaved(false), 2000);
+  };
+
+  const importServiceTestimonial = (
+    serviceSlug: string,
+    quote: string,
+    role: string,
+    company: string,
+    section: "testimonials" | "impact"
+  ) => {
+    const newIndex = testimonials.length;
+    setTestimonials([
+      ...testimonials,
+      {
+        name: "",
+        role,
+        company,
+        content: quote,
+        image_url: "",
+        category: serviceSlug,
+        position: newIndex,
+        star_rating: 5,
+        video_url: "",
+        logo_url: "",
+        display_context: "service",
+        service_section: section,
+      },
+    ]);
+    setExpandedIndex(newIndex);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
   };
 
   if (loading) {
@@ -249,400 +274,385 @@ export default function AdminTestimonialsPage() {
     <AdminLayout>
       <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-100 pb-8">
           <div className="space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand">
               Client Proof
             </p>
-            <h1 className="text-5xl font-display font-bold text-[#1A1C1E] tracking-tight">
+            <h1 className="text-4xl font-display font-bold text-[#1A1C1E] tracking-tight">
               Testimonials
             </h1>
             <p className="text-slate-400 text-sm max-w-lg">
-              Manage partner success stories and endorsements. Each testimonial can be
-              assigned to specific pages via Display Context.
+              {testimonials.length} success {testimonials.length === 1 ? "story" : "stories"} — click any row to edit.
             </p>
           </div>
-
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Button
               asChild
               variant="outline"
-              className="border-slate-200 text-slate-600 rounded-2xl px-6 h-14 font-bold"
+              className="border-slate-200 text-slate-600 rounded-2xl px-5 h-12 font-bold"
             >
               <a href="/testimonials" target="_blank">
                 <ExternalLink className="w-4 h-4 mr-2" />
                 View Page
               </a>
             </Button>
-          </div>
-        </div>
-
-        {/* Testimonials List */}
-        <div className="space-y-8 pb-20">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">
-              Success Stack ({testimonials.length})
-            </h3>
             <Button
               onClick={addTestimonial}
-              size="sm"
-              className="bg-[#1A1C1E] hover:bg-black text-white rounded-xl px-4 h-10 font-bold"
+              className="bg-[#1A1C1E] hover:bg-black text-white rounded-2xl px-5 h-12 font-bold"
             >
               <Plus className="w-4 h-4 mr-2" /> New Testimonial
             </Button>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 gap-6">
+        {/* ── Testimonials List ── */}
+        <div className="space-y-6 pb-20">
+          <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden">
+
+            {testimonials.length === 0 && (
+              <div className="text-center py-20">
+                <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                  <MessageSquare className="text-slate-200 w-5 h-5" />
+                </div>
+                <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase">
+                  No testimonials yet — add one above.
+                </p>
+              </div>
+            )}
+
             {testimonials.map((t, index) => {
-              const badge = getFormatBadge(t);
+              const isOpen = expandedIndex === index;
               const contexts = (t.display_context || "")
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean);
+                .split(",").map((s) => s.trim()).filter(Boolean);
+              const initials = t.name
+                ? t.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+                : "?";
 
               return (
-                <Card
-                  key={index}
-                  className="bg-white border-slate-100 rounded-[2.5rem] p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.02)] group hover:border-brand/20 transition-all duration-500"
-                >
-                  <div className="flex flex-col gap-10">
-                    {/* Top row: photo + core fields + delete */}
-                    <div className="flex flex-col lg:flex-row gap-10">
-                      {/* User Photo Preview */}
-                      <div className="w-full lg:w-48 shrink-0">
-                        <div className="relative aspect-square rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 group-hover:shadow-lg transition-all duration-500">
-                          {t.image_url ? (
-                            <img
-                              src={t.image_url}
-                              alt=""
-                              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-200 gap-2">
-                              <User className="w-8 h-8" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">
-                                No Photo
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-4 space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                            Photo URL
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="https://..."
-                            value={t.image_url}
-                            onChange={(e) =>
-                              updateTestimonial(index, "image_url", e.target.value)
-                            }
-                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[11px] focus:outline-none focus:border-brand/30 transition-all font-mono"
-                          />
-                        </div>
+                <div key={index} className="border-b border-slate-50 last:border-b-0">
 
-                        {/* Format badge */}
-                        <div className="mt-3">
-                          <span
-                            className={cn(
-                              "inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
-                              badge.color
-                            )}
-                          >
-                            {badge.label}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Info Section */}
-                      <div className="flex-1 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                              Full Name
-                            </label>
-                            <div className="relative">
-                              <div className="absolute inset-y-0 left-4 flex items-center text-slate-300">
-                                <User className="w-4 h-4" />
-                              </div>
-                              <input
-                                type="text"
-                                placeholder="e.g. Sarah Chen"
-                                value={t.name}
-                                onChange={(e) =>
-                                  updateTestimonial(index, "name", e.target.value)
-                                }
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-4 py-4 text-sm font-bold text-[#1A1C1E] focus:outline-none focus:border-brand/30 transition-all"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                              Job Role
-                            </label>
-                            <div className="relative">
-                              <div className="absolute inset-y-0 left-4 flex items-center text-slate-300">
-                                <Briefcase className="w-4 h-4" />
-                              </div>
-                              <input
-                                type="text"
-                                placeholder="e.g. Product Manager"
-                                value={t.role}
-                                onChange={(e) =>
-                                  updateTestimonial(index, "role", e.target.value)
-                                }
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-4 py-4 text-sm font-medium text-slate-600 focus:outline-none focus:border-brand/30 transition-all"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                              Company
-                            </label>
-                            <div className="relative">
-                              <div className="absolute inset-y-0 left-4 flex items-center text-slate-300">
-                                <Building className="w-4 h-4" />
-                              </div>
-                              <input
-                                type="text"
-                                placeholder="e.g. Stripe"
-                                value={t.company}
-                                onChange={(e) =>
-                                  updateTestimonial(index, "company", e.target.value)
-                                }
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-4 py-4 text-sm font-medium text-slate-600 focus:outline-none focus:border-brand/30 transition-all"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                            <Quote className="w-3 h-3" /> Testimonial Content
-                          </label>
-                          <textarea
-                            rows={3}
-                            placeholder="What did the client say?"
-                            value={t.content}
-                            onChange={(e) =>
-                              updateTestimonial(index, "content", e.target.value)
-                            }
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm text-[#1A1C1E] focus:outline-none focus:border-brand/30 transition-all resize-none font-medium italic"
-                          />
-                        </div>
-
-                        <div className="space-y-2 w-full md:w-1/3">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                            Industry / Category
-                          </label>
-                          <div className="relative">
-                            <div className="absolute inset-y-0 left-4 flex items-center text-slate-300">
-                              <Tag className="w-4 h-4" />
-                            </div>
-                            <input
-                              type="text"
-                              placeholder="e.g. Fintech"
-                              value={t.category}
-                              onChange={(e) =>
-                                updateTestimonial(index, "category", e.target.value)
-                              }
-                              className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-4 py-3 text-[11px] font-bold text-slate-600 focus:outline-none focus:border-brand/30 transition-all uppercase tracking-widest"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Delete Action */}
-                      <div className="flex lg:flex-col justify-end">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeTestimonial(index)}
-                          className="h-14 w-14 text-rose-300 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all"
-                        >
-                          <Trash2 className="w-6 h-6" />
-                        </Button>
-                      </div>
+                  {/* ── Compact list row ── */}
+                  <div
+                    className={cn(
+                      "flex items-start gap-4 px-5 py-4 cursor-pointer transition-colors",
+                      isOpen ? "bg-brand/[0.03]" : "hover:bg-slate-50/60"
+                    )}
+                    onClick={() => setExpandedIndex(isOpen ? null : index)}
+                  >
+                    {/* Avatar — small */}
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                      {t.image_url ? (
+                        <img src={t.image_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] font-black text-slate-400">{initials}</span>
+                      )}
                     </div>
 
-                    {/* Extended fields row */}
-                    <div className="border-t border-slate-50 pt-8 space-y-8">
-                      {/* Star Rating */}
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                          <Star className="w-3 h-3" /> Star Rating
+                    {/* Main content column */}
+                    <div className="flex-1 min-w-0">
+                      {/* Row 1: name + badges + stars + actions */}
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-sm font-bold text-[#1A1C1E] truncate">
+                          {t.name || <span className="text-slate-300 italic font-normal">Unnamed</span>}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-medium truncate">
+                          {[t.role, t.company].filter(Boolean).join(", ") || "—"}
+                        </span>
+                        {t.star_rating > 0 && (
+                          <span className="text-amber-400 text-[11px] leading-none">{"★".repeat(t.star_rating)}</span>
+                        )}
+                        <div className="flex gap-1 flex-wrap ml-auto">
+                          {contexts.length === 0 ? (
+                            <span className="text-[9px] text-amber-400 font-bold px-2 py-0.5 bg-amber-50 rounded-full">Not shown</span>
+                          ) : contexts.map((ctx) => (
+                            <span key={ctx} className={cn("px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide", CONTEXT_COLORS[ctx] ?? "bg-slate-100 text-slate-500")}>
+                              {CONTEXT_OPTIONS.find((o) => o.value === ctx)?.label ?? ctx}
+                            </span>
+                          ))}
+                          {contexts.includes("service") && t.category && SERVICES[t.category] && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-200">
+                              {SERVICES[t.category].name}
+                            </span>
+                          )}
+                          {contexts.includes("service") && t.service_section && (
+                            <span className={cn(
+                              "px-2 py-0.5 rounded-full text-[9px] font-bold border",
+                              SERVICE_SECTION_OPTIONS.find((o) => o.value === t.service_section)?.color ?? "bg-slate-50 text-slate-400 border-slate-200"
+                            )}>
+                              {SERVICE_SECTION_OPTIONS.find((o) => o.value === t.service_section)?.label ?? t.service_section}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Row 2: quote preview */}
+                      {t.content ? (
+                        <p className="text-[12px] text-slate-500 italic mt-1 line-clamp-2 leading-relaxed">
+                          &ldquo;{t.content}&rdquo;
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-slate-300 mt-1 italic">No quote yet — click to edit</p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0 mt-0.5" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" onClick={() => removeTestimonial(index)}
+                        className="h-8 w-8 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all" title="Delete">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => setExpandedIndex(isOpen ? null : index)}
+                        className={cn("h-8 w-8 rounded-lg transition-all", isOpen ? "text-brand bg-brand/10" : "text-slate-300 hover:text-brand hover:bg-brand/5")}
+                        title={isOpen ? "Collapse" : "Edit"}>
+                        {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* ── Inline editor (expanded) ── */}
+                  {isOpen && (
+                    <div className="px-5 pb-6 pt-3 bg-slate-50/50 border-t border-slate-100 space-y-4">
+
+                      {/* Row A: avatar + name / role / company */}
+                      <div className="flex items-start gap-4">
+                        {/* Small avatar with URL below */}
+                        <div className="shrink-0 space-y-1.5">
+                          <div className="w-14 h-14 rounded-xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center">
+                            {t.image_url ? (
+                              <img src={t.image_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-5 h-5 text-slate-300" />
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Photo URL"
+                            value={t.image_url}
+                            onChange={(e) => updateTestimonial(index, "image_url", e.target.value)}
+                            className="w-14 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-[8px] focus:outline-none focus:border-brand/40 font-mono text-slate-500"
+                          />
+                        </div>
+
+                        {/* Name / Role / Company grid */}
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Full Name</label>
+                            <input type="text" placeholder="e.g. Sarah Chen" value={t.name}
+                              onChange={(e) => updateTestimonial(index, "name", e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-[#1A1C1E] focus:outline-none focus:border-brand/40" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Job Role</label>
+                            <input type="text" placeholder="e.g. COO" value={t.role}
+                              onChange={(e) => updateTestimonial(index, "role", e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:border-brand/40" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Company</label>
+                            <input type="text" placeholder="e.g. Stripe" value={t.company}
+                              onChange={(e) => updateTestimonial(index, "company", e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:border-brand/40" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row B: testimonial content */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                          <Quote className="w-2.5 h-2.5" /> Quote
                         </label>
-                        <div className="flex items-center flex-wrap gap-2">
+                        <textarea rows={3} placeholder="What did the client say?"
+                          value={t.content}
+                          onChange={(e) => updateTestimonial(index, "content", e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1C1E] focus:outline-none focus:border-brand/40 resize-none italic leading-relaxed" />
+                      </div>
+
+                      {/* Row C: category + logo + video */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1"><Tag className="w-2.5 h-2.5" /> Category</label>
+                          <input type="text" placeholder="e.g. SaaS" value={t.category}
+                            onChange={(e) => updateTestimonial(index, "category", e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-600 uppercase tracking-widest focus:outline-none focus:border-brand/40" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1"><ImageIcon className="w-2.5 h-2.5" /> Company Logo URL</label>
+                          <input type="text" placeholder="https://logo.clearbit.com/…" value={t.logo_url}
+                            onChange={(e) => updateTestimonial(index, "logo_url", e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[10px] font-mono focus:outline-none focus:border-brand/40" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1"><Video className="w-2.5 h-2.5" /> Video URL</label>
+                          <input type="text" placeholder="Optional embed URL" value={t.video_url}
+                            onChange={(e) => updateTestimonial(index, "video_url", e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[10px] font-mono focus:outline-none focus:border-brand/40" />
+                        </div>
+                      </div>
+
+                      {/* Row D: rating + context + save */}
+                      <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-slate-100">
+                        {/* Stars */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mr-1">Rating</span>
                           {[0, 1, 2, 3, 4, 5].map((n) => (
-                            <button
-                              key={n}
-                              type="button"
-                              onClick={() => updateTestimonial(index, "star_rating", n)}
-                              className={cn(
-                                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
-                                t.star_rating === n
-                                  ? "bg-brand text-white shadow-md shadow-brand/20"
-                                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                              )}
-                            >
-                              {n === 0 ? "None" : `${n}★`}
+                            <button key={n} type="button" onClick={() => updateTestimonial(index, "star_rating", n)}
+                              className={cn("px-2 py-0.5 rounded text-xs font-bold transition-all",
+                                t.star_rating === n ? "bg-brand text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-brand/30")}>
+                              {n === 0 ? "Off" : "★".repeat(n)}
                             </button>
                           ))}
                         </div>
-                      </div>
 
-                      {/* Video URL + Company Logo URL */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Video URL */}
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                            <Video className="w-3 h-3" /> Video URL (optional)
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Embed link or direct video URL"
-                            value={t.video_url}
-                            onChange={(e) =>
-                              updateTestimonial(index, "video_url", e.target.value)
-                            }
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[11px] focus:outline-none focus:border-brand/30 transition-all font-mono"
-                          />
-                          {t.video_url && (
-                            <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-100 rounded-xl">
-                              <Video className="w-3 h-3 text-purple-500 shrink-0" />
-                              <span className="text-[10px] text-purple-600 font-bold truncate">
-                                Video set — card will render as video format
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Company Logo URL */}
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                            <ImageIcon className="w-3 h-3" /> Company Logo URL (optional)
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="https://logo.clearbit.com/company.com"
-                            value={t.logo_url}
-                            onChange={(e) =>
-                              updateTestimonial(index, "logo_url", e.target.value)
-                            }
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[11px] focus:outline-none focus:border-brand/30 transition-all font-mono"
-                          />
-                          {t.logo_url && (
-                            <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl">
-                              <img
-                                src={t.logo_url}
-                                alt="logo preview"
-                                className="w-8 h-8 object-contain rounded"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = "none";
-                                }}
-                              />
-                              <span className="text-[10px] text-slate-500 font-bold truncate">
-                                Logo preview
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Display Context */}
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                          <Globe2 className="w-3 h-3" /> Display Context
-                        </label>
-                        <div className="flex items-center flex-wrap gap-4">
+                        {/* Context */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Show on</span>
                           {CONTEXT_OPTIONS.map(({ value, label }) => {
                             const checked = contexts.includes(value);
                             return (
-                              <label
-                                key={value}
-                                className={cn(
-                                  "flex items-center gap-2 px-4 py-2.5 rounded-2xl border cursor-pointer transition-all select-none text-xs font-bold",
-                                  checked
-                                    ? "bg-brand/10 border-brand/30 text-brand"
-                                    : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
-                                )}
-                              >
-                                <input
-                                  type="checkbox"
-                                  className="sr-only"
-                                  checked={checked}
-                                  onChange={() => toggleContext(index, value)}
-                                />
-                                <span
-                                  className={cn(
-                                    "w-3.5 h-3.5 rounded flex items-center justify-center border text-white text-[8px] font-black",
-                                    checked
-                                      ? "bg-brand border-brand"
-                                      : "border-slate-300"
-                                  )}
-                                >
+                              <label key={value} className={cn(
+                                "flex items-center gap-1 px-2.5 py-1 rounded-lg border cursor-pointer transition-all select-none text-[11px] font-bold",
+                                checked ? "bg-brand/10 border-brand/30 text-brand" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                              )}>
+                                <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleContext(index, value)} />
+                                <span className={cn("w-2.5 h-2.5 rounded-sm flex items-center justify-center border text-white text-[6px] font-black",
+                                  checked ? "bg-brand border-brand" : "border-slate-300")}>
                                   {checked && "✓"}
                                 </span>
                                 {label}
                               </label>
                             );
                           })}
+                          {contexts.length === 0 && <span className="text-[10px] text-amber-500 font-bold">Not shown anywhere</span>}
                         </div>
-                        {contexts.length === 0 && (
-                          <p className="text-[10px] text-amber-500 ml-1 font-bold">
-                            No context selected — this testimonial will not appear anywhere.
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Per-card Save button */}
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={() => saveTestimonial(t, index)}
-                          disabled={savingIndex === index}
-                          className="bg-brand hover:bg-brand/90 text-white px-6 h-11 rounded-2xl font-bold shadow-lg shadow-brand/20 transition-all active:scale-95"
-                        >
-                          {savingIndex === index ? (
-                            "Saving..."
-                          ) : (
-                            <>
-                              <Save className="w-4 h-4 mr-2" /> Save
-                            </>
-                          )}
+                        {/* Service subcategory — only when service context is active */}
+                        {contexts.includes("service") && (
+                          <div className="flex items-center gap-2 flex-wrap w-full border-t border-slate-100 pt-3">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Service Section</span>
+                            {SERVICE_SECTION_OPTIONS.map(({ value, label, color }) => {
+                              const active = t.service_section === value;
+                              return (
+                                <button key={value} type="button"
+                                  onClick={() => updateTestimonial(index, "service_section", active ? "" : value)}
+                                  className={cn(
+                                    "px-3 py-1 rounded-lg border text-[11px] font-bold transition-all",
+                                    active ? color : "bg-white border-slate-200 text-slate-400 hover:border-slate-300"
+                                  )}>
+                                  {label}
+                                </button>
+                              );
+                            })}
+                            {!t.service_section && (
+                              <span className="text-[10px] text-amber-500 font-bold">Select which section this quote appears in</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Save — pushed right */}
+                        <Button onClick={() => saveTestimonial(t, index)} disabled={savingIndex === index}
+                          className={cn("ml-auto shrink-0 px-5 h-9 rounded-xl font-bold text-sm transition-all active:scale-95",
+                            savedIndex === index ? "bg-emerald-500 hover:bg-emerald-500 text-white" : "bg-brand hover:bg-brand/90 text-white")}>
+                          {savingIndex === index ? "Saving…" : savedIndex === index ? "Saved ✓" : <><Save className="w-3.5 h-3.5 mr-1.5" />Save</>}
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </Card>
+                  )}
+                </div>
               );
             })}
+          </div>
 
-            {testimonials.length === 0 && (
-              <div className="text-center py-24 border-2 border-dashed border-slate-100 rounded-[3rem] bg-slate-50/30">
-                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <MessageSquare className="w-10 h-10 text-slate-200" />
-                </div>
-                <h4 className="text-slate-400 font-bold text-lg mb-2">No Proof Found</h4>
-                <p className="text-slate-400/60 max-w-xs mx-auto text-sm italic">
-                  Collect and publish client success stories here to build trust and
-                  authority.
+          {/* ── Service Page Testimonials (Static) ── */}
+          <div className="pt-8 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[#1A1C1E]">
+                  Service Page Testimonials
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Embedded quotes from each service page. Click &ldquo;Add to CMS&rdquo; to make a quote editable.
                 </p>
+              </div>
+              <Button variant="outline" size="sm"
+                onClick={() => setShowServiceTestimonials(!showServiceTestimonials)}
+                className="border-slate-200 text-slate-500 rounded-xl px-4 h-9 font-bold text-xs">
+                {showServiceTestimonials ? <ChevronUp className="w-3.5 h-3.5 mr-1.5" /> : <ChevronDown className="w-3.5 h-3.5 mr-1.5" />}
+                {showServiceTestimonials ? "Collapse" : "Browse"}
+              </Button>
+            </div>
+
+            {showServiceTestimonials && (
+              <div className="space-y-6">
+                {Object.entries(SERVICES).map(([slug, svc]) => {
+                  const testimonialItems = svc.testimonials ?? [];
+                  const impactItems = svc.marketImpact?.outcomesCards ?? [];
+                  if (testimonialItems.length === 0 && impactItems.length === 0) return null;
+                  return (
+                    <div key={slug} className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden">
+                      <div className="px-5 py-3 bg-slate-50/50 border-b border-slate-100 flex items-center gap-2">
+                        <Globe2 className="w-3.5 h-3.5 text-slate-400" />
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#1A1C1E]">{svc.name}</h4>
+                        <span className="text-[10px] text-slate-400 font-medium ml-auto">/services/{slug}</span>
+                      </div>
+
+                      {testimonialItems.map((t, i) => (
+                        <div key={`t-${i}`} className="flex items-start gap-4 px-5 py-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/40 transition-colors">
+                          <div className="flex-1 min-w-0 space-y-1.5">
+                            <span className={cn("inline-block px-2 py-0.5 rounded-full text-[9px] font-bold border", SERVICE_SECTION_OPTIONS[0].color)}>
+                              Testimonials Section
+                            </span>
+                            <p className="text-[12px] text-slate-600 italic leading-relaxed line-clamp-2">&ldquo;{t.quote}&rdquo;</p>
+                            <p className="text-[11px] text-slate-400 font-medium">{[t.role, t.company].filter(Boolean).join(", ")}</p>
+                          </div>
+                          <Button size="sm" variant="outline"
+                            onClick={() => importServiceTestimonial(slug, t.quote, t.role, t.company ?? "", "testimonials")}
+                            className="shrink-0 text-[10px] font-bold border-brand/30 text-brand hover:bg-brand/5 rounded-lg h-8 px-3">
+                            <Plus className="w-3 h-3 mr-1" /> Add to CMS
+                          </Button>
+                        </div>
+                      ))}
+
+                      {impactItems.map(([quote, company, sector, value, label], i) => (
+                        <div key={`imp-${i}`} className="flex items-start gap-4 px-5 py-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/40 transition-colors">
+                          <div className="flex-1 min-w-0 space-y-1.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={cn("px-2 py-0.5 rounded-full text-[9px] font-bold border", SERVICE_SECTION_OPTIONS[1].color)}>
+                                Impact Section
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                {value} {label}
+                              </span>
+                            </div>
+                            <p className="text-[12px] text-slate-600 italic leading-relaxed line-clamp-2">&ldquo;{quote}&rdquo;</p>
+                            <p className="text-[11px] text-slate-400 font-medium">{[company, sector].filter(Boolean).join(" · ")}</p>
+                          </div>
+                          <Button size="sm" variant="outline"
+                            onClick={() => importServiceTestimonial(slug, quote, sector, company, "impact")}
+                            className="shrink-0 text-[10px] font-bold border-brand/30 text-brand hover:bg-brand/5 rounded-lg h-8 px-3">
+                            <Plus className="w-3 h-3 mr-1" /> Add to CMS
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          {/* Focus Grid Management */}
-          <div className="pt-20 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-8">
+          {/* ── Focus Grid Management ── */}
+          <div className="pt-8 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-6">
               <div className="space-y-1">
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[#1A1C1E]">
                   Mosaic In-Focus Stack
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Manage logos, photos, and videos for the &quot;Human Side&quot; mosaic grid.
+                  Logos, photos, and videos for the &quot;Human Side&quot; mosaic grid.
                 </p>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <Button
                   onClick={addFocusAsset}
                   size="sm"
@@ -653,85 +663,72 @@ export default function AdminTestimonialsPage() {
                 <Button
                   onClick={saveFocusChanges}
                   disabled={savingFocus}
-                  className="bg-brand text-white px-6 h-10 rounded-xl font-bold transition-all shadow-lg shadow-brand/10"
+                  className={cn(
+                    "px-6 h-10 rounded-xl font-bold transition-all shadow-sm",
+                    focusSaved
+                      ? "bg-emerald-500 hover:bg-emerald-500 text-white"
+                      : "bg-brand text-white shadow-brand/10"
+                  )}
                 >
-                  {savingFocus ? "Saving..." : "Save Focus Grid"}
+                  {savingFocus ? "Saving..." : focusSaved ? "Saved ✓" : "Save Focus Grid"}
                 </Button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {focusAssets.map((asset, index) => (
-                <Card
-                  key={index}
-                  className="p-6 bg-slate-50/50 border-slate-100 rounded-3xl relative group"
-                >
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                          Type
-                        </label>
-                        <select
-                          value={asset.type}
-                          onChange={(e) =>
-                            updateFocusAsset(index, "type", e.target.value as "logo" | "video" | "photo")
-                          }
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-brand"
-                        >
-                          <option value="logo">Logo / Text</option>
-                          <option value="video">Video Asset</option>
-                        </select>
-                      </div>
-                      <div className="space-y-1 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFocusAsset(index)}
-                          className="h-8 w-8 text-rose-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                <Card key={index} className="p-5 bg-white border-slate-100 rounded-2xl">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <select
+                        value={asset.type}
+                        onChange={(e) =>
+                          updateFocusAsset(index, "type", e.target.value as "logo" | "video" | "photo")
+                        }
+                        className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold focus:outline-none focus:border-brand"
+                      >
+                        <option value="logo">Logo / Text</option>
+                        <option value="video">Video Asset</option>
+                      </select>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFocusAsset(index)}
+                        className="h-8 w-8 text-rose-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                        Source URL / Embed
-                      </label>
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Source URL</label>
                       <input
                         type="text"
                         placeholder="URL"
                         value={asset.url}
                         onChange={(e) => updateFocusAsset(index, "url", e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand font-mono"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand font-mono"
                       />
                     </div>
                     {asset.type === "video" && (
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                          Thumbnail URL
-                        </label>
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Thumbnail URL</label>
                         <input
                           type="text"
                           placeholder="Image URL"
                           value={asset.thumbnail_url || ""}
-                          onChange={(e) =>
-                            updateFocusAsset(index, "thumbnail_url", e.target.value)
-                          }
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand font-mono"
+                          onChange={(e) => updateFocusAsset(index, "thumbnail_url", e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand font-mono"
                         />
                       </div>
                     )}
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                        Label / Alt Text
-                      </label>
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Label</label>
                       <input
                         type="text"
                         placeholder="e.g. Google Logo"
                         value={asset.label || ""}
                         onChange={(e) => updateFocusAsset(index, "label", e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[10px] focus:outline-none focus:border-brand"
                       />
                     </div>
                   </div>

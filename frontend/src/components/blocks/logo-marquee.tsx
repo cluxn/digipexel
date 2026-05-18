@@ -20,8 +20,9 @@ export function LogoMarquee() {
     async function fetchLogos() {
       const json = await safeFetch(`${API_BASE_URL}/logos.php`);
       if (json.status === "success" && json.data) {
-        setLogos(Array.isArray(json.data) ? json.data : (json.data.logos ?? []));
-        setIsVisible(json.data.enabled ?? true);
+        const ld = json.data as { logos?: typeof logos; enabled?: boolean } | typeof logos;
+        setLogos(Array.isArray(ld) ? ld : ((ld as { logos?: typeof logos }).logos ?? []));
+        setIsVisible(Array.isArray(ld) ? true : ((ld as { enabled?: boolean }).enabled ?? true));
         setLoading(false);
         return;
       }

@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Mail, Calendar, User, Search, CheckCircle2, Phone, Building2, MessageSquare, MoreHorizontal } from "lucide-react";
+import { Trash2, Mail, Search, CheckCircle2, Phone, Building2, AlertTriangle, RefreshCw } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
 
 interface Lead {
@@ -23,6 +24,7 @@ interface Lead {
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(false);
   const [filter, setFilter] = useState<Lead['status'] | 'all'>('all');
 
   useEffect(() => {
@@ -30,44 +32,28 @@ export default function AdminLeadsPage() {
   }, []);
 
   const fetchLeads = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/leads.php`);
-      const data = await response.json();
-      if (data.status === "success") {
-        setLeads(data.data);
-      }
-    } catch (error) {
-       console.log("PHP Backend not detected, loading mockup data...");
-       setLeads([
-         { id: 1, full_name: "John Doe", email: "john@example.com", company: "Meta", contact_number: "+1 234 567 890", service: "AI Automation", message: "Looking for customized AI solutions.", status: 'new', created_at: new Date().toISOString() },
-         { id: 2, full_name: "Jane Smith", email: "jane@tech.com", company: "Google", contact_number: "+1 987 654 321", service: "Chatbot Development", message: "Help us build a support bot.", status: 'contacted', created_at: new Date().toISOString() }
-       ]);
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    setApiError(false);
+    const res = await api.get("leads");
+    if (res?.status === "success" && Array.isArray(res.data)) {
+      setLeads(res.data as Lead[]);
+    } else {
+      setApiError(true);
     }
+    setLoading(false);
   };
 
   const updateStatus = async (id: number, status: Lead['status']) => {
-    try {
-      await fetch(`${API_BASE_URL}/leads.php`, {
-        method: "POST",
-        body: JSON.stringify({ action: "update_status", id, status }),
-      });
-      setLeads(leads.map(lead => lead.id === id ? { ...lead, status } : lead));
-    } catch (error) {
+    const res = await api.post("leads", { action: "update_status", id, status });
+    if (res?.status === "success") {
       setLeads(leads.map(lead => lead.id === id ? { ...lead, status } : lead));
     }
   };
 
   const deleteLead = async (id: number) => {
-    if(!confirm("Are you sure you want to delete this lead?")) return;
-    try {
-      await fetch(`${API_BASE_URL}/leads.php`, {
-        method: "POST",
-        body: JSON.stringify({ action: "delete_lead", id }),
-      });
-      setLeads(leads.filter(lead => lead.id !== id));
-    } catch (error) {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    const res = await api.post("leads", { action: "delete_lead", id });
+    if (res?.status === "success") {
       setLeads(leads.filter(lead => lead.id !== id));
     }
   };
@@ -78,6 +64,26 @@ export default function AdminLeadsPage() {
     <AdminLayout>
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-brand font-display text-xl animate-pulse">Syncing CRM...</div>
+      </div>
+    </AdminLayout>
+  );
+
+  if (apiError) return (
+    <AdminLayout>
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-5 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center">
+          <AlertTriangle className="w-7 h-7 text-rose-400" />
+        </div>
+        <div>
+          <p className="font-bold text-[#1A1C1E] text-lg mb-1">Could not load leads</p>
+          <p className="text-slate-400 text-sm max-w-xs">
+            The API did not respond. Check that your backend is reachable at:<br />
+            <code className="text-xs bg-slate-100 px-2 py-0.5 rounded mt-1 inline-block break-all">{API_BASE_URL}</code>
+          </p>
+        </div>
+        <Button variant="outline" className="rounded-xl border-slate-200 gap-2" onClick={fetchLeads}>
+          <RefreshCw className="w-4 h-4" /> Retry
+        </Button>
       </div>
     </AdminLayout>
   );
@@ -96,21 +102,26 @@ export default function AdminLeadsPage() {
             <p className="text-slate-400 text-sm max-w-lg">Manage inquiries from your automation discovery forms.</p>
           </div>
           
-          <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" className="rounded-xl border-slate-200 gap-2 text-xs" onClick={fetchLeads}>
+              <RefreshCw className="w-3.5 h-3.5" /> Refresh
+            </Button>
+            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
             {(['all', 'new', 'contacted', 'archived'] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setFilter(s)}
                 className={cn(
                   "px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
-                  filter === s 
-                    ? "bg-white text-brand shadow-sm" 
+                  filter === s
+                    ? "bg-white text-brand shadow-sm"
                     : "text-slate-400 hover:text-slate-600 font-bold"
                 )}
               >
                 {s}
               </button>
             ))}
+          </div>
           </div>
         </div>
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Users, MessageSquare, Eye, Trash2, Sparkles,
   Briefcase, Bell, Clock, TrendingUp,
-  FileText, HelpCircle,
+  FileText, HelpCircle, RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin/admin-layout";
@@ -34,12 +34,17 @@ const DEFAULT_NUDGE: NudgeConfig = {
 
 const NUDGE_KEY = "DP_NUDGES_CONFIG";
 
+// Counts derived from hardcoded fallback arrays used by public pages
+const OFFLINE_COUNTS = { blogs: 5, case_studies: 5, guides: 6, testimonials: 8, leads: 0, subscribers: 0 };
+
 function fmtDate(d: string) {
   try { return new Date(d).toLocaleDateString("en-GB"); } catch { return d; }
 }
 
 export default function AdminDashboard() {
   const [loading, setLoading]             = useState(true);
+  const [refreshKey, setRefreshKey]       = useState(0);
+  const [isOffline, setIsOffline]         = useState(false);
   const [blogCount, setBlogCount]         = useState(0);
   const [csCount, setCsCount]             = useState(0);
   const [guideCount, setGuideCount]       = useState(0);
@@ -53,22 +58,71 @@ export default function AdminDashboard() {
     const stored = localStorage.getItem(NUDGE_KEY);
     if (stored) { try { setNudge({ ...DEFAULT_NUDGE, ...JSON.parse(stored) }); } catch {} }
 
-    Promise.all([
-      api.get("stats"),
-      api.get("leads"),
-    ]).then(([s, l]) => {
-      if (s?.status === "success" && s.data) {
-        setBlogCount(s.data.blogs ?? 0);
-        setCsCount(s.data.case_studies ?? 0);
-        setGuideCount(s.data.guides ?? 0);
-        setTestimonialCount(s.data.testimonials ?? 0);
-        setSubscriberCount(s.data.subscribers ?? 0);
-        // totalLeadsCount stat card now comes from stats endpoint
-        setTotalLeadsCount(s.data.leads ?? 0);
+    async function loadDashboard() {
+      setIsOffline(false);
+      let liveData = false;
+
+      // Primary: single stats endpoint
+      const [s, l] = await Promise.all([
+        api.get("stats"),
+        api.get("leads"),
+      ]);
+
+      if (l?.status === "success" && Array.isArray(l.data)) {
+        setLeads(l.data);
+        liveData = true;
       }
-      if (l?.status === "success" && Array.isArray(l.data)) setLeads(l.data);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+
+      if (s?.status === "success" && s.data) {
+        setBlogCount((s.data as Record<string,number>).blogs ?? 0);
+        setCsCount((s.data as Record<string,number>).case_studies ?? 0);
+        setGuideCount((s.data as Record<string,number>).guides ?? 0);
+        setTestimonialCount((s.data as Record<string,number>).testimonials ?? 0);
+        setSubscriberCount((s.data as Record<string,number>).subscribers ?? 0);
+        setTotalLeadsCount((s.data as Record<string,number>).leads ?? 0);
+        liveData = true;
+      } else {
+        // Fallback: count directly from each content endpoint
+        const [blogs, cs, guides, testimonials] = await Promise.all([
+          api.get("blogs", { admin: "1" }),
+          api.get("case_studies"),
+          api.get("guides"),
+          api.get("testimonials"),
+        ]);
+        if (blogs?.status === "success" && Array.isArray(blogs.data)) {
+          setBlogCount((blogs.data as unknown[]).length);
+          liveData = true;
+        }
+        if (cs?.status === "success" && Array.isArray(cs.data)) {
+          setCsCount((cs.data as unknown[]).length);
+          liveData = true;
+        }
+        if (guides?.status === "success" && Array.isArray(guides.data)) {
+          setGuideCount((guides.data as unknown[]).length);
+          liveData = true;
+        }
+        if (testimonials?.status === "success" && Array.isArray(testimonials.data)) {
+          setTestimonialCount((testimonials.data as unknown[]).length);
+          liveData = true;
+        }
+        if (l?.status === "success" && Array.isArray(l.data))
+          setTotalLeadsCount((l.data as unknown[]).length);
+      }
+
+      // API completely unreachable — fall back to demo counts
+      if (!liveData) {
+        setIsOffline(true);
+        setBlogCount(OFFLINE_COUNTS.blogs);
+        setCsCount(OFFLINE_COUNTS.case_studies);
+        setGuideCount(OFFLINE_COUNTS.guides);
+        setTestimonialCount(OFFLINE_COUNTS.testimonials);
+        setTotalLeadsCount(OFFLINE_COUNTS.leads);
+        setSubscriberCount(OFFLINE_COUNTS.subscribers);
+      }
+    }
+
+    loadDashboard().catch(() => { setIsOffline(true); }).finally(() => setLoading(false));
+  }, [refreshKey]);
 
   const newLeads = leads.filter(l => (l.status ?? "new").toLowerCase() === "new").length;
 
@@ -100,6 +154,16 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
+        {/* Offline notice */}
+        {isOffline && !loading && (
+          <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+            <span>
+              <strong>API offline</strong> — showing demo counts. Deploy or start your local PHP server to load live data.
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex justify-between items-end flex-wrap gap-4">
           <div className="space-y-1">
@@ -107,6 +171,16 @@ export default function AdminDashboard() {
             <p className="text-slate-400 text-sm">Monitor agency growth and manage digital configurations.</p>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => { setLoading(true); setRefreshKey(k => k + 1); }}
+              disabled={loading}
+              className="rounded-xl border-slate-200 text-slate-600 h-11 px-5 font-bold flex gap-2"
+              title="Refresh live data"
+            >
+              <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+              {loading ? "Syncing…" : "Sync"}
+            </Button>
             <Link href="/admin/leads">
               <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 h-11 px-6 font-bold flex gap-2">
                 <Bell className="w-4 h-4" />
@@ -132,6 +206,9 @@ export default function AdminDashboard() {
                   <stat.icon className={cn("w-4 h-4 opacity-20 group-hover:opacity-100 transition-opacity", stat.color)} />
                 </div>
                 <span className={cn("text-3xl font-bold tracking-tight block", stat.color)}>{stat.value}</span>
+                {isOffline && !loading && (
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-amber-500">Demo</span>
+                )}
               </div>
             </div>
           ))}

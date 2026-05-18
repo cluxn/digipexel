@@ -10,7 +10,7 @@ export function AnalyticsInjector() {
       const json = await safeFetch(`${API_BASE_URL}/analytics.php`);
       if (json?.status !== "success" || !json.data) return;
 
-      const codes: Record<string, string> = json.data;
+      const codes = json.data as Record<string, string>;
       const keys = ["google_analytics", "search_console", "custom_head_scripts"];
 
       keys.forEach(key => {
@@ -43,7 +43,7 @@ export function AnalyticsInjector() {
       });
       // safeFetch already handles errors silently — no try/catch needed here
     };
-    inject();
+    inject().catch(() => {});
   }, []);
 
   return null; // Renders nothing — side-effect only

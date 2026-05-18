@@ -3,8 +3,8 @@ import React from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { safeFetch } from '@/lib/utils';
-import { API_BASE_URL } from '@/lib/constants';
+import { safeFetch, fireWebhook } from '@/lib/utils';
+import { API_BASE_URL, WEBHOOK_NEWSLETTER } from '@/lib/constants';
 
 const navLinks = [
 	{
@@ -28,8 +28,6 @@ const navLinks = [
 		links: [
 			{ title: 'Testimonials', href: '/testimonials' },
 			{ title: 'Contact Us', href: '/contact-us' },
-			{ title: 'Privacy Policy', href: '/privacy-policy' },
-			{ title: 'Terms & Conditions', href: '/terms-and-conditions' },
 		],
 	},
 	{
@@ -80,6 +78,14 @@ const socialLinks = [
 			</svg>
 		),
 	},
+	{
+		label: 'WhatsApp',
+		svg: (
+			<svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+				<path d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.272-.099-.47-.148-.669.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.148-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.372-.024-.521-.075-.149-.669-1.612-.916-2.207-.243-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.793.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.066 2.875 1.214 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.757-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.571-.347zM12.001 2C6.478 2 2 6.478 2 12c0 1.852.502 3.587 1.38 5.079L2.05 21.95l4.991-1.31A9.955 9.955 0 0012.001 22C17.523 22 22 17.522 22 12S17.523 2 12.001 2zm0 18.18a8.165 8.165 0 01-4.164-1.14l-.299-.177-3.096.812.826-3.018-.195-.31A8.14 8.14 0 013.82 12c0-4.512 3.67-8.18 8.181-8.18 4.512 0 8.18 3.668 8.18 8.18 0 4.511-3.668 8.18-8.18 8.18z"/>
+			</svg>
+		),
+	},
 ];
 
 export function Footer() {
@@ -91,19 +97,23 @@ export function Footer() {
 		instagram_url: string;
 		youtube_url: string;
 		linkedin_url: string;
-	}>({ facebook_url: '', instagram_url: '', youtube_url: '', linkedin_url: '' });
+		whatsapp_url: string;
+	}>({ facebook_url: '', instagram_url: '', youtube_url: '', linkedin_url: '', whatsapp_url: '' });
 
 	useEffect(() => {
 		safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
 			if (json?.status === "success" && json.data) {
+				const sd = json.data as { whatsapp_number?: string; facebook_url?: string; instagram_url?: string; youtube_url?: string; linkedin_url?: string };
+				const num = (sd.whatsapp_number || '').replace(/\D/g, '');
 				setSocialUrls({
-					facebook_url: json.data.facebook_url || '',
-					instagram_url: json.data.instagram_url || '',
-					youtube_url: json.data.youtube_url || '',
-					linkedin_url: json.data.linkedin_url || '',
+					facebook_url: sd.facebook_url || '',
+					instagram_url: sd.instagram_url || '',
+					youtube_url: sd.youtube_url || '',
+					linkedin_url: sd.linkedin_url || '',
+					whatsapp_url: num ? `https://wa.me/${num}` : '',
 				});
 			}
-		});
+		}).catch(() => {});
 	}, []);
 
 	const handleSubscribe = async (e: React.FormEvent) => {
@@ -116,9 +126,10 @@ export function Footer() {
 			body: JSON.stringify({ action: "subscribe", email }),
 		});
 		if (res.status === "success") {
+			fireWebhook(WEBHOOK_NEWSLETTER, { email, source: "footer" });
 			setSubStatus("success");
 			setEmail("");
-		} else if (res.message?.toLowerCase().includes("already")) {
+		} else if ((res.message as string | undefined)?.toLowerCase().includes("already")) {
 			setSubStatus("duplicate");
 		} else {
 			setSubStatus("error");
@@ -156,6 +167,7 @@ export function Footer() {
 									'Instagram': socialUrls.instagram_url,
 									'YouTube': socialUrls.youtube_url,
 									'LinkedIn': socialUrls.linkedin_url,
+									'WhatsApp': socialUrls.whatsapp_url,
 								};
 								const href = urlMap[social.label] || '';
 								if (!href) {
@@ -170,6 +182,7 @@ export function Footer() {
 										</span>
 									);
 								}
+								const isWhatsApp = social.label === 'WhatsApp';
 								return (
 									<a
 										key={social.label}
@@ -177,7 +190,11 @@ export function Footer() {
 										target="_blank"
 										rel="noopener noreferrer"
 										aria-label={social.label}
-										className="w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 hover:text-brand hover:border-brand/30 transition-all duration-300"
+										className={
+											isWhatsApp
+												? "w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 hover:text-[#25D366] hover:border-[#25D366]/40 transition-all duration-300"
+												: "w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-secondary/60 hover:text-brand hover:border-brand/30 transition-all duration-300"
+										}
 									>
 										{social.svg}
 									</a>
@@ -231,7 +248,13 @@ export function Footer() {
 							Weekly insights on AI automation, workflows, and agency growth.
 						</p>
 						{subStatus === "success" ? (
-							<p className="text-sm text-emerald-500 font-medium">You&apos;re in! Check your inbox.</p>
+							<div className="flex items-start gap-3 rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3">
+								<span className="text-emerald-500 text-base mt-0.5">✓</span>
+								<div>
+									<p className="text-sm font-semibold text-emerald-700">You&apos;re in!</p>
+									<p className="text-xs text-emerald-600/80 mt-0.5">Check your inbox for a confirmation.</p>
+								</div>
+							</div>
 						) : (
 							<form onSubmit={handleSubscribe} className="flex flex-col gap-2">
 								<input
@@ -248,15 +271,21 @@ export function Footer() {
 									disabled={subLoading}
 									className="w-full px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand/90 transition-colors disabled:opacity-60"
 								>
-									{subLoading ? "..." : "Subscribe"}
+									{subLoading ? "Subscribing…" : "Subscribe"}
 								</button>
+								{subStatus === "duplicate" && (
+									<div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5">
+										<span className="text-amber-500 text-sm">!</span>
+										<p className="text-xs text-amber-700">This email is already subscribed.</p>
+									</div>
+								)}
+								{subStatus === "error" && (
+									<div className="flex items-center gap-2 rounded-xl bg-rose-50 border border-rose-100 px-3 py-2.5">
+										<span className="text-rose-500 text-sm">✕</span>
+										<p className="text-xs text-rose-700">Something went wrong. Please try again.</p>
+									</div>
+								)}
 							</form>
-						)}
-						{subStatus === "duplicate" && (
-							<p className="text-xs text-amber-500">Already subscribed with this email.</p>
-						)}
-						{subStatus === "error" && (
-							<p className="text-xs text-rose-500">Something went wrong. Try again.</p>
 						)}
 					</AnimatedContainer>
 				</div>

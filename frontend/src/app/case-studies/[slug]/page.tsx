@@ -3,11 +3,23 @@ import CaseStudyClient from "@/components/page-clients/case-study-client";
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
 
+const FALLBACK_SLUGS = [
+  "finflows-back-office-automation",
+  "growthloop-linkedin-scale",
+  "meditrack-patient-onboarding-automation",
+  "nexaretail-inventory-reporting-automation",
+];
+
 export async function generateStaticParams() {
-  return [
-    { slug: "finflows-back-office-automation" },
-    { slug: "growthloop-linkedin-scale" },
-  ];
+  try {
+    const res = await fetch(`${API}/case_studies.php`);
+    const data = await res.json();
+    if (data.status === "success" && Array.isArray(data.data)) {
+      const apiSlugs: string[] = data.data.map((c: { slug: string }) => c.slug).filter(Boolean);
+      return [...new Set([...FALLBACK_SLUGS, ...apiSlugs])].map(slug => ({ slug }));
+    }
+  } catch {}
+  return FALLBACK_SLUGS.map(slug => ({ slug }));
 }
 
 export async function generateMetadata(
@@ -20,9 +32,11 @@ export async function generateMetadata(
   return {
     title: meta?.seo_title || 'Case Study — Digi Pexel',
     description: meta?.meta_description || 'See how Digi Pexel delivered measurable results.',
+    alternates: { canonical: `https://www.digipexel.com/case-studies/${slug}` },
     openGraph: {
       title: meta?.seo_title || 'Case Study — Digi Pexel',
       description: meta?.meta_description || 'See how Digi Pexel delivered measurable results.',
+      url: `https://www.digipexel.com/case-studies/${slug}`,
       images: meta?.og_image ? [{ url: meta.og_image }] : [],
     },
   }

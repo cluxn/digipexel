@@ -24,6 +24,8 @@ $new_columns = [
 foreach ($new_columns as $col_def) {
     try { $pdo->exec("ALTER TABLE blogs ADD COLUMN $col_def"); } catch (Exception $e) { /* exists */ }
 }
+// Backfill any rows where author_name was left NULL by the nullable column migration
+try { $pdo->exec("UPDATE blogs SET author_name = 'Digi Pexel Team' WHERE author_name IS NULL OR author_name = ''"); } catch (Exception $e) { /* ignore */ }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function parseBlog(array $row): array {
@@ -84,7 +86,7 @@ try {
                 'image_url'             => $b['image_url']              ?? '',
                 'category'              => $b['category']               ?? 'General',
                 'tags'                  => $b['tags']                   ?? '',
-                'author_name'           => $b['author_name']            ?? 'Digi Pexel Team',
+                'author_name'           => !empty($b['author_name']) ? $b['author_name'] : 'Digi Pexel Team',
                 'author_image'          => $b['author_image']           ?? '',
                 'author_role'           => $b['author_role']            ?? '',
                 'read_time'             => $b['read_time']              ?? '5 min read',

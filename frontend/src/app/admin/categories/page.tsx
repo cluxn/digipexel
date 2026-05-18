@@ -54,9 +54,9 @@ export default function AdminCategoriesPage() {
         safeFetch(`${API_BASE_URL}/categories.php`),
       ]);
 
-      const blogs: ContentItem[] = blogsRes?.status === "success" ? blogsRes.data : [];
-      const guides: ContentItem[] = guidesRes?.status === "success" ? guidesRes.data : [];
-      const cases: ContentItem[] = casesRes?.status === "success" ? casesRes.data : [];
+      const blogs: ContentItem[] = blogsRes?.status === "success" ? blogsRes.data as ContentItem[] : [];
+      const guides: ContentItem[] = guidesRes?.status === "success" ? guidesRes.data as ContentItem[] : [];
+      const cases: ContentItem[] = casesRes?.status === "success" ? casesRes.data as ContentItem[] : [];
 
       const map = new Map<string, CategoryRow>();
       const addItems = (items: ContentItem[], field: "blogCount" | "guideCount" | "caseStudyCount", key: keyof ContentItem) => {
@@ -94,7 +94,7 @@ export default function AdminCategoriesPage() {
       setAddMsg({ type: "success", text: "Category added." });
       loadAll();
     } else {
-      setAddMsg({ type: "error", text: res?.message ?? "Failed to add." });
+      setAddMsg({ type: "error", text: (res?.message as string) ?? "Failed to add." });
     }
     setTimeout(() => setAddMsg(null), 4000);
     setAdding(false);

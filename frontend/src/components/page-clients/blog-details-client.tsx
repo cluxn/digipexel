@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import {
   Calendar, Clock, ArrowRight, Twitter, Linkedin, Link2,
   CheckCircle2, XCircle, TrendingUp, AlertTriangle, Lightbulb,
-  BookOpen, User, Tag, Zap,
+  BookOpen, User, Tag, Zap, Facebook, Share2, Plus, Minus,
 } from "lucide-react";
-import { cn, safeFetch } from "@/lib/utils";
-import { API_BASE_URL } from "@/lib/constants";
+import { cn, safeFetch, fireWebhook } from "@/lib/utils";
+import { API_BASE_URL, WEBHOOK_LEAD, WEBHOOK_NEWSLETTER } from "@/lib/constants";
+import { InlineLeadForm, LeadPopup } from "@/components/ui/lead-capture";
 
 // Types
 interface BlogSection {
@@ -49,6 +50,8 @@ interface BlogPost {
   sections: BlogSection[];
   show_related: boolean;
   show_category_section: boolean;
+  form_heading: string;
+  faqs?: { question: string; answer: string }[];
 }
 
 interface RelatedPost {
@@ -80,6 +83,14 @@ const DEMO_POST: BlogPost = {
   published_at: "2025-03-14",
   show_related: true,
   show_category_section: false,
+  form_heading: "Get Expert Help on AI Automation",
+  faqs: [
+    { question: "What types of tasks can AI automation handle?", answer: "AI automation can handle repetitive, rule-based tasks like data entry, report generation, email routing, CRM updates, lead scoring, and customer follow-ups — freeing your team for high-judgment work." },
+    { question: "How long does it take to set up an automation workflow?", answer: "Simple workflows typically go live within 1–2 weeks. Complex, multi-system pipelines with custom logic can take 4–8 weeks depending on integration complexity and data quality." },
+    { question: "Do I need technical staff to maintain the automations?", answer: "No. We design workflows for non-technical operators. Most clients manage day-to-day operations through a visual dashboard, with our team on call for structural changes." },
+    { question: "What is the ROI on AI automation projects?", answer: "Clients typically see a return of 3–5× their investment within the first 6 months, driven by time savings, reduced error rates, and faster lead response times." },
+    { question: "Is my data safe in automated workflows?", answer: "Yes. We follow SOC 2–aligned practices, use encrypted data-in-transit, and never store sensitive data outside your approved systems. All vendor integrations go through a security review." },
+  ],
   sections: [
     {
       type: "overview",
@@ -164,38 +175,36 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
   const [activeId, setActiveId] = useState("");
   const [copied, setCopied] = useState(false);
   const [formSent, setFormSent] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [formError, setFormError] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", requirement: "" });
+  const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/blogs.php?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.status === "success") {
-          setPost(d.data);
-          fetch(`${API_BASE_URL}/blogs.php`)
-            .then(r => r.json())
-            .then(rd => {
-              if (rd.status === "success") {
-                const allOtherPosts = rd.data.filter((p: any) => p.id !== d.data.id);
-                const sameCategory = allOtherPosts
-                  .filter((p: any) => p.category === d.data.category)
-                  .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
-                const otherPosts = allOtherPosts
-                  .filter((p: any) => p.category !== d.data.category)
-                  .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
-                const relatedResult = [...sameCategory, ...otherPosts].slice(0, 3);
-                setRelated(relatedResult);
-              }
-            });
-        } else {
-          setPost(DEMO_POST);
-          setRelated(DEMO_RELATED);
+    async function load() {
+      const d = await safeFetch(`${API_BASE_URL}/blogs.php?slug=${slug}`);
+      if (d.status === "success") {
+        setPost(d.data as any);
+        const rd = await safeFetch(`${API_BASE_URL}/blogs.php`);
+        if (rd.status === "success" && Array.isArray(rd.data)) {
+          const allOtherPosts = (rd.data as any[]).filter((p: any) => p.id !== (d.data as any).id);
+          const sameCategory = allOtherPosts
+            .filter((p: any) => p.category === (d.data as any).category)
+            .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+          const otherPosts = allOtherPosts
+            .filter((p: any) => p.category !== (d.data as any).category)
+            .sort((a: any, b: any) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+          setRelated([...sameCategory, ...otherPosts].slice(0, 3));
         }
-      })
-      .catch(() => { setPost(DEMO_POST); setRelated(DEMO_RELATED); })
-      .finally(() => setLoading(false));
+      } else {
+        setPost(DEMO_POST);
+        setRelated(DEMO_RELATED);
+      }
+      setLoading(false);
+    }
+    load().catch(() => { setPost(DEMO_POST); setRelated(DEMO_RELATED); setLoading(false); });
   }, [slug]);
 
   useEffect(() => {
@@ -224,31 +233,36 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await fetch(`${API_BASE_URL}/leads.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "add_lead", full_name: form.name, email: form.email, company: form.company, message: form.message, service: `Blog Inquiry: ${post?.title}` }),
-      });
+    setFormSubmitting(true);
+    setFormError(false);
+    const payload = { action: "add_lead", full_name: form.name, email: form.email, message: form.requirement, service: `Blog Inquiry: ${post?.title}` };
+    const res = await safeFetch(`${API_BASE_URL}/leads.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.status === "success") {
+      fireWebhook(WEBHOOK_LEAD, { ...payload, source: "blog_inline_form" });
       setFormSent(true);
-    } catch {}
+    } else {
+      setFormError(true);
+    }
+    setFormSubmitting(false);
   };
 
   const submitNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
     setNewsletterStatus("sending");
-    try {
-      const res = await fetch(`${API_BASE_URL}/newsletter.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newsletterEmail }),
-      });
-      const d = await res.json();
-      setNewsletterStatus(d.status === "success" ? "sent" : "error");
-    } catch {
-      setNewsletterStatus("error");
+    const d = await safeFetch(`${API_BASE_URL}/newsletter.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: newsletterEmail }),
+    });
+    if (d.status === "success") {
+      fireWebhook(WEBHOOK_NEWSLETTER, { email: newsletterEmail, source: "blog_page" });
     }
+    setNewsletterStatus(d.status === "success" ? "sent" : "error");
   };
 
   if (loading) return <PageSkeleton />;
@@ -265,9 +279,9 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-14 items-start">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <div className="flex flex-wrap items-center gap-3 mb-5">
-                <Badge variant="outline" className="section-eyebrow">{post.eyebrow || "Article"}</Badge>
-                <span className="text-[10px] font-black uppercase tracking-widest text-brand/60 bg-brand/8 border border-brand/15 px-3 py-1 rounded-full">{post.category}</span>
+              <div className="flex items-center gap-3 mb-5">
+                <Badge variant="outline" className="section-eyebrow !mb-0">{post.eyebrow || "Article"}</Badge>
+                <Badge variant="outline" className="section-eyebrow !mb-0">{post.category}</Badge>
               </div>
               <h1 className="text-3xl md:text-5xl font-display font-bold text-primary leading-[1.1] mb-5 max-w-2xl">{post.title}</h1>
               <p className="text-secondary/70 text-lg leading-relaxed max-w-xl mb-7">{post.subtitle || post.excerpt}</p>
@@ -308,23 +322,159 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
             </div>
           </aside>
           <article className="min-w-0 max-w-none">
-            {sections.map((section, i) => <SectionBlock key={i} section={section} sectionId={section.id || `section-${i}`} />)}
+            {sections.map((section, i) => (
+              <React.Fragment key={i}>
+                <SectionBlock section={section} sectionId={section.id || `section-${i}`} />
+                {/* 50% inline lead form */}
+                {sections.length > 1 && i === Math.floor(sections.length / 2) - 1 && (
+                  <InlineLeadForm
+                    heading="Want to see how this applies to your business?"
+                    subheading="Our team can map this to your ops and show you the ROI within 48 hours."
+                    source={`Blog 50%: ${post.title}`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+
+            {/* 100% inline lead form — end of article */}
+            {sections.length > 0 && (
+              <InlineLeadForm
+                heading="Ready to automate your operations?"
+                subheading="Tell us your name and number — we'll reach out with a custom plan."
+                cta="Book a Free Strategy Call"
+                source={`Blog 100%: ${post.title}`}
+              />
+            )}
+
+            {/* FAQ */}
+            {post.faqs && post.faqs.length > 0 && (
+              <div className="mt-12 border-t border-slate-100 pt-10">
+                <div className="text-center mb-8">
+                  <Badge variant="outline" className="section-eyebrow mx-auto mb-4">FAQ</Badge>
+                  <h2 className="text-2xl font-display font-bold text-primary">Frequently Asked Questions</h2>
+                </div>
+                <div className="space-y-3">
+                  {post.faqs.map((faq, i) => (
+                    <div key={i} className="border border-border-subtle rounded-2xl overflow-hidden">
+                      <button
+                        className="w-full flex items-center justify-between px-6 py-5 text-left text-sm font-semibold text-primary hover:bg-slate-50/60 transition-colors"
+                        onClick={() => setOpenFaqIdx(openFaqIdx === i ? null : i)}
+                      >
+                        <span className="pr-4 leading-snug">{faq.question}</span>
+                        {openFaqIdx === i
+                          ? <Minus className="w-4 h-4 text-brand flex-shrink-0" />
+                          : <Plus  className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        }
+                      </button>
+                      {openFaqIdx === i && (
+                        <div className="px-6 pb-5 text-sm text-secondary/70 leading-relaxed border-t border-border-subtle bg-slate-50/30">
+                          <p className="pt-4">{faq.answer}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Share Bar */}
+            <div className="mt-8 border-t border-border-subtle pt-6 flex flex-wrap items-center justify-center gap-6">
+              <span className="flex items-center gap-2 text-sm font-semibold text-secondary/70">
+                <Share2 className="w-4 h-4 text-brand" />
+                Don&apos;t Forget to share this post!
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { const u = typeof window !== "undefined" ? window.location.href : ""; window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`); }}
+                  className="w-9 h-9 rounded-full bg-white border border-border-subtle flex items-center justify-center text-slate-500 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all"
+                  aria-label="Share on Facebook"
+                >
+                  <Facebook className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => share("twitter")}
+                  className="w-9 h-9 rounded-full bg-white border border-border-subtle flex items-center justify-center text-slate-500 hover:bg-black hover:text-white hover:border-black transition-all"
+                  aria-label="Share on X"
+                >
+                  <Twitter className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => share("linkedin")}
+                  className="w-9 h-9 rounded-full bg-white border border-border-subtle flex items-center justify-center text-slate-500 hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] transition-all"
+                  aria-label="Share on LinkedIn"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => { const u = typeof window !== "undefined" ? window.location.href : ""; window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(u)}&description=${encodeURIComponent(post.title)}`); }}
+                  className="w-9 h-9 rounded-full bg-white border border-border-subtle flex items-center justify-center text-slate-500 hover:bg-[#E60023] hover:text-white hover:border-[#E60023] transition-all"
+                  aria-label="Share on Pinterest"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+                </button>
+              </div>
+            </div>
           </article>
           <aside className="hidden lg:block">
             <div className="sticky top-28">
               <div className="rounded-3xl border border-border-subtle bg-surface p-6 shadow-xl">
                 {!formSent ? (
-                  <form onSubmit={submitForm} className="space-y-4">
-                    <input placeholder="Full Name" required className="w-full bg-base border border-border-subtle rounded-2xl px-4 py-3 text-xs" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                    <input placeholder="Work Email" required type="email" className="w-full bg-base border border-border-subtle rounded-2xl px-4 py-3 text-xs" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
-                    <Button type="submit" className="w-full rounded-full bg-brand text-white py-3">Consult Experts</Button>
-                  </form>
-                ) : <p className="text-center font-bold">Success!</p>}
+                  <>
+                    <h3 className="text-lg font-display font-bold text-primary leading-snug mb-5">
+                      {post.form_heading || "Get Expert Help"}
+                    </h3>
+                    <form onSubmit={submitForm} className="space-y-3">
+                      <div>
+                        <input placeholder="Full Name" required className="w-full bg-base border border-border-subtle rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-brand transition-colors" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                        <span className="text-red-500 text-[10px] ml-1">*</span>
+                      </div>
+                      <div>
+                        <input placeholder="Email" required type="email" className="w-full bg-base border border-border-subtle rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-brand transition-colors" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+                        <span className="text-red-500 text-[10px] ml-1">*</span>
+                      </div>
+                      <div>
+                        <textarea
+                          placeholder="Brief your Requirement"
+                          required
+                          rows={4}
+                          className="w-full bg-base border border-border-subtle rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-brand transition-colors resize-none"
+                          value={form.requirement}
+                          onChange={e => setForm({...form, requirement: e.target.value})}
+                        />
+                        <span className="text-red-500 text-[10px] ml-1">*</span>
+                      </div>
+                      {formError && (
+                        <div className="flex items-start gap-2 rounded-xl bg-rose-50 border border-rose-100 px-3 py-2.5">
+                          <span className="text-rose-500 text-sm flex-shrink-0">✕</span>
+                          <p className="text-xs text-rose-700">Something went wrong. Please try again.</p>
+                        </div>
+                      )}
+                      <Button type="submit" disabled={formSubmitting} className="w-full rounded-full bg-brand text-white py-3 text-xs font-bold uppercase tracking-widest disabled:opacity-60">
+                        {formSubmitting ? "Sending…" : "Consult with Experts"}
+                      </Button>
+                      <p className="text-center text-[10px] text-secondary/50 leading-relaxed">
+                        By submitting this form, you agree to our{" "}
+                        <a href="/privacy-policy" className="underline hover:text-brand transition-colors">Privacy Policy</a>
+                      </p>
+                    </form>
+                  </>
+                ) : (
+                  <div className="py-6 text-center flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-primary text-sm mb-1">Message Sent!</p>
+                      <p className="text-xs text-secondary/55">We&apos;ll be in touch within 24 hours.</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </aside>
         </div>
       </div>
+
       {/* Related Articles */}
       {related.length > 0 && (
         <section className="border-t border-slate-100 py-16">
@@ -356,17 +506,25 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
       <ContentPageBanner />
 
       {/* Newsletter Block */}
-      <section className="bg-slate-900 py-20">
-        <div className="container mx-auto px-6 max-w-3xl text-center">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand/70 mb-4 block">Stay Ahead</span>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-            Get insights before they become common knowledge.
+      <section className="bg-primary py-20 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-brand/[0.08] blur-[140px] rounded-full pointer-events-none" />
+        <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
+          <Badge variant="outline" className="section-eyebrow mx-auto mb-6 border-white/10 bg-white/5 text-white/60">Stay Ahead</Badge>
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-tight">
+            Get insights before they<br />
+            <span className="hero-title-accent">become common knowledge</span>
           </h2>
-          <p className="text-white/60 text-base mb-10 leading-relaxed">
+          <p className="text-white/50 text-base mb-10 leading-relaxed">
             Weekly deep dives on AI automation, growth strategy, and the tools shaping the future of business — direct to your inbox.
           </p>
           {newsletterStatus === "sent" ? (
-            <p className="text-emerald-400 font-bold text-base">You are subscribed. Welcome aboard.</p>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+              </div>
+              <p className="text-emerald-400 font-bold text-base">You&apos;re subscribed. Welcome aboard!</p>
+              <p className="text-white/40 text-sm">Check your inbox for a confirmation.</p>
+            </div>
           ) : (
             <form onSubmit={submitNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
@@ -382,9 +540,12 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
                 disabled={newsletterStatus === "sending"}
                 className="h-14 px-8 bg-brand text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand/90 disabled:opacity-50 transition-all flex-shrink-0 shadow-lg shadow-brand/30"
               >
-                {newsletterStatus === "sending" ? "Subscribing..." : "Subscribe"}
+                {newsletterStatus === "sending" ? "Subscribing…" : "Subscribe"}
               </button>
             </form>
+          )}
+          {newsletterStatus === "error" && (
+            <p className="text-rose-400 text-sm mt-3">Something went wrong. Please try again.</p>
           )}
           {newsletterStatus === "error" && (
             <p className="text-red-400 text-xs mt-3">Something went wrong. Please try again.</p>
@@ -393,6 +554,11 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
       </section>
 
       <Footer />
+      <LeadPopup
+        source={`Blog: ${post.title}`}
+        heading="Get a free demo"
+        subheading="See how Digi Pexel helps you automate operations and win more business."
+      />
     </main>
   );
 }
@@ -402,14 +568,15 @@ function ContentPageBanner() {
   React.useEffect(() => {
     safeFetch(`${API_BASE_URL}/banners.php`)
       .then(json => {
-        if (json?.status === "success" && json.data?.banner?.enabled) {
-          setBanner(json.data.banner);
+        const bd = json?.data as { banner?: typeof banner } | undefined;
+        if (json?.status === "success" && bd?.banner?.enabled) {
+          setBanner(bd.banner);
         }
       });
   }, []);
   if (!banner) return null;
   return (
-    <div className="my-8 rounded-2xl p-6 text-white flex items-center justify-between gap-4 flex-wrap" style={{ backgroundColor: banner.bgColor || "#2563EB" }}>
+    <div className="my-8 rounded-2xl p-6 text-white flex items-center justify-between gap-4 flex-wrap" style={{ backgroundColor: banner.bgColor || "#7C3AED" }}>
       <p className="font-semibold text-sm">{banner.text}</p>
       <a href={banner.ctaLink} className="shrink-0 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-bold transition-colors">
         {banner.ctaLabel}

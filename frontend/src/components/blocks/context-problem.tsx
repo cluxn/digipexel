@@ -73,7 +73,7 @@ export function ContextProblem() {
       }
       // On failure: keep FALLBACK_PROBLEM_STATS in state
     }
-    fetchProblem();
+    fetchProblem().catch(() => {});
   }, []);
 
   return (

@@ -53,10 +53,11 @@ export default function AdminSeoPage() {
     setFields(EMPTY_FIELDS);
     api.get("seo_meta", { page: selectedPage }).then((res) => {
       if (res?.status === "success" && res.data) {
+        const d = res.data as { seo_title?: string; meta_description?: string; og_image?: string };
         setFields({
-          seo_title: res.data.seo_title || "",
-          meta_description: res.data.meta_description || "",
-          og_image: res.data.og_image || "",
+          seo_title: d.seo_title || "",
+          meta_description: d.meta_description || "",
+          og_image: d.og_image || "",
         });
       }
     }).finally(() => setLoading(false));

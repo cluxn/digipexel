@@ -3,40 +3,48 @@
 require_once '../common.php';
 send_json_headers();
 
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method !== 'GET') {
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_resp('error', null, 'Method not allowed');
+    exit;
 }
+
+$counts = [
+    'leads'        => 0,
+    'blogs'        => 0,
+    'case_studies' => 0,
+    'guides'       => 0,
+    'testimonials' => 0,
+    'subscribers'  => 0,
+];
+
+// Each query is independent — one missing table never kills the whole response
+try {
+    $counts['leads'] = (int)$pdo->query("SELECT COUNT(*) FROM leads")->fetchColumn();
+} catch (Exception $e) {}
 
 try {
-    $counts = [];
+    // Admin count: all blogs regardless of status
+    $counts['blogs'] = (int)$pdo->query("SELECT COUNT(*) FROM blogs")->fetchColumn();
+} catch (Exception $e) {}
 
-    // Leads count
-    $stmt = $pdo->query("SELECT COUNT(*) FROM leads");
-    $counts['leads'] = (int)$stmt->fetchColumn();
+try {
+    $counts['case_studies'] = (int)$pdo->query("SELECT COUNT(*) FROM case_studies")->fetchColumn();
+} catch (Exception $e) {}
 
-    // Blogs count (published only — same filter as public listing)
-    $stmt = $pdo->query("SELECT COUNT(*) FROM blogs WHERE status = 'published'");
-    $counts['blogs'] = (int)$stmt->fetchColumn();
+try {
+    $counts['guides'] = (int)$pdo->query("SELECT COUNT(*) FROM guides")->fetchColumn();
+} catch (Exception $e) {}
 
-    // Case studies count
-    $stmt = $pdo->query("SELECT COUNT(*) FROM case_studies");
-    $counts['case_studies'] = (int)$stmt->fetchColumn();
+try {
+    $counts['testimonials'] = (int)$pdo->query("SELECT COUNT(*) FROM testimonials")->fetchColumn();
+} catch (Exception $e) {}
 
-    // Guides count
-    $stmt = $pdo->query("SELECT COUNT(*) FROM guides");
-    $counts['guides'] = (int)$stmt->fetchColumn();
-
-    // Testimonials count
-    $stmt = $pdo->query("SELECT COUNT(*) FROM testimonials");
-    $counts['testimonials'] = (int)$stmt->fetchColumn();
-
-    // Newsletter subscribers count (active only)
-    $stmt = $pdo->query("SELECT COUNT(*) FROM newsletter_subscribers WHERE status = 'active'");
-    $counts['subscribers'] = (int)$stmt->fetchColumn();
-
-    json_resp('success', $counts);
+try {
+    $counts['subscribers'] = (int)$pdo->query(
+        "SELECT COUNT(*) FROM newsletter_subscribers WHERE status = 'active'"
+    )->fetchColumn();
 } catch (Exception $e) {
-    json_resp('error', null, $e->getMessage());
+    // Table may not exist yet — leave at 0
 }
+
+json_resp('success', $counts);

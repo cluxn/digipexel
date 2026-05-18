@@ -17,14 +17,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.digipexel.com"),
   title: "Digi Pexel — AI Automation Agency",
   description: "We design reliable AI workflows that move data, decisions, and actions across your stack — so your team can scale without friction.",
   keywords: ["AI automation", "workflow automation", "AI agency", "n8n", "make", "zapier", "digital transformation"],
+  alternates: { canonical: "https://www.digipexel.com/" },
   openGraph: {
     title: "Digi Pexel — AI Automation Agency",
     description: "We design reliable AI workflows that move data, decisions, and actions across your stack.",
     siteName: "Digi Pexel",
     type: "website",
+    url: "https://www.digipexel.com/",
   },
   icons: {
     icon: "/icon.svg",
@@ -52,13 +55,13 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Digi Pexel',
-              url: 'https://digipexel.cluxn.com',
-              logo: 'https://digipexel.cluxn.com/icon.svg',
+              url: 'https://www.digipexel.com',
+              logo: 'https://www.digipexel.com/icon.svg',
               description: 'AI automation and digital marketing agency for B2B decision makers',
               contactPoint: {
                 '@type': 'ContactPoint',
                 contactType: 'customer service',
-                url: 'https://digipexel.cluxn.com/contact-us',
+                url: 'https://www.digipexel.com/contact-us',
               },
               sameAs: [
                 'https://linkedin.com/company/digipexel',

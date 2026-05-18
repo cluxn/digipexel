@@ -34,6 +34,8 @@ frontend/.env.production.local
 
 # Backend
 backend/section_status.json
+backend/config.local.php
+frontend/local-db.json
 # backend/config.php (Ignored if you have sensitive data, but included for sample purposes)
 
 # Misc
@@ -43,3 +45,12 @@ yarn-error.log*
 .pnpm-debug.log*
 *.tsbuildinfo
 frontend/next-env.d.ts
+
+# Deployment artifacts
+deploy.zip
+FINAL_DEPLOY_PACKAGE/
+TEMP_DEPLOY/
+live_extract.php
+
+# Claude Code local settings
+.claude/

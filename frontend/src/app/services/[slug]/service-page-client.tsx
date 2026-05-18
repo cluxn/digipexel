@@ -46,6 +46,14 @@ type ServiceData = {
   gapRightItems: string[];
   features?: { title: string; description: string; icon: any }[];
   testimonials?: { quote: string; role: string; company?: string }[];
+  testimonialsCopy?: string;
+  marketImpact?: {
+    outcomesTitle: string;
+    outcomesTitleAccent: string;
+    outcomesCopy: string;
+    outcomesCards: [string, string, string, string, string][];
+    outcomesStats: [string, string][];
+  };
 };
 
 interface HeroSectionData {
@@ -161,8 +169,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Our brand citations in Perplexity and ChatGPT increased by 140% in just two months.", role: "CEO", company: "Nexus Tech" },
-      { quote: "The zero-click search visibility we've gained has been a game-changer for our organic traffic.", role: "Marketing Director", company: "Aura Media" }
-    ]
+      { quote: "The zero-click search visibility we've gained has been a game-changer for our organic traffic.", role: "Marketing Director", company: "Aura Media" },
+      { quote: "Digi Pexel mapped our entity authority gaps and closed them systematically. We now rank in AI answers we never appeared in before.", role: "Head of Growth", company: "ThinkSaaS" },
+      { quote: "GEO strategy turned our evergreen content into a citation engine. We're referenced in more AI answers than any of our direct competitors.", role: "Content Lead", company: "MarketVault" },
+    ],
+    testimonialsCopy: "Heard directly from teams who now win in the AI search era.",
+    marketImpact: {
+      outcomesTitle: "AI-driven visibility,",
+      outcomesTitleAccent: "proven organic outcomes",
+      outcomesCopy: "Our SEO clients gain measurable citation authority across AI-powered search engines and LLMs within 60 days.",
+      outcomesCards: [
+        ["Model citations increased 3x within 60 days of GEO strategy deployment.", "SearchLead", "B2B SaaS", "+340%", "AI Visibility"],
+        ["Zero-click organic traffic now accounts for 38% of our qualified inbound leads.", "VentureCore", "Enterprise", "38%", "AI Lead Share"],
+      ],
+      outcomesStats: [["+140%", "Citation Growth"], ["3.2x", "AI Answer Rate"], ["92%", "Entity Coverage"], ["60 Days", "Avg. Impact"]],
+    },
   },
   "custom-ai-solutions": {
     name: "Custom AI Solutions",
@@ -192,8 +213,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Digi Pexel built a custom RAG system that cut our document analysis time from hours to seconds.", role: "Head of Operations", company: "Fortress Law" },
-      { quote: "Our proprietary AI agent now handles 80% of our initial client intake with perfect accuracy.", role: "Founder", company: "ScaleUp" }
-    ]
+      { quote: "Our proprietary AI agent now handles 80% of our initial client intake with perfect accuracy.", role: "Founder", company: "ScaleUp" },
+      { quote: "The AI architecture they designed fit perfectly into our legacy stack. Zero disruption to existing operations.", role: "CTO", company: "DataBridge" },
+      { quote: "We launched a production AI system in 6 weeks. Every other vendor said 6 months minimum.", role: "VP Engineering", company: "CoreLogic" },
+    ],
+    testimonialsCopy: "Heard from teams operating their own custom AI systems in production.",
+    marketImpact: {
+      outcomesTitle: "Custom AI that transforms",
+      outcomesTitleAccent: "how you operate",
+      outcomesCopy: "Bespoke AI systems that connect your proprietary data to production-grade intelligent workflows.",
+      outcomesCards: [
+        ["Our document review AI cut 8 hours of legal analysis down to 12 minutes.", "Fortress Law", "Legal Tech", "97%", "Time Saved"],
+        ["Client intake AI handles 80% of initial discovery without any human intervention.", "ScaleUp", "SaaS", "80%", "Automation Rate"],
+      ],
+      outcomesStats: [["3x", "Delivery Speed"], ["+45%", "Ops Uplift"], ["80%", "Intake Automation"], ["4-6 Wks", "To Launch"]],
+    },
   },
   "youtube-automation": {
     name: "YouTube Automation",
@@ -223,8 +257,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Closing 8 channels a week used to be impossible. Now we do 12 with a smaller team.", role: "Channel Manager", company: "MediaFlow" },
-      { quote: "The AI scripting tool understands our audience better than we did. Retention is up 35%.", role: "Creative Director", company: "TubeFoundry" }
-    ]
+      { quote: "The AI scripting tool understands our audience better than we did. Retention is up 35%.", role: "Creative Director", company: "TubeFoundry" },
+      { quote: "Our upload consistency went from 40% to 92% the month we deployed the automation pipeline.", role: "Growth Director", company: "ViewLab" },
+      { quote: "Scripts, thumbnails, and scheduling all run on autopilot. Our team focuses entirely on on-camera performance now.", role: "Founder", company: "WaveContent" },
+    ],
+    testimonialsCopy: "Heard from creators and media teams who scaled without the burnout.",
+    marketImpact: {
+      outcomesTitle: "Content at scale,",
+      outcomesTitleAccent: "retention by design",
+      outcomesCopy: "Full-stack YouTube automation that turns raw ideas into published, optimised videos week after week.",
+      outcomesCards: [
+        ["We went from 3 uploads per month to 16. The pipeline handles everything after ideation.", "TubeFoundry", "Creator Economy", "5x", "Upload Frequency"],
+        ["Audience retention climbed 35% once we deployed the AI scripting and QA system.", "MediaFlow", "Digital Media", "+35%", "Retention Lift"],
+      ],
+      outcomesStats: [["12 hrs/wk", "Saved"], ["3x", "Output Lift"], ["+35%", "Retention"], ["92%", "Upload Consistency"]],
+    },
   },
   "instagram-automation": {
     name: "Instagram Automation",
@@ -254,8 +301,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Our engagement rate spiked 25% after automating our DM triage system.", role: "Social Lead", company: "Vibe Marketing" },
-      { quote: "We finally have an 'always-on' presence without hiring 3 more community managers.", role: "Founder", company: "GlowUp" }
-    ]
+      { quote: "We finally have an 'always-on' presence without hiring 3 more community managers.", role: "Founder", company: "GlowUp" },
+      { quote: "Reels scheduling, caption creation, and analytics tracking now happen without anyone lifting a finger.", role: "Brand Manager", company: "PulseMedia" },
+      { quote: "The automation is invisible to our followers — but the consistency and reach are unmistakable.", role: "CMO", company: "NovaBrand" },
+    ],
+    testimonialsCopy: "From brands that grew consistently with zero manual grind.",
+    marketImpact: {
+      outcomesTitle: "Instagram growth,",
+      outcomesTitleAccent: "powered by systems",
+      outcomesCopy: "Automated content, engagement, and analytics pipelines that keep your brand active and growing.",
+      outcomesCards: [
+        ["DM triage automation cut response time from 18 hours to under 2. Engagement spiked immediately.", "Vibe Marketing", "Social Agency", "-89%", "Response Time"],
+        ["Our Instagram presence is consistent for the first time — without a full-time manager on staff.", "GlowUp", "E-commerce", "9 hrs/wk", "Time Saved"],
+      ],
+      outcomesStats: [["+22%", "Engagement"], ["9 hrs/wk", "Saved"], ["2.6x", "Content Reuse"], ["90%", "Posting Rhythm"]],
+    },
   },
   "linkedin-automation": {
     name: "LinkedIn Automation",
@@ -285,8 +345,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "My LinkedIn profile views went from 200 to 5,000 a week. The authority we've built is massive.", role: "B2B Founder", company: "SaaS Rocket" },
-      { quote: "The outreach automation is so subtle—nobody knows it's a system, but the results are very real.", role: "Sales Director", company: "Prime Edge" }
-    ]
+      { quote: "The outreach automation is so subtle—nobody knows it's a system, but the results are very real.", role: "Sales Director", company: "Prime Edge" },
+      { quote: "Thought leadership content we used to spend 3 days writing now gets drafted and scheduled in under an hour.", role: "CEO", company: "BridgePoint" },
+      { quote: "LinkedIn went from a low-priority channel to our number one inbound pipeline source in 60 days.", role: "Growth Lead", company: "NorthStar" },
+    ],
+    testimonialsCopy: "From founders and sales leaders who turned LinkedIn into a reliable pipeline source.",
+    marketImpact: {
+      outcomesTitle: "LinkedIn presence that",
+      outcomesTitleAccent: "builds real pipeline",
+      outcomesCopy: "Systematic thought leadership and outreach automation that turns LinkedIn into a consistent lead source.",
+      outcomesCards: [
+        ["Profile views jumped from 200 to over 5,000 per week — in less than 90 days of deployment.", "SaaS Rocket", "B2B Founder", "25x", "Profile Views"],
+        ["The outreach sequences feel handwritten, but the entire pipeline is fully automated end-to-end.", "Prime Edge", "Sales Director", "+36%", "Inbound Leads"],
+      ],
+      outcomesStats: [["+36%", "Lead Lift"], ["+58%", "Authority"], ["4x", "Post Cadence"], ["6.1%", "Engagement Rate"]],
+    },
   },
   "automation-flows": {
     name: "Automation Flows",
@@ -316,8 +389,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Our data syncing issues used to cost us $10k a month. Now everything is perfectly in sync.", role: "CTO", company: "DataFirst" },
-      { quote: "The observability dashboards give us total peace of mind for our critical business flows.", role: "IT Manager", company: "SwiftCore" }
-    ]
+      { quote: "The observability dashboards give us total peace of mind for our critical business flows.", role: "IT Manager", company: "SwiftCore" },
+      { quote: "We connected 8 tools that had never talked to each other. The whole stack now runs as one system.", role: "Head of Ops", company: "FlowGrid" },
+      { quote: "Downtime alerts are resolved before we even notice. The automation is proactive, not reactive.", role: "Director of Engineering", company: "LinkOps" },
+    ],
+    testimonialsCopy: "From ops leaders who now run with full-stack reliability and zero manual handoffs.",
+    marketImpact: {
+      outcomesTitle: "Zero-friction operations,",
+      outcomesTitleAccent: "99% uptime guaranteed",
+      outcomesCopy: "Automation flows that integrate your entire tech stack into a single, observable, reliable system.",
+      outcomesCards: [
+        ["Data sync failures that cost us $10k/month are now completely eliminated across all systems.", "DataFirst", "Operations", "$120k", "Saved / Year"],
+        ["Real-time monitoring flags and resolves issues before any client or user is ever affected.", "SwiftCore", "IT Management", "99.2%", "Flow Uptime"],
+      ],
+      outcomesStats: [["-64%", "Manual Ops"], ["99.2%", "Flow Uptime"], ["$120k", "Cost Saved"], ["1.8s", "Avg Latency"]],
+    },
   },
   "ai-workflows": {
     name: "AI Workflows",
@@ -347,8 +433,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "The AI decision chains now handle 70% of our complex claims approvals.", role: "Operations Director", company: "InsurePlus" },
-      { quote: "Bridging human insight with AI reasoning has halved our processing time.", role: "Process Architect", company: "LogiNext" }
-    ]
+      { quote: "Bridging human insight with AI reasoning has halved our processing time.", role: "Process Architect", company: "LogiNext" },
+      { quote: "Our approval cycle that used to take 3 days now completes in under 4 hours with full audit trails.", role: "COO", company: "PolicyBridge" },
+      { quote: "The human-in-the-loop design is exactly right — AI handles volume, humans handle the exceptions.", role: "Head of Compliance", company: "TrustFlow" },
+    ],
+    testimonialsCopy: "From decision-makers who replaced manual logic with AI-driven intelligence.",
+    marketImpact: {
+      outcomesTitle: "Decision intelligence at",
+      outcomesTitleAccent: "enterprise scale",
+      outcomesCopy: "AI workflows that handle complex approvals, routing, and decisions with full auditability and control.",
+      outcomesCards: [
+        ["70% of our complex claims approvals now go through the AI decision chain with zero errors.", "InsurePlus", "Insurance", "70%", "Decision Automation"],
+        ["Cycle time for loan processing dropped 41% with our human-in-the-loop AI routing design.", "LogiNext", "Logistics", "-41%", "Cycle Time"],
+      ],
+      outcomesStats: [["-41%", "Cycle Time"], ["93%", "Decision Accuracy"], ["70%", "AI Coverage"], ["24/7", "Autonomous Ops"]],
+    },
   },
   "workflow-creation": {
     name: "Workflow Creation",
@@ -378,8 +477,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "The blueprints Digi Pexel mapped out revealed bottlenecks we never knew existed.", role: "COO", company: "Atlas Studio" },
-      { quote: "We finally have a scalable workflow architecture that doesn't break under pressure.", role: "Founder", company: "LaunchPoint" }
-    ]
+      { quote: "We finally have a scalable workflow architecture that doesn't break under pressure.", role: "Founder", company: "LaunchPoint" },
+      { quote: "Every process now has a defined owner, a measurable output, and an automation hook. It changed how we operate.", role: "Head of Delivery", company: "Catalyze" },
+      { quote: "For the first time, our documentation actually reflects how the business runs — not how we think it runs.", role: "Director of Ops", company: "PeakFlow" },
+    ],
+    testimonialsCopy: "From teams who now operate on documented, measurable, automated systems.",
+    marketImpact: {
+      outcomesTitle: "Processes that scale,",
+      outcomesTitleAccent: "workflows that hold",
+      outcomesCopy: "Purpose-built business workflows with documented ownership, measurable performance, and zero single points of failure.",
+      outcomesCards: [
+        ["The process blueprints revealed critical bottlenecks we had been blind to for over 2 years.", "Atlas Studio", "Creative Ops", "3", "Gaps Closed"],
+        ["We finally have a workflow architecture that survives rapid team growth without breaking down.", "LaunchPoint", "SaaS", "-32%", "Cycle Time"],
+      ],
+      outcomesStats: [["-32%", "Cycle Time"], ["74%", "Automation Fit"], ["88%", "Process Clarity"], ["6%", "Error Rate"]],
+    },
   },
   "accounting-bookkeeping": {
     name: "Accounting & Bookkeeping",
@@ -408,9 +520,22 @@ export const SERVICES: Record<string, ServiceData> = {
       { title: "Compliance Guard", description: "Automated audits that flag inconsistencies and ensure tax readiness year-round.", icon: ShieldCheck }
     ],
     testimonials: [
-      { quote: "Closing our month-end now takes 3 days instead of 12. Total transformaton.", role: "CFO", company: "Global Ledger" },
-      { quote: "The accuracy and speed of our automated reconciliation is beyond what we expected.", role: "Controller", company: "FinPath" }
-    ]
+      { quote: "Closing our month-end now takes 3 days instead of 12. Total transformation.", role: "CFO", company: "Global Ledger" },
+      { quote: "The accuracy and speed of our automated reconciliation is beyond what we expected.", role: "Controller", company: "FinPath" },
+      { quote: "AP approvals that used to require 4 sign-offs now route themselves. The team is free for strategic work.", role: "Finance Director", company: "Momentum Corp" },
+      { quote: "I can close the books without touching a spreadsheet. The automation is thorough, accurate, and fully auditable.", role: "Head of Finance", company: "ClearCount" },
+    ],
+    testimonialsCopy: "From finance leaders who closed the books in days, not weeks.",
+    marketImpact: {
+      outcomesTitle: "Month-end in days,",
+      outcomesTitleAccent: "not weeks",
+      outcomesCopy: "AI-powered reconciliation and reporting that eliminates manual accounting overhead and ensures year-round compliance.",
+      outcomesCards: [
+        ["Month-end close dropped from 12 days to 3. The reconciliation process now runs itself completely.", "Global Ledger", "Finance", "-75%", "Close Time"],
+        ["Our automated AP pipeline caught a $40k duplicate payment in the very first week of deployment.", "FinPath", "Accounting", "$40k", "Error Caught"],
+      ],
+      outcomesStats: [["-40%", "Close Time"], ["99%", "Accuracy"], ["-70%", "Manual Entries"], ["3 Days", "Avg Close"]],
+    },
   },
   "hiring-recruitment": {
     name: "Hiring & Recruitment",
@@ -440,8 +565,21 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Our cost-per-hire dropped 40% while our candidate quality actually improved.", role: "HR Director", company: "ScaleRecruit" },
-      { quote: "The AI screening process has saved our team hundreds of hours in top-of-funnel work.", role: "Talent Lead", company: "Innovate Hub" }
-    ]
+      { quote: "The AI screening process has saved our team hundreds of hours in top-of-funnel work.", role: "Talent Lead", company: "Innovate Hub" },
+      { quote: "We used to take 45 days to fill a role. Now we're averaging 28 days with a better calibre of hire.", role: "Head of HR", company: "Buildfast" },
+      { quote: "Candidate communication is consistent and professional at high volume. Applicants love the experience.", role: "Talent Acquisition Manager", company: "RisePath" },
+    ],
+    testimonialsCopy: "From talent teams that hire faster without sacrificing candidate quality.",
+    marketImpact: {
+      outcomesTitle: "Hire faster,",
+      outcomesTitleAccent: "with better candidates",
+      outcomesCopy: "AI-driven sourcing, screening, and outreach pipelines that fill roles faster without compromising on quality.",
+      outcomesCards: [
+        ["Cost-per-hire dropped 40% while hire quality scores actually improved across all open roles.", "ScaleRecruit", "HR Tech", "-40%", "Cost Per Hire"],
+        ["AI screening handles 80% of top-of-funnel review, saving hundreds of hours per month.", "Innovate Hub", "Talent Ops", "80%", "Screening Automated"],
+      ],
+      outcomesStats: [["-35%", "Time-to-Hire"], ["+48%", "Qualified Leads"], ["82%", "Offer Acceptance"], ["2h", "Response Time"]],
+    },
   },
   "sales-automation": {
     name: "Sales Automation",
@@ -471,12 +609,25 @@ export const SERVICES: Record<string, ServiceData> = {
     ],
     testimonials: [
       { quote: "Our sales reps are spending 90% of their time on 'hot' leads now. Conversion is at an all-time high.", role: "VP Sales", company: "CloudScale" },
-      { quote: "Automating our follow-up sequences has ensured no lead ever falls through the cracks again.", role: "Founder", company: "Apex Systems" }
-    ]
+      { quote: "Automating our follow-up sequences has ensured no lead ever falls through the cracks again.", role: "Founder", company: "Apex Systems" },
+      { quote: "CRM hygiene used to be a quarterly nightmare. Now it's clean in real-time and the pipeline is always accurate.", role: "Sales Ops Manager", company: "ProPipe" },
+      { quote: "We launched a 12-step nurture sequence in a single day. What used to take weeks now deploys instantly.", role: "Revenue Lead", company: "GrowthStack" },
+    ],
+    testimonialsCopy: "From sales leaders who turned automation into their biggest growth lever.",
+    marketImpact: {
+      outcomesTitle: "Close more deals,",
+      outcomesTitleAccent: "without more reps",
+      outcomesCopy: "Automated follow-up, lead scoring, and CRM hygiene that keeps your pipeline clean and conversion rates consistently high.",
+      outcomesCards: [
+        ["Sales reps now spend 90% of their time on hot leads only. Conversion is at an all-time high.", "CloudScale", "B2B SaaS", "+29%", "Conversion Lift"],
+        ["No lead falls through the cracks. The follow-up system runs itself from first touch to close.", "Apex Systems", "Sales Ops", "0", "Missed Leads"],
+      ],
+      outcomesStats: [["+29%", "Conversion"], ["-45%", "Response Time"], ["94%", "Lead Score Accuracy"], ["-38%", "Stale Deals"]],
+    },
   },
 };
 
-const DEFAULT_SECTIONS = {
+export const DEFAULT_SECTIONS = {
   platformTitle: "Everything you need to",
   platformTitleAccent: "scale this service",
   platformCopy: "A connected system that removes manual friction and keeps performance visible through every stage of growth.",
@@ -556,7 +707,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
           if (res.data.cta)           setCtaData(res.data.cta);
           if (res.data.testimonials)  setTestimonialsData(res.data.testimonials);
         }
-      });
+      }).catch(() => {});
   }, [slug]);
 
   useEffect(() => {
@@ -569,7 +720,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
         if (serviceOnes.length > 0) setSharedTestimonials(serviceOnes);
       }
     }
-    fetchSharedTestimonials();
+    fetchSharedTestimonials().catch(() => {});
   }, []);
 
   return (
@@ -585,7 +736,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
               <Badge variant="outline" className="section-eyebrow mb-6">
                 {heroData.badge ?? staticData.badge}
               </Badge>
-              <h1 className="hero-title mb-6 leading-[1.05]">
+              <h1 className="text-4xl md:text-5xl lg:text-[2.5rem] xl:text-5xl font-display font-bold leading-[1.1] tracking-tight mb-6">
                 {heroData.heroLine1 ?? staticData.heroLine1} <br />
                 <span className="hero-title-accent">{heroData.heroLine2 ?? staticData.heroLine2}</span>
               </h1>
@@ -652,7 +803,8 @@ export function ServicePageClient({ slug }: { slug: string }) {
               The Reality Check
             </Badge>
             <h2 className="text-3xl md:text-5xl font-display font-bold text-primary max-w-3xl mx-auto leading-tight">
-               {staticData.gapHeading}
+              {staticData.gapHeading.split(" and ")[0]} and{" "}
+              <span className="section-title-accent">{staticData.gapHeading.split(" and ").slice(1).join(" and ")}</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -805,15 +957,15 @@ export function ServicePageClient({ slug }: { slug: string }) {
               Market Impact
             </Badge>
             <h2 className="section-title">
-              {marketData.outcomesTitle ?? DEFAULT_SECTIONS.outcomesTitle} <br />
-              <span className="section-title-accent">{marketData.outcomesTitleAccent ?? DEFAULT_SECTIONS.outcomesTitleAccent}</span>
+              {marketData.outcomesTitle ?? staticData.marketImpact?.outcomesTitle ?? DEFAULT_SECTIONS.outcomesTitle} <br />
+              <span className="section-title-accent">{marketData.outcomesTitleAccent ?? staticData.marketImpact?.outcomesTitleAccent ?? DEFAULT_SECTIONS.outcomesTitleAccent}</span>
             </h2>
-            <p className="section-subtitle max-w-2xl mx-auto">{marketData.outcomesCopy ?? DEFAULT_SECTIONS.outcomesCopy}</p>
+            <p className="section-subtitle max-w-2xl mx-auto">{marketData.outcomesCopy ?? staticData.marketImpact?.outcomesCopy ?? DEFAULT_SECTIONS.outcomesCopy}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {(marketData.cards
               ? marketData.cards.map((c) => [c.quote, c.company, c.sector, c.metricValue, c.metricLabel] as [string, string, string, string, string])
-              : DEFAULT_SECTIONS.outcomesCards
+              : (staticData.marketImpact?.outcomesCards ?? DEFAULT_SECTIONS.outcomesCards)
             ).map(([quote, company, sector, value, label]) => (
               <div key={quote} className="group rounded-[3rem] border border-border-subtle bg-surface p-12 transition-all hover:border-brand/20 shadow-sm hover:shadow-2xl">
                 <div className="mb-8 p-3 rounded-full bg-slate-50 w-fit">
@@ -842,7 +994,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
             {(marketData.stats
               ? marketData.stats.map((s) => [s.value, s.label] as [string, string])
-              : DEFAULT_SECTIONS.outcomesStats
+              : (staticData.marketImpact?.outcomesStats ?? DEFAULT_SECTIONS.outcomesStats)
             ).map(([value, label]) => (
               <div key={value} className="bg-white/50 border border-border-subtle rounded-3xl p-8 text-center group hover:bg-brand hover:border-brand transition-all duration-500">
                 <p className="text-4xl font-display font-black text-primary group-hover:text-white transition-colors">{value}</p>
@@ -861,12 +1013,12 @@ export function ServicePageClient({ slug }: { slug: string }) {
               Real Intelligence
             </Badge>
             <h2 className="section-title">
-              What our clients <span className="section-title-accent">say</span>
+              What our clients<br /><span className="section-title-accent">say</span>
             </h2>
-            <p className="section-subtitle max-w-2xl mx-auto">{DEFAULT_SECTIONS.testimonialsCopy}</p>
+            <p className="section-subtitle max-w-2xl mx-auto">{staticData.testimonialsCopy ?? DEFAULT_SECTIONS.testimonialsCopy}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(sharedTestimonials.length > 0 ? sharedTestimonials : (testimonialsData.items ?? staticData.testimonials ?? DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" })))).map((t: any, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {(sharedTestimonials.length > 0 ? sharedTestimonials : (testimonialsData.items ?? staticData.testimonials ?? DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" })))).slice(0, 3).map((t: any, idx) => (
               <div key={idx} className="group relative rounded-[3rem] border border-border-subtle bg-white p-10 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500 flex flex-col h-full overflow-hidden">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative mb-8">

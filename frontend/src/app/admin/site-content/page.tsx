@@ -79,12 +79,12 @@ const DEFAULT_HERO: HeroContent = {
   ctaText: "Book a Strategy Call",
   ctaHref: "/contact-us",
   iconSlots: [
-    { slot: 1, icon: "openai",    label: "OpenAI"    },
-    { slot: 2, icon: "n8n",       label: "n8n"       },
-    { slot: 3, icon: "zapier",    label: "Zapier"    },
-    { slot: 4, icon: "make",      label: "Make"      },
-    { slot: 5, icon: "anthropic", label: "Anthropic" },
-    { slot: 6, icon: "slack",     label: "Slack"     },
+    { slot: 1, icon: "https://cdn.simpleicons.org/google",           label: "Google"    },
+    { slot: 2, icon: "/openai.svg",                                  label: "OpenAI"    },
+    { slot: 3, icon: "https://cdn.simpleicons.org/n8n",              label: "n8n"       },
+    { slot: 4, icon: "https://cdn.simpleicons.org/zapier",           label: "Zapier"    },
+    { slot: 5, icon: "https://cdn.simpleicons.org/make",             label: "Make"      },
+    { slot: 6, icon: "https://cdn.simpleicons.org/anthropic/ffffff", label: "Anthropic" },
   ],
 };
 
@@ -212,15 +212,27 @@ export default function AdminSiteContentPage() {
       }
       if (navRes?.status === "success" && navRes.data) {
         setNavContent(navRes.data as NavContent);
+      } else {
+        const local = localStorage.getItem("PREVIEW_nav");
+        if (local) try { setNavContent(JSON.parse(local)); } catch {}
       }
       if (statsRes?.status === "success" && statsRes.data) {
         setStatsContent(statsRes.data as StatsContent);
+      } else {
+        const local = localStorage.getItem("PREVIEW_stats");
+        if (local) try { setStatsContent(JSON.parse(local)); } catch {}
       }
       if (footerRes?.status === "success" && footerRes.data) {
         setFooterContent(footerRes.data as FooterContent);
+      } else {
+        const local = localStorage.getItem("PREVIEW_footer");
+        if (local) try { setFooterContent(JSON.parse(local)); } catch {}
       }
       if (problemRes?.status === "success" && problemRes.data) {
         setProblemContent(problemRes.data as ProblemContent);
+      } else {
+        const local = localStorage.getItem("PREVIEW_problem");
+        if (local) try { setProblemContent(JSON.parse(local)); } catch {}
       }
 
       setLoading(false);
@@ -327,12 +339,12 @@ export default function AdminSiteContentPage() {
 
         {/* API unavailable banner */}
         {apiError && (
-          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
-            <span className="text-amber-500 text-lg leading-none mt-0.5">⚠</span>
+          <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-4">
+            <span className="text-blue-500 text-lg leading-none mt-0.5">ℹ</span>
             <div>
-              <p className="text-sm font-semibold text-amber-800">Backend API unreachable</p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Could not load saved content — showing defaults. Deploy the backend to enable saving.
+              <p className="text-sm font-semibold text-blue-800">Working in local mode</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Backend not connected — changes are saved locally in your browser and will sync when you deploy.
               </p>
             </div>
           </div>
@@ -431,53 +443,69 @@ export default function AdminSiteContentPage() {
               <p className={labelCls}>Floating Icon Slots (6)</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
                 {heroContent.iconSlots.map((slot, i) => {
-                  const isCustomUrl = slot.icon.startsWith('http') || slot.icon.startsWith('/');
+                  const isCustom =
+                    slot.icon.startsWith('http') ||
+                    slot.icon.startsWith('/') ||
+                    slot.icon.startsWith('data:');
+                  const isDataUrl = slot.icon.startsWith('data:');
                   return (
                   <div key={slot.slot} className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 space-y-3">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Icon Slot {slot.slot}</p>
 
-                    {/* Preset icon picker */}
-                    <div>
-                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">Preset Icon</label>
-                      <div className="flex items-center gap-3">
-                        {/* Preview — SVG component or custom image */}
-                        {isCustomUrl ? (
-                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0">
-                            <img src={slot.icon} alt="" className="w-5 h-5 object-contain" />
-                          </span>
+                    {/* Preview */}
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 flex-shrink-0 overflow-hidden">
+                        {isCustom ? (
+                          <img src={slot.icon} alt="" className="w-6 h-6 object-contain" />
                         ) : (() => {
                           const IconComponent = ICON_REGISTRY[slot.icon];
-                          return IconComponent ? (
-                            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0">
-                              <IconComponent width={20} height={20} />
-                            </span>
-                          ) : null;
+                          return IconComponent ? <IconComponent width={22} height={22} /> : null;
                         })()}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                          {isDataUrl ? "Custom upload" : isCustom ? "Custom URL" : slot.icon}
+                        </p>
+                        <p className="text-[9px] text-slate-400 truncate">
+                          {isDataUrl ? "File uploaded — save to persist" : isCustom ? slot.icon.slice(0, 40) + "…" : slot.label}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Preset picker — hidden when custom image is set */}
+                    {!isCustom && (
+                      <div>
+                        <label className="block text-[9px] text-slate-400 mb-1 ml-1">Preset Icon</label>
                         <select
-                          value={isCustomUrl ? "" : slot.icon}
+                          value={slot.icon}
                           onChange={(e) => updateIconSlot(i, "icon", e.target.value)}
-                          disabled={isCustomUrl}
-                          className={inputCls + " flex-1" + (isCustomUrl ? " opacity-40" : "")}
+                          className={inputCls}
                         >
-                          {isCustomUrl && <option value="">— custom image —</option>}
                           {ICON_OPTIONS.map((opt) => (
                             <option key={opt} value={opt}>{opt}</option>
                           ))}
                         </select>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Custom image upload */}
+                    {/* Custom image — URL input + file upload */}
                     <div className="space-y-1.5">
-                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">Custom Image (overrides preset)</label>
-                      <div className="flex gap-2">
+                      <label className="block text-[9px] text-slate-400 mb-1 ml-1">
+                        Custom Image {isCustom ? "(active)" : "(overrides preset)"}
+                      </label>
+                      {!isDataUrl && (
                         <input
                           type="text"
                           placeholder="Paste image URL…"
-                          value={isCustomUrl ? slot.icon : ""}
-                          onChange={(e) => updateIconSlot(i, "icon", e.target.value || ICON_OPTIONS[0])}
-                          className={inputCls + " flex-1 text-xs"}
+                          value={isCustom && !isDataUrl ? slot.icon : ""}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            updateIconSlot(i, "icon", val || ICON_OPTIONS[0]);
+                          }}
+                          className={inputCls + " text-xs"}
                         />
+                      )}
+                      <div className="flex gap-2">
                         <input
                           ref={iconFileRefs[i]}
                           type="file"
@@ -493,14 +521,14 @@ export default function AdminSiteContentPage() {
                           type="button"
                           onClick={() => iconFileRefs[i].current?.click()}
                           disabled={uploadingSlot === i}
-                          className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-brand/10 text-brand hover:bg-brand/20 rounded-xl transition-all flex-shrink-0 disabled:opacity-50"
+                          className="flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-brand/10 text-brand hover:bg-brand/20 rounded-xl transition-all disabled:opacity-50"
                         >
-                          {uploadingSlot === i ? "…" : "Upload"}
+                          {uploadingSlot === i ? "Reading…" : isDataUrl ? "Replace File" : "Upload File"}
                         </button>
-                        {isCustomUrl && (
+                        {isCustom && (
                           <button
                             type="button"
-                            onClick={() => updateIconSlot(i, "icon", ICON_OPTIONS[0])}
+                            onClick={() => updateIconSlot(i, "icon", ICON_OPTIONS[i] ?? ICON_OPTIONS[0])}
                             className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-rose-50 text-rose-400 hover:bg-rose-100 rounded-xl transition-all flex-shrink-0"
                           >
                             Reset

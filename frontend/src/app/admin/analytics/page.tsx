@@ -18,7 +18,7 @@ export default function AdminAnalyticsPage() {
   useEffect(() => {
     api.get("analytics").then(res => {
       if (res?.status === "success" && res.data) {
-        setCodes(prev => ({ ...prev, ...res.data }));
+        setCodes(prev => ({ ...prev, ...(res.data as typeof prev) }));
       }
     }).finally(() => setLoading(false));
   }, []);

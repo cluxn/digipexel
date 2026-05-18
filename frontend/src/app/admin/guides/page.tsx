@@ -1,62 +1,146 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Plus, Trash2, Save, MoveUp, MoveDown, ChevronDown, ChevronUp,
-  Image as ImageIcon, BookOpen, Tag, ExternalLink, AlignLeft,
+  Plus, Trash2, MoveUp, MoveDown,
+  Image as ImageIcon, Upload,
+  ChevronDown, ChevronUp,
+  ArrowLeft, Eye, Pencil, Search,
 } from "lucide-react";
-import { safeFetch } from "@/lib/utils";
+import { safeFetch, cn, uploadFile } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import AdminLayout from "@/components/admin/admin-layout";
+import RichBodyEditor from "@/components/admin/rich-body-editor";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface Chapter { title: string; desc: string; }
 
 interface Guide {
   id?: number;
   title: string;
   slug: string;
+  subtitle: string;
   description: string;
   content: string;
   image_url: string;
+  image_size: "sm" | "md" | "lg";
   category: string;
   cta_label: string;
   cta_link: string;
+  file_url: string;
+  pages_count: string;
+  format: string;
+  chapters: Chapter[];
+  benefits: string[];
   position: number;
+  meta_title: string;
+  meta_description: string;
+  status: "published" | "draft";
+  published_at: string;
+  scheduled_at: string;
+  author_name: string;
 }
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/, "");
 }
 
+function serializeContent(g: Guide): string {
+  return JSON.stringify({
+    subtitle:     g.subtitle,
+    file_url:     g.file_url,
+    pages_count:  g.pages_count,
+    format:       g.format,
+    image_size:   g.image_size,
+    chapters:     g.chapters,
+    benefits:     g.benefits,
+  });
+}
+
+function expandGuide(raw: Record<string, unknown>): Guide {
+  let s: Record<string, unknown> = {};
+  try { s = JSON.parse((raw.content as string) || "{}"); } catch {}
+  return {
+    ...raw,
+    subtitle:    s.subtitle    ?? raw.subtitle    ?? "",
+    file_url:    s.file_url    ?? raw.file_url    ?? "",
+    pages_count: s.pages_count ?? raw.pages_count ?? "",
+    format:      s.format      ?? raw.format      ?? "PDF",
+    image_size:  s.image_size  ?? raw.image_size  ?? "md",
+    chapters:    s.chapters    ?? raw.chapters     ?? [],
+    benefits:    s.benefits    ?? raw.benefits     ?? [],
+    meta_title:       raw.meta_title       ?? "",
+    meta_description: raw.meta_description ?? "",
+    status:       ((raw.status as string) || "draft") as Guide["status"],
+    author_name:  (raw.author_name  as string) || "Digi Pexel Team",
+    published_at: (raw.published_at as string) ?? "",
+    scheduled_at: (raw.scheduled_at as string) ?? "",
+  } as Guide;
+}
+
+// ── Defaults ──────────────────────────────────────────────────────────────────
 const defaultGuide = (): Guide => ({
-  title: "New Guide",
-  slug: "new-guide-" + Date.now(),
-  description: "",
-  content: "",
-  image_url: "",
-  category: "Strategy",
-  cta_label: "Read the Guide",
-  cta_link: "#",
-  position: 0,
+  title: "", slug: "",
+  subtitle: "", description: "", content: "",
+  image_url: "", image_size: "md", category: "Strategy",
+  cta_label: "Download the Guide", cta_link: "#",
+  file_url: "", pages_count: "", format: "PDF",
+  chapters: [], benefits: [], position: 0,
+  meta_title: "", meta_description: "",
+  status: "draft",
+  published_at: new Date().toISOString().slice(0, 10),
+  scheduled_at: "",
+  author_name: "Digi Pexel Team",
 });
 
+// ── Seed fallback ─────────────────────────────────────────────────────────────
+const SEED_GUIDES: Guide[] = [
+  { id: 1, title: "The AI Automation Roadmap: A 12-Month Playbook for B2B Teams", slug: "ai-automation-roadmap-12-month", subtitle: "Step-by-step framework for deploying AI workflows", description: "A step-by-step framework for auditing your operations, identifying high-ROI automation opportunities, and building a deployment plan.", content: "", image_url: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800", image_size: "md", category: "Strategy", cta_label: "Download the Roadmap", cta_link: "#", file_url: "", pages_count: "42", format: "PDF", chapters: [{ title: "Why Automation Projects Fail", desc: "The 5 common mistakes and how to avoid them." }], benefits: ["Identify your top automation opportunities"], position: 0, meta_title: "", meta_description: "", status: "published", published_at: "2025-01-15", scheduled_at: "", author_name: "Digi Pexel Team" },
+  { id: 2, title: "GEO vs SEO: The Complete Guide to Getting Your Brand Cited by AI", slug: "geo-vs-seo-ai-citation-guide", subtitle: "Win in the AI answer era", description: "Everything B2B marketing leaders need to know about Generative Engine Optimisation.", content: "", image_url: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&q=80&w=800", image_size: "md", category: "SEO", cta_label: "Download the Guide", cta_link: "#", file_url: "", pages_count: "44", format: "PDF", chapters: [{ title: "Why GEO Matters Now", desc: "How AI search is replacing traditional rankings." }], benefits: ["Understand why your content gets cited by AI"], position: 1, meta_title: "", meta_description: "", status: "published", published_at: "2025-02-10", scheduled_at: "", author_name: "Digi Pexel Team" },
+];
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function AdminGuidesPage() {
-  const [guides, setGuides] = useState<Guide[]>([]);
+  const [guides, setGuides]   = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<number | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [apiError, setApiError] = useState(false);
+  const [saving, setSaving]   = useState(false);
+  const [view, setView]       = useState<"list" | "edit">("list");
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [search, setSearch]   = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo]     = useState("");
 
   useEffect(() => { fetchGuides(); }, []);
 
   const fetchGuides = async () => {
     try {
       const data = await safeFetch(`${API_BASE_URL}/guides.php?admin=1`);
-      if (data && data.status === "success") setGuides(data.data);
-    } catch {}
+      if (data?.status === "success") { setGuides((data.data as Record<string, unknown>[]).map(expandGuide)); setApiError(false); }
+      else { setGuides(SEED_GUIDES); setApiError(true); }
+    } catch { setGuides(SEED_GUIDES); setApiError(true); }
     finally { setLoading(false); }
   };
 
-  const addGuide = () => {
-    const g = defaultGuide();
-    setGuides(prev => [...prev, g]);
-    setExpandedId(g.slug);
+  const editIdx = editKey ? guides.findIndex(g => (g.id ? String(g.id) : g.slug) === editKey) : -1;
+  const editGuide = editIdx >= 0 ? guides[editIdx] : null;
+
+  const openNew = () => {
+    const ng = defaultGuide();
+    const key = "new-" + Date.now();
+    ng.slug = key;
+    setGuides(prev => [ng, ...prev]);
+    setEditKey(key);
+    setShowAdvanced(false);
+    setView("edit");
+  };
+
+  const openEdit = (key: string) => {
+    setEditKey(key);
+    setShowAdvanced(false);
+    setView("edit");
   };
 
   const updateGuide = (idx: number, patch: Partial<Guide>) => {
@@ -67,178 +151,453 @@ export default function AdminGuidesPage() {
     if (!confirm("Delete this guide?")) return;
     const g = guides[idx];
     if (g.id) {
-      fetch(`${API_BASE_URL}/guides.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete_guide", id: g.id }),
-      });
+      fetch(`${API_BASE_URL}/guides.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_guide", id: g.id }) });
     }
     setGuides(prev => prev.filter((_, i) => i !== idx));
+    if (view === "edit") setView("list");
   };
 
-  const saveGuide = async (idx: number) => {
-    const g = guides[idx];
-    setSaving(idx);
+  const saveGuide = async () => {
+    if (!editGuide || editIdx < 0) return;
+    if (!editGuide.title.trim()) { alert("Title is required."); return; }
+    setSaving(true);
     try {
+      const payload = { ...editGuide, content: serializeContent(editGuide) };
       const data = await safeFetch(`${API_BASE_URL}/guides.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "save_guide", guide: g }),
+        body: JSON.stringify({ action: "save_guide", guide: payload }),
       });
-      if (data && data.status === "success") {
-        if (!g.id && data.id) updateGuide(idx, { id: data.id });
-      }
-    } catch {}
-    finally { setSaving(null); }
+      if (data?.status === "success") {
+        if (!editGuide.id && data.id) updateGuide(editIdx, { id: data.id as number });
+        alert("Saved successfully!");
+      } else { alert("Save failed: " + (data?.message ?? "Unknown error")); }
+    } catch { alert("Connection error."); }
+    finally { setSaving(false); }
   };
 
-  const moveGuide = (idx: number, dir: "up" | "down") => {
-    if (dir === "up" && idx === 0) return;
-    if (dir === "down" && idx === guides.length - 1) return;
-    const n = [...guides];
-    const t = dir === "up" ? idx - 1 : idx + 1;
-    [n[idx], n[t]] = [n[t], n[idx]];
-    setGuides(n);
-  };
+  const categories = Array.from(new Set(guides.map(g => g.category).filter(Boolean)));
 
-  if (loading) return <AdminLayout><div className="p-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Guides...</div></AdminLayout>;
+  const filtered = guides.filter(g => {
+    if (!g.title.toLowerCase().includes(search.toLowerCase())) return false;
+    if (catFilter !== "all" && g.category !== catFilter) return false;
+    if (statusFilter !== "all" && (g.status || "draft") !== statusFilter) return false;
+    if (dateFrom && g.published_at && g.published_at < dateFrom) return false;
+    if (dateTo   && g.published_at && g.published_at > dateTo)   return false;
+    return true;
+  });
 
+  if (loading) return <AdminLayout><div className="p-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Loading…</div></AdminLayout>;
+
+  // ── EDIT VIEW ────────────────────────────────────────────────────────────────
+  if (view === "edit" && editGuide && editIdx >= 0) {
+    const g = editGuide;
+    const idx = editIdx;
+    const isNew = !g.id;
+
+    return (
+      <AdminLayout>
+        <div className="pb-32 max-w-2xl mx-auto">
+
+          {/* Top bar */}
+          <div className="flex items-center gap-3 mb-8 flex-wrap">
+            <button onClick={() => setView("list")} className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Guides
+            </button>
+            <span className="text-slate-300">/</span>
+            <span className="text-sm text-slate-700 truncate max-w-xs">{g.title || (isNew ? "New Guide" : "Edit Guide")}</span>
+            <div className="ml-auto flex items-center gap-2">
+              <button onClick={() => setView("list")} className="px-4 py-2 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                Cancel <kbd className="text-[10px] text-slate-400 ml-1">Esc</kbd>
+              </button>
+              <a href={`/guides/${g.id ?? g.slug}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <Eye className="w-3.5 h-3.5" /> Preview
+              </a>
+              <button onClick={saveGuide} disabled={saving}
+                className="flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all disabled:opacity-50">
+                {isNew ? "Create Guide" : "Save Guide"}
+              </button>
+            </div>
+          </div>
+
+          {/* Form */}
+          <div className="space-y-6">
+
+            {/* Title */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
+              <input
+                value={g.title}
+                onChange={e => updateGuide(idx, { title: e.target.value, slug: g.id ? g.slug : slugify(e.target.value) })}
+                placeholder="Guide title"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
+              />
+            </div>
+
+            {/* Slug */}
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5">Slug <span className="italic">(auto-generated from title; edit to customize)</span></label>
+              <input
+                value={g.slug}
+                onChange={e => updateGuide(idx, { slug: e.target.value })}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono text-slate-600 focus:outline-none focus:border-brand bg-white"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+              <textarea
+                value={g.description}
+                onChange={e => updateGuide(idx, { description: e.target.value })}
+                placeholder="Short summary shown in guide listings…"
+                rows={3}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
+              />
+            </div>
+
+            {/* Cover Image */}
+            <UploadImageField label="Cover Image" value={g.image_url} onChange={v => updateGuide(idx, { image_url: v })} />
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
+              <input
+                list="guide-cats"
+                value={g.category}
+                onChange={e => updateGuide(idx, { category: e.target.value })}
+                placeholder="Strategy, SEO, Operations…"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
+              />
+              <datalist id="guide-cats">
+                {categories.map(c => <option key={c} value={c} />)}
+              </datalist>
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
+              <select
+                value={g.status || "draft"}
+                onChange={e => updateGuide(idx, { status: e.target.value as Guide["status"] })}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+
+            {/* Publish Date + Author */}
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Publish Date" value={g.published_at} type="date" onChange={v => updateGuide(idx, { published_at: v })} />
+              <Field label="Author Name" value={g.author_name} onChange={v => updateGuide(idx, { author_name: v })} placeholder="Digi Pexel Team" />
+            </div>
+
+            {/* Scheduled At */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Scheduled At <span className="text-xs font-normal text-slate-400">(optional)</span></label>
+              <input
+                type="datetime-local"
+                value={g.scheduled_at || ""}
+                onChange={e => updateGuide(idx, { scheduled_at: e.target.value })}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
+              />
+            </div>
+
+            {/* Meta Title */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Meta Title <span className="text-xs font-normal text-slate-400">(SEO — defaults to title if blank)</span>
+              </label>
+              <input value={g.meta_title} onChange={e => updateGuide(idx, { meta_title: e.target.value })} placeholder="SEO page title" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+            </div>
+
+            {/* Meta Description */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Meta Description <span className="text-xs font-normal text-brand">(SEO)</span>
+              </label>
+              <textarea value={g.meta_description} onChange={e => updateGuide(idx, { meta_description: e.target.value })} placeholder="Brief description for search engines (150–160 characters)…" rows={3} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
+            </div>
+
+            {/* Body */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
+              <RichBodyEditor value={g.content} onChange={v => updateGuide(idx, { content: v })} />
+            </div>
+
+            {/* Advanced toggle */}
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 border border-slate-200 rounded-xl px-4 py-3 w-full transition-colors"
+            >
+              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              Advanced options
+              <span className="ml-auto text-xs text-slate-400 hidden sm:block">Chapters · Benefits · Download · CTA</span>
+            </button>
+
+            {showAdvanced && (
+              <div className="space-y-6 border border-slate-200 rounded-2xl p-6 bg-slate-50/30">
+
+                {/* Subtitle */}
+                <Field label="Subtitle" value={g.subtitle} onChange={v => updateGuide(idx, { subtitle: v })} placeholder="A hook line shown under the title" />
+
+                {/* Format + Pages */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="field-label">Format</label>
+                    <select value={g.format} onChange={e => updateGuide(idx, { format: e.target.value })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1">
+                      <option value="PDF">PDF</option>
+                      <option value="Video">Video</option>
+                      <option value="Spreadsheet">Spreadsheet</option>
+                      <option value="Template">Template</option>
+                    </select>
+                  </div>
+                  <Field label="Pages / Length" value={g.pages_count} onChange={v => updateGuide(idx, { pages_count: v })} placeholder="42" />
+                </div>
+
+                {/* Download URL + CTA */}
+                <Field label="Download / File URL" value={g.file_url} onChange={v => updateGuide(idx, { file_url: v })} placeholder="https://…" />
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="CTA Button Label" value={g.cta_label} onChange={v => updateGuide(idx, { cta_label: v })} placeholder="Download the Guide" />
+                  <Field label="CTA Button Link" value={g.cta_link} onChange={v => updateGuide(idx, { cta_link: v })} placeholder="#" />
+                </div>
+
+                {/* Image Size */}
+                <div>
+                  <label className="field-label">Cover Image Display Size</label>
+                  <select value={g.image_size} onChange={e => updateGuide(idx, { image_size: e.target.value as Guide["image_size"] })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1">
+                    <option value="sm">Small</option>
+                    <option value="md">Medium</option>
+                    <option value="lg">Large</option>
+                  </select>
+                </div>
+
+                {/* Chapters */}
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Chapters / Sections ({g.chapters.length})</p>
+                  <div className="space-y-2 mb-3">
+                    {g.chapters.map((ch, ci) => (
+                      <div key={ci} className="border border-slate-200 rounded-xl p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chapter {ci + 1}</span>
+                          <div className="flex gap-1">
+                            <button onClick={() => { if(ci===0) return; const c=[...g.chapters];[c[ci],c[ci-1]]=[c[ci-1],c[ci]];updateGuide(idx,{chapters:c}); }} className="p-1 rounded bg-slate-100 text-slate-400 hover:text-brand"><MoveUp className="w-3 h-3"/></button>
+                            <button onClick={() => { if(ci===g.chapters.length-1) return; const c=[...g.chapters];[c[ci],c[ci+1]]=[c[ci+1],c[ci]];updateGuide(idx,{chapters:c}); }} className="p-1 rounded bg-slate-100 text-slate-400 hover:text-brand"><MoveDown className="w-3 h-3"/></button>
+                            <button onClick={() => updateGuide(idx,{chapters:g.chapters.filter((_,i)=>i!==ci)})} className="p-1 rounded bg-red-50 text-red-400 hover:bg-red-500 hover:text-white"><Trash2 className="w-3 h-3"/></button>
+                          </div>
+                        </div>
+                        <Field label="Chapter Title" value={ch.title} onChange={v=>{const c=[...g.chapters];c[ci]={...c[ci],title:v};updateGuide(idx,{chapters:c});}} placeholder="Introduction to AI Automation" />
+                        <Field label="Description" value={ch.desc} onChange={v=>{const c=[...g.chapters];c[ci]={...c[ci],desc:v};updateGuide(idx,{chapters:c});}} placeholder="What readers will learn…" />
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => updateGuide(idx,{chapters:[...g.chapters,{title:"",desc:""}]})} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
+                    <Plus className="w-3.5 h-3.5" /> Add Chapter
+                  </button>
+                </div>
+
+                {/* Benefits */}
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Key Benefits / Takeaways</p>
+                  <div className="space-y-2 mb-3">
+                    {g.benefits.map((b, bi) => (
+                      <div key={bi} className="flex gap-2">
+                        <input value={b} onChange={e=>{const bens=[...g.benefits];bens[bi]=e.target.value;updateGuide(idx,{benefits:bens});}} placeholder="Identify your top automation opportunities" className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
+                        <button onClick={() => updateGuide(idx,{benefits:g.benefits.filter((_,i)=>i!==bi)})} className="p-2.5 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white"><Trash2 className="w-3.5 h-3.5"/></button>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => updateGuide(idx,{benefits:[...g.benefits,""]})} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
+                    <Plus className="w-3.5 h-3.5" /> Add Benefit
+                  </button>
+                </div>
+
+                {/* Position */}
+                <Field label="Position (order in listing)" value={String(g.position)} type="number" onChange={v => updateGuide(idx, { position: Number(v) })} />
+
+              </div>
+            )}
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // ── LIST VIEW ────────────────────────────────────────────────────────────────
   return (
     <AdminLayout>
-      <div className="pb-32 max-w-4xl mx-auto">
+      <div className="pb-20 max-w-6xl mx-auto">
 
-        {/* Header */}
-        <div className="flex items-start justify-between mb-10">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Guides</h1>
-            <p className="text-slate-500 text-sm mt-1">Create and manage lead magnet guides and playbooks.</p>
+        {apiError && (
+          <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium mb-6">
+            <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+            <span><strong>API offline</strong> — showing demo guides. Deploy the backend or check your connection to load live data.</span>
+            <button onClick={() => { setLoading(true); fetchGuides(); }} className="ml-auto text-amber-700 font-bold underline underline-offset-2 hover:no-underline">Retry</button>
           </div>
-          <button onClick={addGuide} className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-brand/90 transition-all shadow-lg shadow-brand/20">
+        )}
+
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-display font-bold text-slate-900">Guides</h1>
+          <button onClick={openNew} className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm">
             <Plus className="w-4 h-4" /> New Guide
           </button>
         </div>
 
-        {/* Guide list */}
-        <div className="space-y-4">
-          {guides.length === 0 && (
-            <div className="border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center text-slate-400 text-sm font-bold uppercase tracking-widest">
-              No guides yet — click "New Guide" to begin
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title…" className="pl-9 pr-4 h-9 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand bg-white w-60" />
+          </div>
+          <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white text-slate-600">
+            <option value="all">All categories</option>
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white text-slate-600">
+            <option value="all">All statuses</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            Published from
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
+            to
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          {filtered.length === 0 ? (
+            <div className="py-20 text-center text-slate-400 text-sm font-semibold">
+              {search || catFilter !== "all" ? "No matching guides" : "No guides yet — click \"New Guide\" to begin"}
             </div>
-          )}
-
-          {guides.map((g, idx) => {
-            const isExpanded = expandedId === (g.id ? String(g.id) : g.slug);
-            const toggleId   = g.id ? String(g.id) : g.slug;
-
-            return (
-              <div key={g.id ?? g.slug} className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-
-                {/* Card header */}
-                <div
-                  className="flex items-center justify-between px-7 py-5 cursor-pointer hover:bg-slate-50/50 transition-colors"
-                  onClick={() => setExpandedId(isExpanded ? null : toggleId)}
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-14 h-10 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
-                      {g.image_url
-                        ? <img src={g.image_url} alt="" className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-4 h-4 text-slate-300" /></div>}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-slate-900 text-sm truncate max-w-xs">{g.title || "Untitled"}</span>
-                        <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200">
-                          {g.category}
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/60">
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500">Title</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500">Status</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Scheduled At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Author</th>
+                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(g => {
+                  const realIdx = guides.indexOf(g);
+                  const key = g.id ? String(g.id) : g.slug;
+                  return (
+                    <tr key={key} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/40 transition-colors">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-8 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
+                            {g.image_url ? <img src={g.image_url} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-3.5 h-3.5 text-slate-300" />}
+                          </div>
+                          <span className="text-sm font-medium text-slate-800 truncate max-w-[240px]">{g.title || "Untitled"}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                          g.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>
+                          {g.status || "draft"}
                         </span>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-0.5">{g.slug} · position {g.position}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                    <button onClick={e => { e.stopPropagation(); moveGuide(idx, "up"); }}   className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveUp   className="w-3.5 h-3.5" /></button>
-                    <button onClick={e => { e.stopPropagation(); moveGuide(idx, "down"); }} className="p-1.5 rounded-lg bg-slate-50 text-slate-400 hover:text-brand transition-colors"><MoveDown className="w-3.5 h-3.5" /></button>
-                    <button
-                      onClick={e => { e.stopPropagation(); saveGuide(idx); }}
-                      disabled={saving === idx}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand/90 transition-all disabled:opacity-50"
-                    >
-                      <Save className="w-3.5 h-3.5" /> {saving === idx ? "Saving..." : "Save"}
-                    </button>
-                    <button onClick={e => { e.stopPropagation(); removeGuide(idx); }} className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </div>
-                </div>
-
-                {/* Expanded editor */}
-                {isExpanded && (
-                  <div className="border-t border-slate-100 p-7">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                      {/* Row 1: slug + category + position */}
-                      <div className="md:col-span-2 grid grid-cols-3 gap-4">
-                        <GField label="Slug (URL)" value={g.slug} mono onChange={v => updateGuide(idx, { slug: v })} />
-                        <GField label="Category" value={g.category} onChange={v => updateGuide(idx, { category: v })} placeholder="Strategy, Technical..." />
-                        <GField label="Position" value={String(g.position)} type="number" onChange={v => updateGuide(idx, { position: Number(v) })} />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <GField label="Title" value={g.title} large onChange={v => updateGuide(idx, { title: v, slug: g.id ? g.slug : slugify(v) })} />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <GField label="Description (card summary)" value={g.description} textarea rows={2} onChange={v => updateGuide(idx, { description: v })} />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <GField label="Cover Image URL" value={g.image_url} onChange={v => updateGuide(idx, { image_url: v })} placeholder="https://..." />
-                      </div>
-
-                      <GField label="CTA Button Label" value={g.cta_label} onChange={v => updateGuide(idx, { cta_label: v })} placeholder="Read the Guide" />
-                      <GField label="CTA Link" value={g.cta_link} onChange={v => updateGuide(idx, { cta_link: v })} placeholder="#" />
-
-                      <div className="md:col-span-2 border-t border-slate-100 pt-5">
-                        <GField
-                          label="Guide Content (HTML)"
-                          value={g.content}
-                          textarea
-                          rows={12}
-                          onChange={v => updateGuide(idx, { content: v })}
-                          placeholder="<h2>Section Title</h2><p>Guide body content...</p>"
-                        />
-                        <p className="text-[10px] text-slate-400 mt-2">HTML is rendered on the guide detail page. Use &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt; tags.</p>
-                      </div>
-
-                      <div className="md:col-span-2 border-t border-slate-100 pt-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Preview URL</p>
-                        <p className="font-mono text-xs text-brand bg-brand/5 border border-brand/10 rounded-xl px-4 py-2">
-                          /guides/{g.id || "new"}
-                        </p>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                      </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                        {g.scheduled_at ? new Date(g.scheduled_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                        {g.published_at ? new Date(g.published_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{g.author_name || "—"}</td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <a href={`/guides/${g.id ?? g.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-brand hover:bg-brand/8 transition-all"><Eye className="w-4 h-4" /></a>
+                          <button onClick={() => openEdit(key)} className="p-1.5 rounded-lg text-slate-400 hover:text-brand hover:bg-brand/8 transition-all"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => removeGuide(realIdx)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </AdminLayout>
   );
 }
 
-// Field helper
-function GField({ label, value, onChange, placeholder, type, textarea, rows, mono, large }: {
+// ── Field helpers ──────────────────────────────────────────────────────────────
+function Field({ label, value, onChange, placeholder="", type="text", mono=false, large=false, textarea=false, rows=3 }: {
   label: string; value: string; onChange: (v: string) => void;
-  placeholder?: string; type?: string; textarea?: boolean; rows?: number; mono?: boolean; large?: boolean;
+  placeholder?: string; type?: string; mono?: boolean; large?: boolean; textarea?: boolean; rows?: number;
 }) {
-  const cls = `w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1 ${mono ? "font-mono text-xs" : ""} ${large ? "text-base" : ""}`;
+  const cls = `w-full border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand transition-colors bg-white placeholder:text-slate-300 ${mono?"font-mono text-xs":large?"text-base font-bold":"text-sm"}`;
   return (
-    <div>
-      {label && <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</label>}
-      {textarea
-        ? <textarea rows={rows ?? 3} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={cls} />
-        : <input type={type ?? "text"} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={cls} />}
+    <div className="space-y-1">
+      {label && <label className="field-label">{label}</label>}
+      {textarea ? <textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows} className={cls+" resize-none"}/> : <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className={cls}/>}
+    </div>
+  );
+}
+
+function UploadImageField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [mode, setMode] = React.useState<"url"|"upload">("url");
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadErr, setUploadErr] = React.useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5*1024*1024) { alert("Image must be under 5 MB."); return; }
+    setUploading(true);
+    setUploadErr("");
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await uploadFile(`${API_BASE_URL}/upload.php`, fd);
+    setUploading(false);
+    if (res.status === "success" && res.url) {
+      onChange(res.url as string);
+    } else {
+      setUploadErr((res.message as string) || "Upload failed — check file type (JPG, PNG, WebP)");
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="field-label">{label}</label>
+        <div className="flex gap-0.5 p-1 bg-slate-100 rounded-xl">
+          {(["url","upload"] as const).map(m=>(
+            <button key={m} type="button" onClick={()=>setMode(m)} className={cn("px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",mode===m?"bg-white text-brand shadow-sm":"text-slate-400 hover:text-slate-600")}>
+              {m==="url"?"URL":"Upload"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex gap-4 items-start">
+        <div className="w-20 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center">
+          {value ? <img src={value} alt="" className="w-full h-full object-cover" onError={e=>{(e.target as HTMLImageElement).style.display="none";}} /> : <ImageIcon className="w-5 h-5 text-slate-300"/>}
+        </div>
+        <div className="flex-1">
+          {mode==="url" ? (
+            <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://images.unsplash.com/…" className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"/>
+          ) : (
+            <div className="space-y-1">
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile}/>
+              <button type="button" disabled={uploading} onClick={()=>fileRef.current?.click()} className="w-full border-2 border-dashed border-slate-200 rounded-2xl px-4 py-4 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all flex items-center gap-2 justify-center disabled:opacity-50">
+                <Upload className="w-4 h-4"/> {uploading ? "Uploading…" : "Click to upload from device"} {!uploading && <span className="font-normal text-slate-300">— JPG, PNG, WebP, max 5 MB</span>}
+              </button>
+              {value && <p className="text-[10px] text-emerald-600 font-semibold">✓ Uploaded: {value.split("/").pop()}</p>}
+              {uploadErr && <p className="text-[10px] text-red-500 font-semibold">✗ {uploadErr}</p>}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

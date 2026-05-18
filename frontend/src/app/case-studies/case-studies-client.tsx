@@ -25,6 +25,13 @@ interface CaseStudy {
   published_date?: string;
 }
 
+const FALLBACK_CASES: CaseStudy[] = [
+  { id: 1, title: "How FinFlows Automated 90% of Their Back-Office Operations", subtitle: "AI-powered workflow automation that eliminated manual processing and cut operational costs by 60%.", image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80", industry: "Fintech", client_name: "FinFlows Inc.", slug: "finflows-back-office-automation", position: 0, status: "published", published_date: "2025-03-14" },
+  { id: 2, title: "How GrowthLoop Scaled LinkedIn Outreach 10x Without Hiring", subtitle: "AI-driven social selling automation that tripled qualified pipeline in 60 days.", image_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80", industry: "B2B SaaS", client_name: "GrowthLoop", slug: "growthloop-linkedin-scale", position: 1, status: "published", published_date: "2025-04-10" },
+  { id: 3, title: "How MediTrack Cut Patient Onboarding From 9 Days to 6 Hours", subtitle: "AI-powered document intake and verification that eliminated manual processing across 4 clinic locations.", image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80", industry: "Healthcare SaaS", client_name: "MediTrack Health", slug: "meditrack-patient-onboarding-automation", position: 2, status: "published", published_date: "2025-04-28" },
+  { id: 4, title: "How NexaRetail Automated Inventory Reporting and Saved 480 Ops Hours Monthly", subtitle: "Replacing weekly manual inventory reconciliation with a fully autonomous AI reporting pipeline.", image_url: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80", industry: "E-Commerce / Retail", client_name: "NexaRetail", slug: "nexaretail-inventory-reporting-automation", position: 3, status: "published", published_date: "2025-05-09" },
+];
+
 export default function CaseStudiesPage() {
   const [cases, setCases] = useState<CaseStudy[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,10 +46,13 @@ export default function CaseStudiesPage() {
       try {
         const res = await api.get(endpoints.caseStudies);
         if (res.status === "success" && res.data) {
-          setCases(res.data);
+          setCases(res.data as CaseStudy[]);
+        } else {
+          setCases(FALLBACK_CASES);
         }
       } catch (err) {
         console.error("Failed to fetch case studies", err);
+        setCases(FALLBACK_CASES);
       } finally {
         setLoading(false);
       }
@@ -97,7 +107,7 @@ export default function CaseStudiesPage() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }}
             className="hero-title mb-6 leading-[1.05]"
           >
-            Engineering <span className="hero-title-accent">Autonomous Success.</span>
+            Engineering<br /><span className="hero-title-accent">Real Results.</span>
           </motion.h1>
 
           <motion.p
@@ -150,8 +160,8 @@ export default function CaseStudiesPage() {
                   className={cn(
                     "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
                     sortBy === opt
-                      ? "bg-primary border-primary text-white"
-                      : "bg-surface border-border-subtle text-secondary/60 hover:border-primary/30 hover:text-primary"
+                      ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-brand/30 hover:text-brand"
                   )}
                 >
                   {opt === "popular" ? "Popular" : "Recent"}
@@ -167,10 +177,10 @@ export default function CaseStudiesPage() {
                 key={cat}
                 onClick={() => setSelectedIndustry(cat)}
                 className={cn(
-                  "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                  "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border",
                   selectedIndustry === cat
-                    ? "bg-primary text-white shadow-xl"
-                    : "bg-surface text-secondary/50 hover:bg-slate-50 border border-border-subtle"
+                    ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
+                    : "bg-surface border-border-subtle text-secondary/50 hover:border-brand/30 hover:text-brand"
                 )}
               >
                 {cat}
@@ -254,7 +264,7 @@ function CaseStudyCard({ study, index }: { study: CaseStudy; index: number }) {
         <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         <div className="absolute top-8 left-8">
-          <Badge className="bg-white/90 backdrop-blur text-primary border-none shadow-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-2xl">
+          <Badge className="bg-brand/90 backdrop-blur text-white border-none px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-2xl">
             {study.industry}
           </Badge>
         </div>

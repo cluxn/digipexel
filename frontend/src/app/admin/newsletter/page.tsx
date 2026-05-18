@@ -7,6 +7,7 @@ import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface Subscriber {
   id: number;
@@ -20,21 +21,23 @@ type FilterType = "all" | "active" | "unsubscribed";
 export default function AdminNewsletterPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
   useEffect(() => {
     fetchSubscribers();
   }, []);
 
-  const fetchSubscribers = () => {
+  const fetchSubscribers = async () => {
     setLoading(true);
-    api.get("newsletter")
-      .then((res) => {
-        if (res?.status === "success" && Array.isArray(res.data)) {
-          setSubscribers(res.data);
-        }
-      })
-      .finally(() => setLoading(false));
+    setApiError(false);
+    const res = await api.get("newsletter");
+    if (res?.status === "success" && Array.isArray(res.data)) {
+      setSubscribers(res.data as Subscriber[]);
+    } else {
+      setApiError(true);
+    }
+    setLoading(false);
   };
 
   const handleUnsubscribe = async (id: number) => {
@@ -57,6 +60,28 @@ export default function AdminNewsletterPage() {
           <div className="text-brand font-display text-xl animate-pulse">
             Loading subscribers...
           </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <AdminLayout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-5 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center">
+            <AlertTriangle className="w-7 h-7 text-rose-400" />
+          </div>
+          <div>
+            <p className="font-bold text-[#1A1C1E] text-lg mb-1">Could not load subscribers</p>
+            <p className="text-slate-400 text-sm max-w-xs">
+              The API did not respond. Check that your backend is reachable at:<br />
+              <code className="text-xs bg-slate-100 px-2 py-0.5 rounded mt-1 inline-block break-all">{API_BASE_URL}</code>
+            </p>
+          </div>
+          <Button variant="outline" className="rounded-xl border-slate-200 gap-2" onClick={fetchSubscribers}>
+            <RefreshCw className="w-4 h-4" /> Retry
+          </Button>
         </div>
       </AdminLayout>
     );

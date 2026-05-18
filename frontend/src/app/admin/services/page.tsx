@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { SERVICES, DEFAULT_SECTIONS } from "@/app/services/[slug]/service-page-client";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -148,6 +149,76 @@ const labelCls =
   "block text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1";
 const textareaCls = inputCls + " resize-none";
 
+// ── Static fallback builder ────────────────────────────────────────────────
+
+function buildFromStatic(slug: string) {
+  const s = SERVICES[slug];
+  if (!s) return null;
+
+  const hero: HeroContent = {
+    badge: s.badge,
+    heroLine1: s.heroLine1,
+    heroLine2: s.heroLine2,
+    heroCopy: s.heroCopy,
+    ctaPrimary: s.ctaPrimary,
+    pills: s.pills,
+    snapshotTitle: s.snapshotTitle,
+    snapshotRows: ([...s.snapshotRows, "", "", "", ""].slice(0, 4)) as [string, string, string, string],
+    statLabel1: s.statLabel1,
+    statValue1: s.statValue1,
+    statLabel2: s.statLabel2,
+    statValue2: s.statValue2,
+  };
+
+  const rawCards = (s.features ?? []).map(f => ({ title: f.title, description: f.description }));
+  while (rawCards.length < 3) rawCards.push({ title: "", description: "" });
+  const features: FeaturesContent = {
+    cards: rawCards.slice(0, 3) as [FeatureCard, FeatureCard, FeatureCard],
+  };
+
+  const roadmap: RoadmapContent = {
+    roadmapTitle: DEFAULT_SECTIONS.roadmapTitle,
+    roadmapTitleAccent: DEFAULT_SECTIONS.roadmapTitleAccent,
+    roadmapCopy: DEFAULT_SECTIONS.roadmapCopy,
+    items: DEFAULT_SECTIONS.roadmapItems as RoadmapContent["items"],
+  };
+
+  const mi = s.marketImpact;
+  let marketImpact: MarketImpactContent;
+  if (mi) {
+    const cards = mi.outcomesCards.slice(0, 2).map(c => ({
+      quote: c[0], company: c[1], sector: c[2], metricValue: c[3], metricLabel: c[4],
+    }));
+    while (cards.length < 2) cards.push({ quote: "", company: "", sector: "", metricValue: "", metricLabel: "" });
+    const stats = mi.outcomesStats.slice(0, 4).map(st => ({ value: st[0], label: st[1] }));
+    while (stats.length < 4) stats.push({ value: "", label: "" });
+    marketImpact = {
+      outcomesTitle: mi.outcomesTitle,
+      outcomesTitleAccent: mi.outcomesTitleAccent,
+      outcomesCopy: mi.outcomesCopy,
+      cards: cards as [OutcomeCard, OutcomeCard],
+      stats: stats as [OutcomeStat, OutcomeStat, OutcomeStat, OutcomeStat],
+    };
+  } else {
+    marketImpact = DEFAULT_MARKET_IMPACT;
+  }
+
+  const cta: CtaContent = {
+    ctaBadge: DEFAULT_SECTIONS.ctaBadge,
+    ctaTitle: DEFAULT_SECTIONS.ctaTitle,
+    ctaCopy: DEFAULT_SECTIONS.ctaCopy,
+  };
+
+  const rawItems = (s.testimonials ?? []).slice(0, 2).map(t => ({
+    quote: t.quote, role: t.role, company: t.company ?? "",
+  }));
+  const testimonials: TestimonialsContent = {
+    items: rawItems.length > 0 ? rawItems : [{ quote: "", role: "", company: "" }],
+  };
+
+  return { hero, features, roadmap, marketImpact, cta, testimonials };
+}
+
 // ── SaveButton helper ──────────────────────────────────────────────────────
 
 function SaveButton({
@@ -186,7 +257,7 @@ export default function AdminServicesPage() {
   const [selectedSlug, setSelectedSlug] = useState("ai-seo");
   const [activeTab, setActiveTab]       = useState<TabId>("hero");
   const [loading, setLoading]           = useState(true);
-  const [apiError, setApiError]         = useState(false);
+  const [apiWarn, setApiWarn]           = useState(false);
 
   const [heroContent,         setHeroContent]         = useState<HeroContent>(DEFAULT_HERO);
   const [featuresContent,     setFeaturesContent]     = useState<FeaturesContent>(DEFAULT_FEATURES);
@@ -206,21 +277,57 @@ export default function AdminServicesPage() {
   useEffect(() => {
     const fetchService = async () => {
       setLoading(true);
-      setApiError(false);
+      setApiWarn(false);
       const res = await api.get("service_content", { slug: selectedSlug });
       if (res?.status === "success" && res.data) {
-        if (res.data.hero)          setHeroContent({ ...DEFAULT_HERO,          ...res.data.hero });
-        if (res.data.features)      setFeaturesContent({ ...DEFAULT_FEATURES,  ...res.data.features });
-        if (res.data.roadmap)       setRoadmapContent({ ...DEFAULT_ROADMAP,    ...res.data.roadmap });
-        if (res.data.market_impact) setMarketImpactContent({ ...DEFAULT_MARKET_IMPACT, ...res.data.market_impact });
-        if (res.data.cta)           setCtaContent({ ...DEFAULT_CTA,            ...res.data.cta });
-        if (res.data.testimonials)  setTestimonialsContent({ ...DEFAULT_TESTIMONIALS, ...res.data.testimonials });
+        const d = res.data as Record<string, Record<string, unknown>>;
+        const hasAny = d.hero || d.features || d.roadmap || d.market_impact || d.cta || d.testimonials;
+        if (hasAny) {
+          if (d.hero)          setHeroContent({ ...DEFAULT_HERO,          ...d.hero });
+          if (d.features)      setFeaturesContent({ ...DEFAULT_FEATURES,  ...d.features });
+          if (d.roadmap)       setRoadmapContent({ ...DEFAULT_ROADMAP,    ...d.roadmap });
+          if (d.market_impact) setMarketImpactContent({ ...DEFAULT_MARKET_IMPACT, ...d.market_impact });
+          if (d.cta)           setCtaContent({ ...DEFAULT_CTA,            ...d.cta });
+          if (d.testimonials)  setTestimonialsContent({ ...DEFAULT_TESTIMONIALS, ...d.testimonials });
+        } else {
+          const fallback = buildFromStatic(selectedSlug);
+          if (fallback) {
+            setHeroContent(fallback.hero);
+            setFeaturesContent(fallback.features);
+            setRoadmapContent(fallback.roadmap);
+            setMarketImpactContent(fallback.marketImpact);
+            setCtaContent(fallback.cta);
+            setTestimonialsContent(fallback.testimonials);
+          }
+          setApiWarn(true);
+        }
       } else {
-        setApiError(true);
+        const fallback = buildFromStatic(selectedSlug);
+        if (fallback) {
+          setHeroContent(fallback.hero);
+          setFeaturesContent(fallback.features);
+          setRoadmapContent(fallback.roadmap);
+          setMarketImpactContent(fallback.marketImpact);
+          setCtaContent(fallback.cta);
+          setTestimonialsContent(fallback.testimonials);
+        }
+        setApiWarn(true);
       }
       setLoading(false);
     };
-    fetchService().catch(() => { setApiError(true); setLoading(false); });
+    fetchService().catch(() => {
+      const fallback = buildFromStatic(selectedSlug);
+      if (fallback) {
+        setHeroContent(fallback.hero);
+        setFeaturesContent(fallback.features);
+        setRoadmapContent(fallback.roadmap);
+        setMarketImpactContent(fallback.marketImpact);
+        setCtaContent(fallback.cta);
+        setTestimonialsContent(fallback.testimonials);
+      }
+      setApiWarn(true);
+      setLoading(false);
+    });
   }, [selectedSlug]);
 
   // ── Save helpers ───────────────────────────────────────────────────────
@@ -266,20 +373,6 @@ export default function AdminServicesPage() {
     );
   }
 
-  // ── API error state ────────────────────────────────────────────────────
-
-  if (apiError) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-20">
-          <p className="text-red-500 text-sm font-medium">
-            Could not load service data. Check your connection and try again.
-          </p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   // ── Main render ────────────────────────────────────────────────────────
 
   return (
@@ -291,6 +384,13 @@ export default function AdminServicesPage() {
           <h1 className="text-2xl font-display font-bold text-[#1A1C1E] tracking-tight">Service Pages</h1>
           <p className="text-slate-400 text-sm mt-1">Edit per-service content across all 11 services.</p>
         </div>
+
+        {apiWarn && (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs font-medium flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0" />
+            Loaded from site defaults — no database record found yet. Edit and Save to store a database record that overrides these values on the live site.
+          </div>
+        )}
 
         {/* Service selector */}
         <div className="mb-8">

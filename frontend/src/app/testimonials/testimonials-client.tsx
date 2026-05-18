@@ -9,6 +9,7 @@ import { Connect } from "@/components/blocks/connect-cta";
 import { Quote } from "lucide-react";
 import { safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
+import { testimonialsPageItems } from "@/lib/testimonials-data";
 
 interface Testimonial {
   id: number;
@@ -24,125 +25,19 @@ interface Testimonial {
   display_context: string;
 }
 
-const FALLBACK_TESTIMONIALS: Testimonial[] = [
-  {
-    id: 1,
-    name: "Sarah Chen",
-    role: "Product Manager",
-    company: "Stripe",
-    content: "The AI workflows implemented by Digi Pexel transformed our support operations. We reduced response times by 70% while improving customer satisfaction scores.",
-    image_url: "https://i.pravatar.cc/150?u=sarah",
-    category: "Fintech",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 2,
-    name: "Marcus Rodriguez",
-    role: "Founder",
-    company: "GrowthLoop",
-    content: "We tried building internal AI systems for 6 months with no luck. Digi Pexel delivered a production-ready lead scoring agent in 3 weeks.",
-    image_url: "https://i.pravatar.cc/150?u=marcus",
-    category: "SaaS",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 3,
-    name: "Emma Watson",
-    role: "Director of Marketing",
-    company: "Adobe",
-    content: "Their AI SEO strategy is light years ahead. We went from zero AI citations to being the top result for critical industry prompts.",
-    image_url: "https://i.pravatar.cc/150?u=emma",
-    category: "Enterprise",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 4,
-    name: "David Miller",
-    role: "COO",
-    company: "NexGen Logistics",
-    content: "Automating our route optimization with AI Agents has cut fuel costs by 18% and saved countless manual planning hours.",
-    image_url: "https://i.pravatar.cc/150?u=david",
-    category: "Logistics",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 5,
-    name: "Lisa Wong",
-    role: "Head of Success",
-    company: "ScaleFlow",
-    content: "Digi Pexel didn't just give us tools; they gave us a complete automation architecture that scales as we grow.",
-    image_url: "https://i.pravatar.cc/150?u=lisa",
-    category: "Technology",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 6,
-    name: "James Anderson",
-    role: "Managing Director",
-    company: "Apex Capital",
-    content: "Zero-touch accounting workflows have revolutionized our month-end close. No more manual data entry errors.",
-    image_url: "https://i.pravatar.cc/150?u=james",
-    category: "Finance",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 7,
-    name: "Sophie Bennett",
-    role: "CTO",
-    company: "DataVise",
-    content: "The reliability of the agents Digi Pexel built is unprecedented. We've had zero downtime in 6 months of operation.",
-    image_url: "https://i.pravatar.cc/150?u=sophie",
-    category: "Cloud",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 8,
-    name: "Thomas Wright",
-    role: "VP Marketing",
-    company: "Vividly",
-    content: "Our content production quadrupled without adding a single head to the team. The AI coordination is seamless.",
-    image_url: "https://i.pravatar.cc/150?u=thomas",
-    category: "Marketing",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  },
-  {
-    id: 9,
-    name: "Elena Petrova",
-    role: "Strategy Lead",
-    company: "GlobalNet",
-    content: "Digi Pexel is the only agency we've found that actually understands how to make LLMs safe for enterprise data.",
-    image_url: "https://i.pravatar.cc/150?u=elena",
-    category: "Security",
-    star_rating: 5,
-    video_url: "",
-    logo_url: "",
-    display_context: "testimonials-page"
-  }
-];
+const FALLBACK_TESTIMONIALS: Testimonial[] = testimonialsPageItems().map((t, i) => ({
+  id: i + 1,
+  name: t.name,
+  role: t.role,
+  company: t.company,
+  content: t.content,
+  image_url: t.image_url,
+  category: t.category,
+  star_rating: t.star_rating,
+  video_url: t.video_url,
+  logo_url: t.logo_url,
+  display_context: t.display_context,
+}));
 
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -181,8 +76,8 @@ export default function TestimonialsPage() {
             Testimonials
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            The <span className="hero-title-accent">Human Side</span> of <br />
-            Our Software Success Stories
+            The Human Side of<br />
+            <span className="hero-title-accent">Our Success Stories</span>
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto opacity-70">
             Hear from industry peers like you and discover how we co-create meaningful partnerships with each client.

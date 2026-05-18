@@ -24,6 +24,11 @@ $new_columns = [
     "hero_cta_label VARCHAR(100) DEFAULT 'View Case Study'",
     "hero_cta_url VARCHAR(500) DEFAULT '#contact'",
     "hero_stats LONGTEXT",
+    "content LONGTEXT",
+    "meta_title VARCHAR(500) DEFAULT ''",
+    "meta_description TEXT",
+    "scheduled_at VARCHAR(50) DEFAULT ''",
+    "author_name VARCHAR(255) DEFAULT ''",
 ];
 foreach ($new_columns as $col_def) {
     try { $pdo->exec("ALTER TABLE case_studies ADD COLUMN $col_def"); } catch (Exception $e) { /* exists */ }
@@ -107,6 +112,11 @@ try {
                 'hero_cta_label'         => $c['hero_cta_label']          ?? 'View Case Study',
                 'hero_cta_url'           => $c['hero_cta_url']            ?? '#contact',
                 'hero_stats'             => json_encode($c['hero_stats']  ?? []),
+                'content'                => $c['content']                 ?? '',
+                'meta_title'             => $c['meta_title']              ?? '',
+                'meta_description'       => $c['meta_description']        ?? '',
+                'scheduled_at'           => $c['scheduled_at']            ?? '',
+                'author_name'            => $c['author_name']             ?? '',
             ];
 
             if ($id) {

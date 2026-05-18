@@ -17,8 +17,8 @@ export default function TermsAndConditionsPage() {
             Terms & Conditions
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Clear terms for <span className="hero-title-accent">reliable delivery</span><br />
-            and long-term partnership.
+            Clear terms,<br />
+            <span className="hero-title-accent">reliable partnership.</span>
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto opacity-70">
             These terms govern your access to Digi Pexel services, platforms, and content. Please review them to

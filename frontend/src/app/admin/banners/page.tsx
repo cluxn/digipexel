@@ -35,7 +35,7 @@ interface BannersState {
 }
 
 const DEFAULT: BannersState = {
-  banner: { enabled: false, text: "AI automation audit slots open for next week.", ctaLabel: "Book a Call", ctaLink: "/contact-us", bgColor: "#2563EB" },
+  banner: { enabled: false, text: "AI automation audit slots open for next week.", ctaLabel: "Book a Call", ctaLink: "/contact-us", bgColor: "#7C3AED" },
   popup: { enabled: false, title: "Ready to automate your ops?", body: "Get a 20-minute discovery call and a quick automation roadmap.", ctaLabel: "Schedule a Call", ctaLink: "/contact-us", delayMs: 5000 },
   exit_popup: { enabled: false, title: "Before you go", body: "Want a quick audit checklist? We will send it in minutes.", ctaLabel: "Get the Checklist", ctaLink: "/contact-us" },
 };
@@ -48,10 +48,11 @@ export default function AdminBannersPage() {
   useEffect(() => {
     api.get("banners").then(res => {
       if (res?.status === "success" && res.data) {
+        const d = res.data as { banner?: Partial<BannerConfig>; popup?: Partial<PopupConfig>; exit_popup?: Partial<ExitPopupConfig> };
         setState({
-          banner: { ...DEFAULT.banner, ...(res.data.banner || {}) },
-          popup: { ...DEFAULT.popup, ...(res.data.popup || {}) },
-          exit_popup: { ...DEFAULT.exit_popup, ...(res.data.exit_popup || {}) },
+          banner: { ...DEFAULT.banner, ...(d.banner || {}) },
+          popup: { ...DEFAULT.popup, ...(d.popup || {}) },
+          exit_popup: { ...DEFAULT.exit_popup, ...(d.exit_popup || {}) },
         });
       }
     }).finally(() => setLoading(false));

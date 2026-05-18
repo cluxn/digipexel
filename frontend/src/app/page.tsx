@@ -10,9 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: meta?.seo_title || 'Digi Pexel — AI Automation Agency',
     description: meta?.meta_description || 'We design reliable AI workflows that move data, decisions, and actions across your stack — so your team can scale without friction.',
+    alternates: { canonical: 'https://www.digipexel.com/' },
     openGraph: {
       title: meta?.seo_title || 'Digi Pexel — AI Automation Agency',
       description: meta?.meta_description || 'We design reliable AI workflows.',
+      url: 'https://www.digipexel.com/',
       images: meta?.og_image ? [{ url: meta.og_image }] : [],
     },
   }

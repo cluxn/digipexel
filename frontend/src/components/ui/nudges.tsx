@@ -69,8 +69,8 @@ export function Nudges() {
     const loadFromDB = async () => {
       const json = await safeFetch(`${API_BASE_URL}/banners.php`);
       if (json?.status === "success" && json.data) {
-        const d = json.data;
-        // Map from DB shape (exit_popup snake_case) to internal shape (exitPopup camelCase)
+        type BannerShape = { enabled?: boolean; text?: string; ctaLabel?: string; ctaLink?: string; delayMs?: number; title?: string; body?: string };
+        const d = json.data as { banner?: BannerShape; popup?: BannerShape; exit_popup?: BannerShape };
         const cfg: NudgeConfig = {
           banner: {
             enabled: d.banner?.enabled ?? DEFAULT_CONFIG.banner.enabled,
@@ -116,7 +116,7 @@ export function Nudges() {
       }
       // safeFetch returns { status: "error" } on failure — fall back to DEFAULT_CONFIG (all disabled)
     };
-    loadFromDB();
+    loadFromDB().catch(() => {});
   }, []);
 
   const closeBanner = () => {

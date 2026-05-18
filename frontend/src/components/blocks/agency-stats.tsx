@@ -36,8 +36,9 @@ export function AgencyStats() {
   useEffect(() => {
     async function fetchStats() {
       const json = await safeFetch(`${API_BASE_URL}/site_content.php?section=stats`);
-      if (json.status === "success" && json.data?.stats && Array.isArray(json.data.stats)) {
-        setStats(json.data.stats);
+      const d = json.data as { stats?: typeof FALLBACK_STATS } | undefined;
+      if (json.status === "success" && d?.stats && Array.isArray(d.stats)) {
+        setStats(d.stats);
       }
       // On failure: keep FALLBACK_STATS in state
     }

@@ -25,9 +25,11 @@ export async function generateMetadata(
   return {
     title: meta?.seo_title || fallbackTitle,
     description: meta?.meta_description || 'AI automation and digital marketing services from Digi Pexel.',
+    alternates: { canonical: `https://www.digipexel.com/services/${slug}` },
     openGraph: {
       title: meta?.seo_title || fallbackTitle,
       description: meta?.meta_description || 'AI automation and digital marketing services from Digi Pexel.',
+      url: `https://www.digipexel.com/services/${slug}`,
       images: meta?.og_image ? [{ url: meta.og_image }] : [],
     },
   }

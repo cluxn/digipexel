@@ -24,6 +24,13 @@ interface Guide {
 
 const PAGE_SIZE = 10;
 
+const FALLBACK_GUIDES: Guide[] = [
+  { id: 1, title: "The AI Automation Roadmap: A 12-Month Playbook for B2B Teams", description: "A step-by-step framework for auditing your operations, identifying high-ROI automation opportunities, and building a deployment plan that delivers measurable results within 90 days.", image_url: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800", category: "Strategy", cta_label: "Read the Playbook", cta_link: "#", position: 0 },
+  { id: 2, title: "GEO vs SEO: The Complete Guide to Getting Your Brand Cited by AI", description: "Everything B2B marketing leaders need to know about Generative Engine Optimisation — how AI assistants select citations, what signals matter, and how to build a content strategy that wins in the AI answer era.", image_url: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&q=80&w=800", category: "SEO", cta_label: "Read the Guide", cta_link: "#", position: 1 },
+  { id: 3, title: "The AI Vendor Selection Scorecard: 7 Criteria Every Ops Leader Must Evaluate", description: "A structured evaluation framework for B2B operations leaders vetting AI automation partners. Score vendors across 7 weighted criteria and make a confident, data-backed selection decision.", image_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800", category: "Strategy", cta_label: "Download the Scorecard", cta_link: "#", position: 2 },
+  { id: 4, title: "The 90-Day Ops Transformation Playbook: From Manual to Automated", description: "A week-by-week implementation guide for founders and COOs who want to automate their core operations without disrupting the business. Covers audit methodology, tool selection, build sprints, and go-live validation.", image_url: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&q=80&w=800", category: "Operations", cta_label: "Read the Playbook", cta_link: "#", position: 3 },
+];
+
 export default function GuidesPage() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +44,13 @@ export default function GuidesPage() {
       try {
         const res = await api.get(endpoints.guides);
         if (res.status === "success" && res.data) {
-          setGuides(res.data);
+          setGuides(res.data as Guide[]);
+        } else {
+          setGuides(FALLBACK_GUIDES);
         }
       } catch (err) {
         console.error("Failed to fetch guides", err);
+        setGuides(FALLBACK_GUIDES);
       } finally {
         setLoading(false);
       }
@@ -87,7 +97,7 @@ export default function GuidesPage() {
             Resources &amp; Guides
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            The <span className="hero-title-accent">Digi Pexel</span> Playbooks
+            The <span className="hero-title-accent">Digi Pexel</span><br />Playbooks
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto mb-10 opacity-70">
             Step-by-step deep dives and technical whitepapers on building high-performance AI workflows for your scale.
@@ -139,8 +149,8 @@ export default function GuidesPage() {
                   className={cn(
                     "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
                     sortBy === opt
-                      ? "bg-primary border-primary text-white"
-                      : "bg-surface border-border-subtle text-secondary/60 hover:border-primary/30 hover:text-primary"
+                      ? "bg-brand border-brand text-white shadow-lg shadow-brand/20"
+                      : "bg-surface border-border-subtle text-secondary/60 hover:border-brand/30 hover:text-brand"
                   )}
                 >
                   {opt === "popular" ? "Popular" : "Recent"}

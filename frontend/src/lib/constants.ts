@@ -26,8 +26,6 @@ export const NAV_LINKS = [
     links: [
       { title: 'Testimonials', href: '/testimonials' },
       { title: 'Contact Us', href: '/contact-us' },
-      { title: 'Privacy Policy', href: '/privacy-policy' },
-      { title: 'Terms & Conditions', href: '/terms-and-conditions' },
     ],
   },
   {
@@ -48,3 +46,6 @@ export const SOCIAL_LINKS: Array<{ label: string; href?: string }> = [
 ];
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://digipexel.cluxn.com/backend/api";
+
+export const WEBHOOK_LEAD     = "https://n8n.srv806265.hstgr.cloud/webhook/digi-lead-form-51bb-4d44-4720-8fc1-34044257099f";
+export const WEBHOOK_NEWSLETTER = "https://n8n.srv806265.hstgr.cloud/webhook/digi-newsletter-51bb-4d44-47780-8fc1-34044257099f";

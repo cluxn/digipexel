@@ -3,14 +3,18 @@ import GuideClient from "@/components/page-clients/guide-client";
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
 
-const FALLBACK_GUIDES = [
-  { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }
-];
+const FALLBACK_IDS = ["1", "2", "3", "4", "5", "6"];
 
 export async function generateStaticParams() {
-  return FALLBACK_GUIDES.map((guide) => ({
-    id: guide.id.toString(),
-  }));
+  try {
+    const res = await fetch(`${API}/guides.php`);
+    const data = await res.json();
+    if (data.status === "success" && Array.isArray(data.data)) {
+      const apiIds: string[] = data.data.map((g: { id: number }) => g.id.toString()).filter(Boolean);
+      return [...new Set([...FALLBACK_IDS, ...apiIds])].map(id => ({ id }));
+    }
+  } catch {}
+  return FALLBACK_IDS.map(id => ({ id }));
 }
 
 export async function generateMetadata(
@@ -23,9 +27,11 @@ export async function generateMetadata(
   return {
     title: meta?.seo_title || 'Guide — Digi Pexel',
     description: meta?.meta_description || 'Learn AI automation strategies from Digi Pexel.',
+    alternates: { canonical: `https://www.digipexel.com/guides/${id}` },
     openGraph: {
       title: meta?.seo_title || 'Guide — Digi Pexel',
       description: meta?.meta_description || 'Learn AI automation strategies from Digi Pexel.',
+      url: `https://www.digipexel.com/guides/${id}`,
       images: meta?.og_image ? [{ url: meta.og_image }] : [],
     },
   }
