@@ -4,14 +4,12 @@ import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useAnimate } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, CheckCircle2, AlertCircle, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Particles } from "@/components/ui/highlighter";
-import { cn, safeFetch } from "@/lib/utils";
-import { API_BASE_URL } from "@/lib/constants";
-import { useRouter } from "next/navigation";
-
+import { cn, safeFetch, fireWebhook } from "@/lib/utils";
+import { API_BASE_URL, WEBHOOK_LEAD } from "@/lib/constants";
 const CalendlyButton = dynamic(
   () => import("@/components/ui/calendly-button").then(m => m.CalendlyButton),
   { ssr: false }
@@ -127,25 +125,23 @@ function ServiceAnimation() {
 
 /* ─── Main Component ──────────────────────────────────────────────────────── */
 export function Connect({ variant = "light", isHomepage = false, badge, title, copy, ctaHref }: ConnectProps) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">("idle");
   const formRef = useRef<HTMLFormElement>(null);
   const [fetchedLink, setFetchedLink] = useState("/contact-us");
   const [calendlyUrl, setCalendlyUrl] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const effectiveCtaLink = ctaHref || fetchedLink;
 
   useEffect(() => {
     safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
       if (json?.status === "success" && json.data) {
-        if (json.data.default_cta_link) {
-          setFetchedLink(json.data.default_cta_link);
-        }
-        if (json.data.calendly_url) {
-          setCalendlyUrl(json.data.calendly_url);
-        }
+        const d = json.data as Record<string, string>;
+        if (d.default_cta_link) setFetchedLink(d.default_cta_link);
+        if (d.calendly_url) setCalendlyUrl(d.calendly_url);
+        if (d.whatsapp_number) setWhatsappNumber(d.whatsapp_number.replace(/\D/g, ""));
       }
-      // On fetch failure, fetchedLink stays as "/contact-us" fallback
-    });
+    }).catch(() => {});
   }, []);
 
   const isDark = variant === "dark";
@@ -170,11 +166,14 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
         body: JSON.stringify(formData),
       });
       if (data && data.status === "success") {
+        fireWebhook(WEBHOOK_LEAD, { ...formData, source: "connect_cta" });
         form.reset();
-        router.push("/thank-you");
+        setFormStatus("success");
+      } else {
+        setFormStatus("error");
       }
     } catch {
-      alert("There was a connection issue. Please try again.");
+      setFormStatus("error");
     } finally {
       setLoading(false);
     }
@@ -262,6 +261,29 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
 
               {/* ── Right: Full contact form ── */}
               <div className={cn("px-10 py-14", isDark ? "" : "")}>
+
+                {formStatus === "success" ? (
+                  <div className="flex flex-col items-center justify-center text-center min-h-[420px] gap-5">
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h3 className={cn("text-xl font-display font-bold mb-2", isDark ? "text-white" : "text-primary")}>
+                        We&apos;ve Got Your Details!
+                      </h3>
+                      <p className={cn("text-sm leading-relaxed max-w-xs mx-auto", isDark ? "text-white/50" : "text-secondary/60")}>
+                        Thank you for reaching out. Our team will respond within 24 hours with a tailored roadmap.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setFormStatus("idle")}
+                      className={cn("flex items-center gap-2 text-xs font-bold transition-colors mt-2", isDark ? "text-white/30 hover:text-white/60" : "text-secondary/40 hover:text-brand")}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> Submit another inquiry
+                    </button>
+                  </div>
+                ) : (
+                <>
                 <div className="mb-8">
                   <h3 className={cn("text-xl font-display font-bold tracking-tight mb-1", isDark ? "text-white" : "text-primary")}>
                     Start the conversation
@@ -332,6 +354,15 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
                     />
                   </div>
 
+                  {formStatus === "error" && (
+                    <div className={cn("flex items-start gap-3 rounded-2xl px-4 py-3 border", isDark ? "bg-rose-500/10 border-rose-500/20" : "bg-rose-50 border-rose-100")}>
+                      <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+                      <p className={cn("text-sm", isDark ? "text-rose-300" : "text-rose-600")}>
+                        Something went wrong. Please try again or email{" "}
+                        <a href="mailto:info@digipexel.com" className="font-semibold underline">info@digipexel.com</a>.
+                      </p>
+                    </div>
+                  )}
                   <Button
                     type="submit"
                     disabled={loading}
@@ -340,10 +371,26 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
                   >
                     {loading ? "Submitting…" : "Initialize Roadmap →"}
                   </Button>
+                  {whatsappNumber && (
+                    <div className="flex items-center justify-center gap-3">
+                      <span className={cn("text-xs font-medium", isDark ? "text-white/25" : "text-secondary/30")}>or</span>
+                      <a
+                        href={`https://wa.me/${whatsappNumber}?text=Hi%2C%20I%27d%20like%20to%20discuss%20a%20project`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm font-semibold text-[#25D366] hover:underline"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.272-.099-.47-.148-.669.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.148-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.372-.024-.521-.075-.149-.669-1.612-.916-2.207-.243-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.793.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.066 2.875 1.214 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.757-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.571-.347zM12.001 2C6.478 2 2 6.478 2 12c0 1.852.502 3.587 1.38 5.079L2.05 21.95l4.991-1.31A9.955 9.955 0 0012.001 22C17.523 22 22 17.522 22 12S17.523 2 12.001 2zm0 18.18a8.165 8.165 0 01-4.164-1.14l-.299-.177-3.096.812.826-3.018-.195-.31A8.14 8.14 0 013.82 12c0-4.512 3.67-8.18 8.181-8.18 4.512 0 8.18 3.668 8.18 8.18 0 4.511-3.668 8.18-8.18 8.18z"/></svg>
+                        Chat on WhatsApp
+                      </a>
+                    </div>
+                  )}
                   <p className={cn("text-center text-[11px] italic", isDark ? "text-white/20" : "text-secondary/40")}>
                     Guaranteed response within 24 hours. Your data is secure.
                   </p>
                 </form>
+                </>
+                )}
               </div>
 
             </div>

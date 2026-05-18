@@ -16,8 +16,9 @@ interface SiteSettings {
   site_name: string;
   tagline: string;
   whatsapp_number: string;
-  whatsapp_enabled: string; // "true" or "false" — stored as string in settings table
+  whatsapp_enabled: string;
   default_cta_link: string;
+  calendly_url: string;
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -32,6 +33,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   whatsapp_number: "",
   whatsapp_enabled: "true",
   default_cta_link: "/contact-us",
+  calendly_url: "",
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -46,7 +48,7 @@ export default function AdminSettingsPage() {
       .get("settings")
       .then((res) => {
         if (res?.status === "success" && res.data) {
-          setSettings((prev) => ({ ...prev, ...res.data }));
+          setSettings((prev) => ({ ...prev, ...(res.data as typeof prev) }));
         }
       })
       .finally(() => setLoading(false));
@@ -220,10 +222,19 @@ export default function AdminSettingsPage() {
                   className={inputClass}
                   placeholder="/contact-us"
                   value={settings.default_cta_link}
-                  onChange={(e) =>
-                    handleChange("default_cta_link", e.target.value)
-                  }
+                  onChange={(e) => handleChange("default_cta_link", e.target.value)}
                 />
+              </div>
+              <div>
+                <label className={labelClass}>Calendar / Calendly URL</label>
+                <input
+                  type="url"
+                  className={inputClass}
+                  placeholder="https://calendly.com/yourname/30min"
+                  value={settings.calendly_url}
+                  onChange={(e) => handleChange("calendly_url", e.target.value)}
+                />
+                <p className="text-xs text-slate-400 mt-1">Used for "Book a Meeting" buttons site-wide. Leave empty to show a contact form link instead.</p>
               </div>
             </div>
           </div>

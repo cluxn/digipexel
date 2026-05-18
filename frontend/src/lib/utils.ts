@@ -23,32 +23,54 @@ export function uploadFile(url: string, formData: FormData): Promise<Record<stri
   });
 }
 
-export async function safeFetch(url: string, options?: RequestInit, timeoutMs = 8000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const fetchPromise = fetch(url, { ...options, signal: controller.signal });
-    fetchPromise.catch(() => {});
-    const res = await fetchPromise;
-    clearTimeout(timeoutId);
-    if (!res.ok) {
-      console.warn(`Fetch to ${url} returned status ${res.status}`);
-      return { status: "error", message: `Server returned ${res.status}` };
-    }
-    const text = await res.text();
+// Uses XHR instead of fetch to avoid interference from browser extensions that
+// wrap window.fetch and create unhandled internal promise rejections.
+export function fireWebhook(url: string, data: Record<string, unknown>): void {
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).catch(() => {});
+}
+
+export function safeFetch(url: string, options?: RequestInit, timeoutMs = 8000): Promise<Record<string, unknown>> {
+  return new Promise((resolve) => {
     try {
-      return JSON.parse(text);
+      const xhr = new XMLHttpRequest();
+      xhr.open((options?.method || "GET").toUpperCase(), url);
+      xhr.timeout = timeoutMs;
+
+      const headers = options?.headers;
+      if (headers) {
+        if (headers instanceof Headers) {
+          headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+        } else if (Array.isArray(headers)) {
+          (headers as [string, string][]).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+        } else {
+          Object.entries(headers as Record<string, string>).forEach(([k, v]) =>
+            xhr.setRequestHeader(k, v)
+          );
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status < 200 || xhr.status >= 300) {
+          resolve({ status: "error", message: `Server returned ${xhr.status}` });
+          return;
+        }
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch {
+          resolve({ status: "error", message: "Invalid server response format" });
+        }
+      };
+      xhr.onerror   = () => resolve({ status: "error", message: "Connection failed" });
+      xhr.ontimeout = () => resolve({ status: "error", message: "Request timed out" });
+      xhr.onabort   = () => resolve({ status: "error", message: "Request timed out" });
+
+      xhr.send((options?.body ?? null) as XMLHttpRequestBodyInit | null);
     } catch {
-      console.warn(`Fetch to ${url} returned invalid JSON: ${text.slice(0, 100)}...`);
-      return { status: "error", message: "Invalid server response format" };
+      resolve({ status: "error", message: "Connection failed" });
     }
-  } catch (err) {
-    clearTimeout(timeoutId);
-    if (err instanceof Error && err.name === "AbortError") {
-      console.warn(`Fetch to ${url} timed out after ${timeoutMs}ms`);
-      return { status: "error", message: "Request timed out" };
-    }
-    console.warn(`Fetch to ${url} failed:`, err);
-    return { status: "error", message: "Connection failed" };
-  }
+  });
 }
