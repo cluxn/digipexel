@@ -86,7 +86,7 @@ const defaultGuide = (): Guide => ({
   file_url: "", pages_count: "", format: "PDF",
   chapters: [], benefits: [], position: 0,
   meta_title: "", meta_description: "",
-  status: "draft",
+  status: "published",
   published_at: new Date().toISOString().slice(0, 10),
   scheduled_at: "",
   author_name: "Digi Pexel Team",

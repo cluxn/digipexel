@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight, Lock, KeyRound } from "lucide-react";
@@ -33,15 +34,9 @@ export default function AdminLoginPage() {
         setCode("");
       }
     } catch {
-      // Network error — fall back to hardcoded default so admin is never fully locked out
-      if (code === 'Vinay@12345') {
-        localStorage.setItem("admin_auth", "true");
-        router.push("/admin");
-      } else {
-        setError(true);
-        setLoading(false);
-        setCode("");
-      }
+      setError(true);
+      setLoading(false);
+      setCode("");
     } finally {
       setChecking(false);
     }
@@ -125,6 +120,3 @@ export default function AdminLoginPage() {
     </div>
   );
 }
-
-// Simple Link mock as next/link might need to be imported
-import Link from "next/link";

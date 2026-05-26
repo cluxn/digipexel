@@ -11,7 +11,7 @@ export const api = {
     }
     return safeFetch(url);
   },
-  post: async (endpoint: string, body: any) => {
+  post: async (endpoint: string, body: Record<string, unknown>) => {
     return safeFetch(`${API_BASE}/${endpoint}.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

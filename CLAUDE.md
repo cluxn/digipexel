@@ -59,8 +59,8 @@ Digi Pexel is a digital marketing automation agency website targeting B2B decisi
 - Native `fetch` API (browser) - HTTP client; wrapped in `frontend/src/lib/utils.ts` `safeFetch()`
 ## Configuration
 - Frontend env vars loaded from `.env.local` (git-ignored per `.gitignore`)
-- Key public var: `NEXT_PUBLIC_API_URL` — defaults to `https://digi.cluxn.com/backend/api` when unset (`frontend/src/lib/constants.ts`)
-- Backend DB credentials hardcoded in `backend/config.php` (Hostinger MySQL)
+- Key public var: `NEXT_PUBLIC_API_URL` — defaults to `https://www.digipexel.com/backend/api` when unset (`frontend/src/lib/constants.ts`)
+- Backend DB credentials in `backend/config.php` (Hostinger MySQL)
 - `frontend/next.config.ts` — static export, trailing slash, Unsplash + Wikimedia remote image patterns
 - `frontend/tsconfig.json` — strict mode, ES2017 target, path alias `@/*` → `./src/*`
 - `frontend/postcss.config.mjs` — Tailwind PostCSS plugin only
@@ -68,10 +68,11 @@ Digi Pexel is a digital marketing automation agency website targeting B2B decisi
 - Node.js 20+
 - npm (lockfile committed at `frontend/package-lock.json`)
 - PHP 8.x + MySQL for backend local testing
-- Hostinger shared hosting at `digipexel.cluxn.com` (subdomain of `cluxn.com`)
-- Frontend served as static files from `frontend/out/` → `public_html/digipexel/`
-- Backend PHP files at `public_html/digipexel/backend/`
+- Target domain: `digipexel.com` (hosted on Hostinger — separate server, not a subdomain)
+- Frontend served as static files from `frontend/out/` → `public_html/`
+- Backend PHP files at `public_html/backend/`
 - MySQL database: `u723773599_digipexel` on `localhost` (Hostinger)
+- Deployment: manual SFTP upload (no CI/CD — GitHub Actions workflow has been removed)
 <!-- GSD:stack-end -->
 
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
@@ -109,7 +110,7 @@ Digi Pexel is a digital marketing automation agency website targeting B2B decisi
 
 ## Pattern
 - Frontend is a **static export** (`next build` produces `out/` directory) — no server-side rendering at runtime; all pages are pre-rendered HTML + client-side JavaScript.
-- Backend is a **thin PHP REST API** (no framework) hosted as a subdirectory of the same domain: `https://digipexel.cluxn.com/backend/api/`.
+- Backend is a **thin PHP REST API** (no framework) hosted as a subdirectory of the same domain: `https://www.digipexel.com/backend/api/`.
 - The two halves are fully decoupled: the frontend calls the backend over HTTP using the `api` client in `frontend/src/lib/api.ts`.
 - Admin panel is a set of Next.js client pages under `/admin` — authentication is handled entirely in the browser (localStorage flag + hardcoded passcode), with no server-side session.
 ## Data Flow
@@ -136,7 +137,7 @@ Digi Pexel is a digital marketing automation agency website targeting B2B decisi
 |--------|---------------|
 | `lib/api.ts` | Centralized HTTP client — `api.get(endpoint, params?)` and `api.post(endpoint, body)`. Constructs URLs as `${API_BASE_URL}/${endpoint}.php`. |
 | `lib/utils.ts` | `cn()` (Tailwind class merger), `safeFetch()` (error-safe fetch wrapper with JSON parse guard) |
-| `lib/constants.ts` | `SITE_NAME`, `TAGLINE`, `NAV_LINKS`, `SOCIAL_LINKS`, `API_BASE_URL` (reads `NEXT_PUBLIC_API_URL` env var, falls back to `https://digi.cluxn.com/backend/api`) |
+| `lib/constants.ts` | `SITE_NAME`, `TAGLINE`, `NAV_LINKS`, `SOCIAL_LINKS`, `API_BASE_URL` (reads `NEXT_PUBLIC_API_URL` env var, falls back to `https://www.digipexel.com/backend/api`) |
 | `app/layout.tsx` | Root layout: Geist font, global CSS, mounts `<Nudges />` and `<BackToTop />` globally |
 | `app/page.tsx` | Homepage — assembles ~10 block components in sequence |
 | `app/services/[slug]/page.tsx` | Dynamic service pages — all service content is hardcoded in a `SERVICES` record (no DB); uses `generateStaticParams` to pre-render all slugs at build time |

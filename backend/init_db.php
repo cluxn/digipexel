@@ -1,5 +1,13 @@
 <?php
 // backend/init_db.php
+// Protect against public access — require a secret token in the query string.
+// Set INIT_DB_SECRET as an env var on the server (or pass via curl ?token=xxx).
+$expected_token = getenv('INIT_DB_SECRET') ?: '';
+if ($expected_token === '' || ($_GET['token'] ?? '') !== $expected_token) {
+    http_response_code(403);
+    die(json_encode(['status' => 'error', 'message' => 'Forbidden']));
+}
+
 require_once 'config.php';
 
 try {
@@ -235,8 +243,9 @@ try {
     ";
     $pdo->exec($sql_alter);
 
-    // Seed canonical testimonials list (all demo data — reset to match local-db.json)
-    $pdo->exec("TRUNCATE TABLE testimonials");
+    // Seed default testimonials only if the table is empty — never wipe existing data.
+    $existing = (int)$pdo->query("SELECT COUNT(*) FROM testimonials")->fetchColumn();
+    if ($existing > 0) { goto skip_testimonials_seed; }
     $pdo->exec("INSERT INTO testimonials (id, name, role, company, content, image_url, category, star_rating, video_url, logo_url, display_context, position) VALUES
 (1,'Aarav Mehta','COO','Lumina Health','Digi Pexel replaced manual handoffs with AI workflows. Our operations now run in half the time with clear ownership.','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150','Healthcare',5,'','','homepage,testimonials-page',0),
 (2,'Priya Nair','Head of Ops','Arrow Logistics','The automation system removed our QA bottleneck. We ship faster and miss fewer deadlines.','https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150','Logistics',5,'','','homepage,testimonials-page',1),
@@ -257,6 +266,7 @@ try {
 (17,'Thomas Wright','VP Marketing','Vividly','Our content production quadrupled without adding a single head to the team. The AI coordination is seamless.','https://i.pravatar.cc/150?u=thomas','Marketing',5,'','','testimonials-page',16),
 (18,'Elena Petrova','Strategy Lead','GlobalNet','Digi Pexel is the only agency we\'ve found that actually understands how to make LLMs safe for enterprise data.','https://i.pravatar.cc/150?u=elena','Security',5,'','','testimonials-page',17)
 ");
+    skip_testimonials_seed:
 
     // Seed blog posts (INSERT IGNORE is idempotent — safe to re-run)
     $pdo->exec("INSERT IGNORE INTO blogs (title, slug, eyebrow, subtitle, excerpt, content, image_url, category, tags, author_name, author_role, read_time, status, sections, position, published_at) VALUES

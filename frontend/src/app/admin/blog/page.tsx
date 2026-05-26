@@ -160,11 +160,19 @@ export default function AdminBlogPage() {
     setPosts(prev => { const n = [...prev]; n[idx] = { ...n[idx], ...patch }; return n; });
   };
 
-  const removePost = (idx: number) => {
+  const removePost = async (idx: number) => {
     if (!confirm("Delete this article?")) return;
     const p = posts[idx];
     if (p.id) {
-      fetch(`${API_BASE_URL}/blogs.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_post", id: p.id }) });
+      const res = await safeFetch(`${API_BASE_URL}/blogs.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete_post", id: p.id }),
+      });
+      if (res?.status !== "success") {
+        alert("Delete failed. Please try again.");
+        return;
+      }
     }
     setPosts(prev => prev.filter((_, i) => i !== idx));
     if (view === "edit") setView("list");

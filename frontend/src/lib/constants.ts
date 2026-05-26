@@ -45,7 +45,7 @@ export const SOCIAL_LINKS: Array<{ label: string; href?: string }> = [
   { label: 'LinkedIn' },
 ];
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://digipexel.com/backend/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://www.digipexel.com/backend/api";
 
 export const WEBHOOK_LEAD     = "https://n8n.srv806265.hstgr.cloud/webhook/digi-lead-form-51bb-4d44-4720-8fc1-34044257099f";
-export const WEBHOOK_NEWSLETTER = "https://n8n.srv806265.hstgr.cloud/webhook/digi-newsletter-51bb-4d44-47780-8fc1-34044257099f";
+export const WEBHOOK_NEWSLETTER = "https://n8n.srv806265.hstgr.cloud/webhook/digi-newsletter-51bb-4d44-4720-8fc1-34044257099f";

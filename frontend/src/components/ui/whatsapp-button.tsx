@@ -4,7 +4,7 @@ import { safeFetch } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 
 export function WhatsAppButton() {
-  const [number, setNumber] = useState("911234567890");
+  const [number, setNumber] = useState("");
 
   useEffect(() => {
     safeFetch(`${API_BASE_URL}/settings.php`).then(json => {
@@ -14,6 +14,8 @@ export function WhatsAppButton() {
       }
     }).catch(() => {});
   }, []);
+
+  if (!number) return null;
 
   return (
     <a

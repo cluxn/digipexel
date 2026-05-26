@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                 {!loading && newLeads > 0 ? `${newLeads} New` : "Notifications"}
               </Button>
             </Link>
-            <Link href="/admin/leads">
+            <Link href="/admin/analytics">
               <Button className="bg-[#1A1C1E] hover:bg-[#2A2C2E] text-white rounded-xl h-11 px-6 font-bold flex gap-2 shadow-lg shadow-black/10">
                 <TrendingUp className="w-4 h-4" />
                 View Analytics

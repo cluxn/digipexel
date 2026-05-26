@@ -22,17 +22,10 @@ foreach ($migrations as $sql) {
         }
     } catch (Exception $e) { /* column already exists */ }
 }
-// If the status column already existed (added previously with DEFAULT 'draft'),
-// promote all guides that have the old default so they appear as published.
-if (!$status_col_newly_added) {
-    try {
-        $published = (int)$pdo->query("SELECT COUNT(*) FROM guides WHERE status = 'published'")->fetchColumn();
-        $total     = (int)$pdo->query("SELECT COUNT(*) FROM guides")->fetchColumn();
-        if ($total > 0 && $published === 0) {
-            $pdo->exec("UPDATE guides SET status = 'published' WHERE status IS NULL OR status = '' OR status = 'draft'");
-        }
-    } catch (Exception $e) {}
-}
+// Promote any guides with null/empty status to 'published' (legacy rows from before this column existed).
+try {
+    $pdo->exec("UPDATE guides SET status = 'published' WHERE status IS NULL OR status = ''");
+} catch (Exception $e) {}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -62,7 +55,7 @@ try {
                 'cta_label'        => trim($b['cta_label']        ?? 'Download the Guide'),
                 'cta_link'         => trim($b['cta_link']         ?? '#'),
                 'position'         => (int)($b['position']        ?? 0),
-                'status'           => trim($b['status']           ?? 'draft'),
+                'status'           => trim($b['status']           ?? 'published'),
                 'author_name'      => trim($b['author_name']      ?? 'Digi Pexel Team'),
                 'published_at'     => !empty($b['published_at'])  ? $b['published_at'] : null,
                 'scheduled_at'     => !empty($b['scheduled_at'])  ? $b['scheduled_at'] : null,

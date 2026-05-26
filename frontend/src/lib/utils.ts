@@ -23,8 +23,6 @@ export function uploadFile(url: string, formData: FormData): Promise<Record<stri
   });
 }
 
-// Uses XHR instead of fetch to avoid interference from browser extensions that
-// wrap window.fetch and create unhandled internal promise rejections.
 export function fireWebhook(url: string, data: Record<string, unknown>): void {
   fetch(url, {
     method: "POST",
