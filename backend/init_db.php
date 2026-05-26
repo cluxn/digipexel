@@ -224,12 +224,16 @@ try {
     // Seed default admin passcode in settings table (per USR-02 — login page reads this instead of hardcoding)
     // Value is the plain passcode string. The login page compares user input against this value directly.
     // Admin can update it via Settings panel → save_all_settings action.
-    $pdo->exec("INSERT INTO settings (`key`, `value`) VALUES ('admin_passcode', 'Vinay@12345') ON DUPLICATE KEY UPDATE `value` = 'Vinay@12345'");
+    // Seed admin passcode only if not already set — never overwrite a passcode the admin has changed.
+    $pdo->exec("INSERT IGNORE INTO settings (`key`, `value`) VALUES ('admin_passcode', 'ChangeMe@123')");
 
-    // Seed admin user profile
-    $adminPasswordHash = password_hash('Vinay@12345', PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO users (name, designation, login_id, password_hash) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), designation = VALUES(designation), password_hash = VALUES(password_hash)");
-    $stmt->execute(['Vinay', 'Founder', 'info@digipexel.com', $adminPasswordHash]);
+    // Seed admin user profile only on first run — never overwrite edits the admin has made.
+    $existingUsers = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+    if ($existingUsers === 0) {
+        $adminPasswordHash = password_hash('ChangeMe@123', PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (name, designation, login_id, password_hash) VALUES (?, ?, ?, ?)");
+        $stmt->execute(['Admin', 'Founder', 'info@digipexel.com', $adminPasswordHash]);
+    }
 
     // Seed calendly_url in settings (empty default — admin sets their Calendly URL)
     $pdo->exec("INSERT INTO settings (`key`, `value`) SELECT 'calendly_url', '' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE `key` = 'calendly_url')");
