@@ -16,10 +16,18 @@ try {
         $action = $input['action'] ?? '';
         
         if ($action === 'add_lead') {
+            $full_name = trim($input['full_name'] ?? '');
+            $email     = trim($input['email']     ?? '');
+            if (empty($full_name)) {
+                json_resp('error', null, 'full_name is required');
+            }
+            if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                json_resp('error', null, 'Invalid email address');
+            }
             $stmt = $pdo->prepare("INSERT INTO leads (full_name, email, company, contact_number, service, message) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([
-                $input['full_name'],
-                $input['email'],
+                $full_name,
+                $email,
                 $input['company'] ?? '',
                 $input['contact_number'] ?? '',
                 $input['service'] ?? '',

@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/settings.php?key=admin_passcode`);
       const json = await res.json();
-      const storedPasscode = json?.status === 'success' ? (json.data?.value ?? '12345') : '12345';
+      const storedPasscode = json?.status === 'success' ? (json.data?.value ?? '') : '';
       if (code === storedPasscode) {
         localStorage.setItem("admin_auth", "true");
         router.push("/admin");
