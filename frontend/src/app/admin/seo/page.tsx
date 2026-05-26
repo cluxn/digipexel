@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -156,7 +156,7 @@ export default function AdminSeoPage() {
                 <input
                   type="url"
                   className={inputClass}
-                  placeholder="https://digipexel.cluxn.com/og-image.jpg"
+                  placeholder="https://digipexel.com/og-image.jpg"
                   value={fields.og_image}
                   onChange={(e) => setFields(f => ({ ...f, og_image: e.target.value }))}
                 />

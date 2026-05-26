@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ServicePageClient } from "./service-page-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
 
 const SERVICE_SLUGS = [
   "ai-seo", "custom-ai-solutions", "youtube-automation",
@@ -44,9 +44,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     provider: {
       '@type': 'Organization',
       name: 'Digi Pexel',
-      url: 'https://digipexel.cluxn.com',
+      url: 'https://digipexel.com',
     },
-    url: `https://digipexel.cluxn.com/services/${slug}`,
+    url: `https://digipexel.com/services/${slug}`,
     description: 'AI automation and digital marketing service by Digi Pexel',
     areaServed: 'Worldwide',
     serviceType: 'AI Automation',

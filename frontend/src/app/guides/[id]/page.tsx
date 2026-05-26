@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import GuideClient from "@/components/page-clients/guide-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
 
 const FALLBACK_IDS = ["1", "2", "3", "4", "5", "6"];
 

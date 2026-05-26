@@ -1,4 +1,4 @@
-name: Digi Pexel Subdomain Deployment
+name: Digi Pexel Deployment
 on:
   push:
     branches:
@@ -29,8 +29,8 @@ jobs:
           cd frontend
           npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://digipexel.cluxn.com/backend/api
-          NEXT_PUBLIC_SITE_URL: https://digipexel.cluxn.com
+          NEXT_PUBLIC_API_URL: https://digipexel.com/backend/api
+          NEXT_PUBLIC_SITE_URL: https://digipexel.com
 
       - name: 🔧 Install lftp
         run: sudo apt-get install -y lftp
@@ -42,7 +42,7 @@ jobs:
                 set net:max-retries 5; \
                 set net:reconnect-interval-base 3; \
                 mirror --reverse --delete --verbose \
-                  ./frontend/out/ public_html/digipexel/; \
+                  ./frontend/out/ public_html/; \
                 quit" \
             sftp://cluxn.com || \
           lftp -u "u723773599.u723773599,Cluxnftp@12345" \
@@ -51,7 +51,7 @@ jobs:
                 set ftp:passive-mode true; \
                 set net:max-retries 5; \
                 mirror --reverse --delete --verbose \
-                  ./frontend/out/ public_html/digipexel/; \
+                  ./frontend/out/ public_html/; \
                 quit" \
             ftp://cluxn.com
 
@@ -62,7 +62,7 @@ jobs:
                 set net:max-retries 5; \
                 set net:reconnect-interval-base 3; \
                 mirror --reverse --delete --verbose --exclude 'uploads/' \
-                  ./backend/ public_html/digipexel/backend/; \
+                  ./backend/ public_html/backend/; \
                 quit" \
             sftp://cluxn.com || \
           lftp -u "u723773599.u723773599,Cluxnftp@12345" \
@@ -71,11 +71,11 @@ jobs:
                 set ftp:passive-mode true; \
                 set net:max-retries 5; \
                 mirror --reverse --delete --verbose --exclude 'uploads/' \
-                  ./backend/ public_html/digipexel/backend/; \
+                  ./backend/ public_html/backend/; \
                 quit" \
             ftp://cluxn.com
 
       - name: 📡 Initialize Database
         run: |
-          curl -s --retry 3 https://digipexel.cluxn.com/backend/init_db.php
+          curl -s --retry 3 https://digipexel.com/backend/init_db.php
           echo "Deployment complete!"

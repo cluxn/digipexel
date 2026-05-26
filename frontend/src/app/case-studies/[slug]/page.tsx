@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import CaseStudyClient from "@/components/page-clients/case-study-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
 
 const FALLBACK_SLUGS = [
   "finflows-back-office-automation",

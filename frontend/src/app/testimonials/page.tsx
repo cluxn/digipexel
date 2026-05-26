@@ -1,7 +1,7 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import TestimonialsClient from './testimonials-client'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
 
 export async function generateMetadata(): Promise<Metadata> {
   const res = await fetch(`${API}/seo_meta.php?page=testimonials`).catch(() => null)
@@ -25,7 +25,7 @@ export default function TestimonialsPage() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Digi Pexel',
-    url: 'https://digipexel.cluxn.com',
+    url: 'https://digipexel.com',
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',

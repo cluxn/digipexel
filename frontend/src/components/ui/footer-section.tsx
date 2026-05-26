@@ -291,26 +291,26 @@ export function Footer() {
 				</div>
 
 				{/* ── Bottom bar — clean divider, copyright + legal ── */}
-				<div className="mt-14 pt-6 border-t border-border-subtle/60 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex flex-col gap-1">
+				<div className="mt-14 pt-6 border-t border-border-subtle/60 flex flex-col gap-3">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<p className="text-xs text-secondary/50">
 							© {new Date().getFullYear()} Digi Pexel. All rights reserved.
 						</p>
-						<p className="text-xs text-secondary/40">
-							Developed and managed by{' '}
-							<a href="https://buildera.co/" target="_blank" rel="noopener" className="text-secondary/50 hover:text-brand transition-colors duration-200">
-								Buildera Technologies LLP
+						<div className="flex items-center gap-5">
+							<a href="/privacy-policy" className="text-xs text-secondary/50 hover:text-brand transition-colors duration-200">
+								Privacy Policy
 							</a>
-						</p>
+							<a href="/terms-and-conditions" className="text-xs text-secondary/50 hover:text-brand transition-colors duration-200">
+								Terms & Conditions
+							</a>
+						</div>
 					</div>
-					<div className="flex items-center gap-5">
-						<a href="/privacy-policy" className="text-xs text-secondary/50 hover:text-brand transition-colors duration-200">
-							Privacy Policy
+					<p className="text-xs text-secondary/40 text-center">
+						Developed and managed by{' '}
+						<a href="https://buildera.co/" target="_blank" rel="noopener" className="text-secondary/50 hover:text-brand transition-colors duration-200">
+							Buildera Technologies LLP
 						</a>
-						<a href="/terms-and-conditions" className="text-xs text-secondary/50 hover:text-brand transition-colors duration-200">
-							Terms & Conditions
-						</a>
-					</div>
+					</p>
 				</div>
 			</div>
 		</footer>

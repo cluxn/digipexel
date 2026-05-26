@@ -1,7 +1,7 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import GuidesClient from './guides-client'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.cluxn.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
 
 export async function generateMetadata(): Promise<Metadata> {
   const res = await fetch(`${API}/seo_meta.php?page=guides`).catch(() => null)
