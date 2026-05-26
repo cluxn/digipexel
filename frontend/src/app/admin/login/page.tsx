@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
       }
     } catch {
       // Network error — fall back to hardcoded default so admin is never fully locked out
-      if (code === '12345') {
+      if (code === 'Vinay@12345') {
         localStorage.setItem("admin_auth", "true");
         router.push("/admin");
       } else {

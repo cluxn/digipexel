@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://digipexel.cluxn.com',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://digipexel.cluxn.com',
   generateRobotsTxt: true,
   outDir: './out',
   robotsTxtOptions: {
@@ -8,7 +8,7 @@ module.exports = {
       { userAgent: '*', allow: '/' },
       { userAgent: '*', disallow: '/admin/' },
     ],
-    additionalSitemaps: ['https://digipexel.cluxn.com/sitemap.xml'],
+    additionalSitemaps: ['https://digipexel.com/sitemap.xml'],
   },
   exclude: [
     '/admin',

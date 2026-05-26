@@ -30,6 +30,7 @@ jobs:
           npm run build
         env:
           NEXT_PUBLIC_API_URL: https://digipexel.cluxn.com/backend/api
+          NEXT_PUBLIC_SITE_URL: https://digipexel.cluxn.com
 
       - name: 🔧 Install lftp
         run: sudo apt-get install -y lftp
@@ -60,7 +61,7 @@ jobs:
             -e "set sftp:auto-confirm yes; \
                 set net:max-retries 5; \
                 set net:reconnect-interval-base 3; \
-                mirror --reverse --delete --verbose \
+                mirror --reverse --delete --verbose --exclude 'uploads/' \
                   ./backend/ public_html/digipexel/backend/; \
                 quit" \
             sftp://cluxn.com || \
@@ -69,7 +70,7 @@ jobs:
                 set ssl:verify-certificate false; \
                 set ftp:passive-mode true; \
                 set net:max-retries 5; \
-                mirror --reverse --delete --verbose \
+                mirror --reverse --delete --verbose --exclude 'uploads/' \
                   ./backend/ public_html/digipexel/backend/; \
                 quit" \
             ftp://cluxn.com
