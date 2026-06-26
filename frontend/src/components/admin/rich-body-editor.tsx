@@ -313,12 +313,41 @@ export default function RichBodyEditor({ value, onChange }: { value: string; onC
           {/* Resizable image preview */}
           {imgUrl && (
             <div className="space-y-1.5">
+              {/* Preset size buttons */}
+              <div className="space-y-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Preset Sizes</span>
+                <div className="flex gap-1 flex-wrap">
+                  {([
+                    { label: "XS",   px: 200,  desc: "200px" },
+                    { label: "S",    px: 300,  desc: "300px" },
+                    { label: "M",    px: 500,  desc: "500px" },
+                    { label: "L",    px: 700,  desc: "700px" },
+                    { label: "Full", px: 1000, desc: "1000px" },
+                  ] as const).map(({ label, px, desc }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => setImgPixelWidth(px)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all border",
+                        imgPixelWidth === px
+                          ? "bg-brand text-white border-brand"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-brand hover:text-brand"
+                      )}
+                    >
+                      {label}
+                      <span className="ml-1 text-[9px] opacity-60">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
                   Size Preview — <span className="text-brand font-black">{imgPixelWidth}px wide</span>
                 </span>
                 <span className="text-[9px] text-slate-400 flex items-center gap-1">
-                  <GripHorizontal className="w-3 h-3" /> drag corner to resize
+                  <GripHorizontal className="w-3 h-3" /> drag corner to fine-tune
                 </span>
               </div>
 

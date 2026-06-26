@@ -16,6 +16,7 @@ try {
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
+    header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
-    die(json_encode(["status" => "error", "message" => "Database connection failed: " . $e->getMessage()]));
+    die(json_encode(["status" => "error", "message" => "Database connection failed"]));
 }

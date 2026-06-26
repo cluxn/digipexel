@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
         localStorage.setItem("admin_auth", "true");
         router.push("/admin");
       } else {
-        setError(String(res?.message ?? "Invalid email or password"));
+        setError(stored ? "Invalid email or password" : String(res?.message ?? "Connection failed"));
       }
     } catch {
       setError("Unable to connect. Please try again.");
