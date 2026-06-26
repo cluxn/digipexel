@@ -6,10 +6,10 @@
 if (file_exists(__DIR__ . '/config.local.php')) {
     require_once __DIR__ . '/config.local.php';
 } else {
-    $db_host = 'localhost';
-    $db_user = 'u723773599_digipexel';
-    $db_pass = 'Digipexel@12345';
-    $db_name = 'u723773599_digipexel';
+    $db_host = '207.180.252.239';
+    $db_user = 'digi_pexel';
+    $db_pass = 'YOUR_DB_PASSWORD';
+    $db_name = 'digi_pexel';
 }
 
 try {
