@@ -51,6 +51,7 @@ export function InlineLeadForm({
         contact_number: form.phone,
         source,
         action: "add_lead",
+        site_name: "Digi Pexel",
       });
       setSent(true);
     } else {
@@ -163,6 +164,7 @@ export function LeadPopup({
         contact_number: form.phone,
         source: `Popup: ${source}`,
         action: "add_lead",
+        site_name: "Digi Pexel",
       });
       setSent(true);
     } else {

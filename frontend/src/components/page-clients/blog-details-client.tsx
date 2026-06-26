@@ -242,7 +242,7 @@ export default function BlogDetailsClient({ slug }: { slug: string }) {
       body: JSON.stringify(payload),
     });
     if (res.status === "success") {
-      fireWebhook(WEBHOOK_LEAD, { ...payload, source: "blog_inline_form" });
+      fireWebhook(WEBHOOK_LEAD, { ...payload, source: "blog_inline_form", site_name: "Digi Pexel" });
       setFormSent(true);
     } else {
       setFormError(true);

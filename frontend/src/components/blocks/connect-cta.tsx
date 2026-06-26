@@ -166,7 +166,7 @@ export function Connect({ variant = "light", isHomepage = false, badge, title, c
         body: JSON.stringify(formData),
       });
       if (data && data.status === "success") {
-        fireWebhook(WEBHOOK_LEAD, { ...formData, source: "connect_cta" });
+        fireWebhook(WEBHOOK_LEAD, { ...formData, source: "connect_cta", site_name: "Digi Pexel" });
         form.reset();
         setFormStatus("success");
       } else {

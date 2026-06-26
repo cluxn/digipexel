@@ -140,7 +140,7 @@ export default function GuideClient({ id }: { id: string }) {
       body: JSON.stringify(payload),
     });
     if (res.status === "success") {
-      fireWebhook(WEBHOOK_LEAD, { ...payload, source: "guide_download_form" });
+      fireWebhook(WEBHOOK_LEAD, { ...payload, source: "guide_download_form", site_name: "Digi Pexel" });
       setFormSent(true);
     } else {
       setFormError(true);

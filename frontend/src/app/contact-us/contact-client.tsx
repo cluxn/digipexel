@@ -115,7 +115,7 @@ export default function ContactPage() {
                     body: JSON.stringify(formData),
                   });
                   if (data.status === "success") {
-                    fireWebhook(WEBHOOK_LEAD, { ...formData, source: "contact_page" });
+                    fireWebhook(WEBHOOK_LEAD, { ...formData, source: "contact_page", site_name: "Digi Pexel" });
                     form.reset();
                     setFormStatus("success");
                   } else {

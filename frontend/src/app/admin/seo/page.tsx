@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
-import { Search, AlertTriangle, Loader2 } from "lucide-react";
+import { Search, AlertTriangle, Loader2, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
 
 // All public pages available for SEO meta editing
 const PAGE_OPTIONS = [
@@ -180,6 +180,63 @@ export default function AdminSeoPage() {
             {saveStatus === "error" && (
               <p className="text-sm font-semibold text-red-600">Save failed. Check your connection and try again.</p>
             )}
+          </div>
+        </div>
+
+        {/* Sitemap & Robots.txt */}
+        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm space-y-6">
+          <div>
+            <h2 className="text-lg font-display font-bold text-[#1A1C1E] flex items-center gap-2">
+              <FileText className="w-5 h-5 text-brand" />
+              Sitemap &amp; Robots.txt
+            </h2>
+            <p className="text-slate-400 text-sm mt-1">
+              Auto-generated at each site build via <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">next-sitemap</code>. View live files below.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              {
+                label: "sitemap.xml",
+                url: "https://www.digipexel.com/sitemap.xml",
+                desc: "All public pages submitted to search engines",
+              },
+              {
+                label: "robots.txt",
+                url: "https://www.digipexel.com/robots.txt",
+                desc: "Crawler rules — /admin/* blocked, all else allowed",
+              },
+            ].map(({ label, url, desc }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 border border-slate-100 hover:border-brand/30 rounded-2xl p-5 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-brand" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 font-bold text-sm text-[#1A1C1E] group-hover:text-brand transition-colors">
+                    {label}
+                    <ExternalLink className="w-3 h-3 opacity-40" />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5 leading-snug">{desc}</p>
+                  <p className="text-[10px] text-slate-300 mt-1 truncate">{url}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div className="bg-slate-50 rounded-xl p-4 text-xs text-slate-500 leading-relaxed">
+            <span className="font-bold text-slate-600">How to regenerate:</span> Run{" "}
+            <code className="bg-white border border-slate-200 rounded px-1.5 py-0.5">npm run build</code> locally then
+            deploy the <code className="bg-white border border-slate-200 rounded px-1.5 py-0.5">out/</code> folder via
+            SFTP. The <code className="bg-white border border-slate-200 rounded px-1.5 py-0.5">postbuild</code> script
+            writes fresh <code className="bg-white border border-slate-200 rounded px-1.5 py-0.5">sitemap.xml</code> and{" "}
+            <code className="bg-white border border-slate-200 rounded px-1.5 py-0.5">robots.txt</code> automatically.
           </div>
         </div>
       </div>
