@@ -269,6 +269,29 @@ try {
     $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['whatsapp_number', '']);
     $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['whatsapp_enabled','true']);
     $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['calendly_url',    '']);
+    // General contact
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['company_email',   '']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['company_phone',   '']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['company_address', '']);
+    // Social
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['twitter_url',     '']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['logo_url',        '']);
+    // Appearance
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['site_name',       'Digi Pexel']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['tagline',         'Building the future of AI automation.']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['default_cta_link','/contact-us']);
+    // Cookie consent
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['cookie_consent_enabled',   'false']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['cookie_consent_text',      'We use cookies to improve your experience. By continuing, you agree to our Privacy Policy.']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['cookie_consent_link_text', 'Privacy Policy']);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['cookie_consent_link_url',  '/privacy-policy']);
+    // SEO extras
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['robots_txt',      "User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://www.digipexel.com/sitemap.xml"]);
+    $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES (?, ?)")->execute(['url_redirects',   '[]']);
+    // Marketing extras
+    $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['nudge',      '{"enabled":false,"message":"Limited automation audit slots available this week!","ctaLabel":"Claim your spot","ctaLink":"/contact-us","position":"bottom-right","delayMs":3000}']);
+    $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['mini_ctas',  '{"items":[{"label":"Free Audit","url":"/contact-us"},{"label":"Book a Call","url":"/contact-us"}]}']);
+    $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['lead_form',  '{"heading":"Ready to automate your ops?","subtext":"Fill in your details and we will send a custom automation roadmap in 24 hours.","ctaLabel":"Send My Roadmap","fields":["name","email","company","phone","service"]}']);
 
     // Admin user — seed only on first run, never overwrite
     $existingUsers = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
