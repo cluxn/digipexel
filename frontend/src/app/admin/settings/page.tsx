@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import AdminLayout from "@/components/admin/admin-layout";
 import { api } from "@/lib/api";
 
@@ -90,14 +89,27 @@ export default function AdminSettingsPage() {
   return (
     <AdminLayout>
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+        {/* Settings tabs */}
+        <div className="flex items-center gap-0 border-b border-slate-200">
+          {[
+            { label: "Site Settings", href: "/admin/settings" },
+            { label: "Users", href: "/admin/users" },
+          ].map(tab => (
+            <a key={tab.href} href={tab.href}
+              className={`px-5 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab.href === "/admin/settings"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}>
+              {tab.label}
+            </a>
+          ))}
+        </div>
+
         {/* Page Header */}
         <div className="border-b border-slate-100 pb-8 space-y-2">
-          <Badge className="bg-brand/10 text-brand border-0 rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase">
-            Settings
-          </Badge>
-          <h1 className="text-4xl font-display font-bold text-[#1A1C1E] tracking-tight">
-            Site Settings
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900">Site Settings</h1>
           <p className="text-slate-400 text-sm">
             Configure social links, contact info, WhatsApp, and global site defaults.
           </p>
