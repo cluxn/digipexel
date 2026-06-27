@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ServicePageClient } from "./service-page-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://www.digipexel.com/backend/api'
 
 const SERVICE_SLUGS = [
   "ai-seo", "custom-ai-solutions", "youtube-automation",
@@ -21,17 +21,23 @@ export async function generateMetadata(
   const res = await fetch(`${API}/seo_meta.php?page=services/${slug}`).catch(() => null)
   const data = res ? await res.json().catch(() => null) : null
   const meta = data?.status === 'success' ? data.data : null
-  const fallbackTitle = `${slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Service — Digi Pexel`
+  const fallbackTitle = `${slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} — Digi Pexel`
+  const title = meta?.seo_title || fallbackTitle
+  const description = meta?.meta_description || 'AI automation and digital marketing services from Digi Pexel.'
+  const images = meta?.og_image ? [{ url: meta.og_image }] : []
   return {
-    title: meta?.seo_title || fallbackTitle,
-    description: meta?.meta_description || 'AI automation and digital marketing services from Digi Pexel.',
-    alternates: { canonical: `https://www.digipexel.com/services/${slug}` },
+    title,
+    description,
+    alternates: { canonical: `https://www.digipexel.com/services/${slug}/` },
     openGraph: {
-      title: meta?.seo_title || fallbackTitle,
-      description: meta?.meta_description || 'AI automation and digital marketing services from Digi Pexel.',
-      url: `https://www.digipexel.com/services/${slug}`,
-      images: meta?.og_image ? [{ url: meta.og_image }] : [],
+      title,
+      description,
+      url: `https://www.digipexel.com/services/${slug}/`,
+      type: 'website',
+      locale: 'en_US',
+      images,
     },
+    twitter: { card: 'summary_large_image', title, description },
   }
 }
 
@@ -44,9 +50,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     provider: {
       '@type': 'Organization',
       name: 'Digi Pexel',
-      url: 'https://digipexel.com',
+      url: 'https://www.digipexel.com',
     },
-    url: `https://digipexel.com/services/${slug}`,
+    url: `https://www.digipexel.com/services/${slug}/`,
     description: 'AI automation and digital marketing service by Digi Pexel',
     areaServed: 'Worldwide',
     serviceType: 'AI Automation',

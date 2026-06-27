@@ -1,7 +1,10 @@
-"use client";
+import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
-import { redirect } from "next/navigation";
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default function AiSeoRedirect() {
-  redirect("/services/ai-seo");
+  redirect('/services/ai-seo/')
 }

@@ -18,7 +18,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.digipexel.com"),
-  title: "Digi Pexel — AI Automation Agency",
+  title: {
+    default: "Digi Pexel — AI Automation Agency",
+    template: "%s | Digi Pexel",
+  },
   description: "We design reliable AI workflows that move data, decisions, and actions across your stack — so your team can scale without friction.",
   keywords: ["AI automation", "workflow automation", "AI agency", "n8n", "make", "zapier", "digital transformation"],
   alternates: { canonical: "https://www.digipexel.com/" },
@@ -27,7 +30,19 @@ export const metadata: Metadata = {
     description: "We design reliable AI workflows that move data, decisions, and actions across your stack.",
     siteName: "Digi Pexel",
     type: "website",
+    locale: "en_US",
     url: "https://www.digipexel.com/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@digipexel",
+    title: "Digi Pexel — AI Automation Agency",
+    description: "We design reliable AI workflows that move data, decisions, and actions across your stack.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 },
   },
   icons: {
     icon: "/icon.svg",
@@ -61,10 +76,10 @@ export default function RootLayout({
               contactPoint: {
                 '@type': 'ContactPoint',
                 contactType: 'customer service',
-                url: 'https://www.digipexel.com/contact-us',
+                url: 'https://www.digipexel.com/contact-us/',
               },
               sameAs: [
-                'https://linkedin.com/company/digipexel',
+                'https://www.linkedin.com/company/digipexel',
               ],
             }).replace(/</g, '\\u003c'),
           }}

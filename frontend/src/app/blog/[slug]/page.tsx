@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import BlogDetailsClient from "@/components/page-clients/blog-details-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://digipexel.com/backend/api'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://www.digipexel.com/backend/api'
 
 const FALLBACK_SLUGS = [
   "ai-automation-eliminates-manual-work",
@@ -29,20 +29,48 @@ export async function generateMetadata(
   const res = await fetch(`${API}/seo_meta.php?page=blog/${slug}`).catch(() => null)
   const data = res ? await res.json().catch(() => null) : null
   const meta = data?.status === 'success' ? data.data : null
+  const title = meta?.seo_title || 'Blog Post — Digi Pexel'
+  const description = meta?.meta_description || 'Read our latest AI automation insights.'
+  const images = meta?.og_image ? [{ url: meta.og_image }] : []
   return {
-    title: meta?.seo_title || 'Blog Post — Digi Pexel',
-    description: meta?.meta_description || 'Read our latest AI automation insights.',
-    alternates: { canonical: `https://www.digipexel.com/blog/${slug}` },
+    title,
+    description,
+    alternates: { canonical: `https://www.digipexel.com/blog/${slug}/` },
     openGraph: {
-      title: meta?.seo_title || 'Blog Post — Digi Pexel',
-      description: meta?.meta_description || 'Read our latest AI automation insights.',
-      url: `https://www.digipexel.com/blog/${slug}`,
-      images: meta?.og_image ? [{ url: meta.og_image }] : [],
+      title,
+      description,
+      url: `https://www.digipexel.com/blog/${slug}/`,
+      type: 'article',
+      locale: 'en_US',
+      images,
     },
+    twitter: { card: 'summary_large_image', title, description },
   }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  return <BlogDetailsClient slug={resolvedParams.slug} />;
+  const { slug } = resolvedParams;
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+    publisher: {
+      '@type': 'Organization',
+      name: 'Digi Pexel',
+      url: 'https://www.digipexel.com',
+      logo: { '@type': 'ImageObject', url: 'https://www.digipexel.com/icon.svg' },
+    },
+    url: `https://www.digipexel.com/blog/${slug}/`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.digipexel.com/blog/${slug}/` },
+  }
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, '\\u003c') }}
+      />
+      <BlogDetailsClient slug={slug} />
+    </>
+  );
 }
