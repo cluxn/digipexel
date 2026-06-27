@@ -470,45 +470,66 @@ export default function AdminBlogPage() {
     <AdminLayout>
       <div className="pb-20 max-w-6xl mx-auto">
 
-        {/* API offline banner */}
         {apiError && (
           <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium mb-6">
             <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-            <span><strong>API offline</strong> — showing demo posts. Deploy the backend or check your connection to load live data.</span>
+            <span><strong>API offline</strong> — showing demo posts. Start your local PHP server to load live data.</span>
             <button onClick={() => { setLoading(true); fetchPosts(); }} className="ml-auto text-amber-700 font-bold underline underline-offset-2 hover:no-underline">Retry</button>
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display font-bold text-slate-900">Blog Posts</h1>
-          <button onClick={openNew} className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm">
-            New Post <kbd className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">F2</kbd>
-          </button>
+        {/* Content-type tabs */}
+        <div className="flex items-center gap-1 border-b border-slate-200 mb-6">
+          {[
+            { label: "Blog", href: "/admin/blog" },
+            { label: "Case Studies", href: "/admin/case-studies" },
+            { label: "Guides", href: "/admin/guides" },
+            { label: "Testimonials", href: "/admin/testimonials" },
+          ].map(tab => (
+            <a key={tab.href} href={tab.href}
+              className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
+                tab.href === "/admin/blog"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              )}>
+              {tab.label}
+            </a>
+          ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-5">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search by title…"
-              className="pl-9 pr-4 h-9 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand bg-white w-60"
-            />
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-2xl font-display font-bold text-slate-900">Blog Posts</h1>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search posts…"
+                className="pl-9 pr-4 h-9 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand bg-white w-52" />
+            </div>
+            <button onClick={openNew}
+              className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all shadow-sm">
+              + New Post
+            </button>
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)}
-            className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white text-slate-600">
-            <option value="all">All statuses</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="scheduled">Scheduled</option>
-          </select>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            Published from
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
-            to
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
+        </div>
+
+        {/* Status tabs + date filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+            {(["all", "draft", "published", "scheduled"] as const).map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={cn("px-3 py-1.5 rounded-md text-xs font-semibold capitalize transition-all",
+                  statusFilter === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                )}>
+                {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span>From</span>
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
+            <span>to</span>
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
           </div>
         </div>
 
@@ -518,18 +539,18 @@ export default function AdminBlogPage() {
             <div className="py-20 text-center text-slate-400 text-sm font-semibold">
               {search || statusFilter !== "all" || dateFrom || dateTo
                 ? "No matching articles"
-                : "No articles yet — click \"New Post\" to begin"}
+                : "No articles yet — click \"+ New Post\" to begin"}
             </div>
           ) : (
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60">
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500">Title</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500">Status</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Scheduled At</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Published At</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Author</th>
-                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500">Actions</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Title</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Category</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Author</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Published At</th>
+                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -539,11 +560,13 @@ export default function AdminBlogPage() {
                   return (
                     <tr key={key} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/40 transition-colors">
                       <td className="px-5 py-3.5">
-                        <span className="text-sm font-medium text-slate-800 truncate max-w-[260px] block">{p.title || "Untitled"}</span>
+                        <span className="text-sm font-medium text-slate-800 block truncate max-w-[280px]">{p.title || "Untitled"}</span>
+                        <span className="text-xs text-slate-400 font-mono">{p.slug}</span>
                       </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{p.category || "—"}</td>
                       <td className="px-4 py-3.5">
                         <span className={cn(
-                          "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                          "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide",
                           p.status === "published" ? "bg-emerald-100 text-emerald-700"
                             : p.status === "scheduled" ? "bg-blue-100 text-blue-700"
                             : "bg-amber-100 text-amber-700"
@@ -551,13 +574,10 @@ export default function AdminBlogPage() {
                           {p.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
-                        {p.scheduled_at ? new Date(p.scheduled_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
-                      </td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
-                        {p.published_at ? new Date(p.published_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
-                      </td>
                       <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{p.author_name || "Digi Pexel Team"}</td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                        {p.published_at ? new Date(p.published_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                      </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <a href={`/blog/${p.slug}`} target="_blank" rel="noopener noreferrer"
