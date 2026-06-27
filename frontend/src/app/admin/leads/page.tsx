@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
 import {
   Trash2, Mail, Search, Phone, Building2, AlertTriangle,
-  RefreshCw, Download, Plus, X, Calendar, FileSpreadsheet, FileText, Check,
+  RefreshCw, Download, Plus, X, Calendar, FileSpreadsheet, ChevronDown, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -103,6 +103,8 @@ export default function AdminLeadsPage() {
   const [editingNotes, setEditingNotes] = useState<Record<number, string>>({});
   const [editingFollowUp, setEditingFollowUp] = useState<Record<number, string>>({});
   const [savingField, setSavingField]   = useState<number | null>(null);
+  const [exportOpen, setExportOpen]     = useState(false);
+  const [subExportOpen, setSubExportOpen] = useState(false);
 
   // Newsletter
   const [subscribers, setSubscribers]   = useState<Subscriber[]>([]);
@@ -188,9 +190,8 @@ export default function AdminLeadsPage() {
     setSaving(false);
   };
 
-  const exportCSV     = () => window.open(`${API_BASE_URL}/leads.php?action=export_csv`, "_blank");
-  const exportExcel   = () => window.open(`${API_BASE_URL}/leads.php?action=export_excel`, "_blank");
-  const downloadSample = () => window.open(`${API_BASE_URL}/leads.php?action=sample_csv`, "_blank");
+  const exportCSV   = () => window.open(`${API_BASE_URL}/leads.php?action=export_csv`, "_blank");
+  const exportExcel = () => window.open(`${API_BASE_URL}/leads.php?action=export_excel`, "_blank");
 
   // ── Derived stats ────────────────────────────────────────────────────────────
 
@@ -332,15 +333,32 @@ export default function AdminLeadsPage() {
               />
 
               <div className="ml-auto flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 text-sm">
-                  <Download className="w-4 h-4" /> CSV
-                </Button>
-                <Button variant="outline" size="sm" onClick={exportExcel} className="gap-1.5 text-sm text-emerald-700 border-emerald-200 hover:bg-emerald-50">
-                  <FileSpreadsheet className="w-4 h-4" /> Excel
-                </Button>
-                <Button variant="outline" size="sm" onClick={downloadSample} className="gap-1.5 text-sm text-slate-500">
-                  <FileText className="w-4 h-4" /> Sample
-                </Button>
+                {/* Export dropdown */}
+                <div className="relative">
+                  <Button
+                    variant="outline" size="sm"
+                    onClick={() => setExportOpen(o => !o)}
+                    className="gap-1.5 text-sm"
+                  >
+                    <Download className="w-4 h-4" /> Export <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                  {exportOpen && (
+                    <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 text-sm">
+                      <button
+                        onClick={() => { exportCSV(); setExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <Download className="w-4 h-4 text-slate-400" /> Export as CSV
+                      </button>
+                      <button
+                        onClick={() => { exportExcel(); setExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Export as Excel
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm">
                   <Plus className="w-4 h-4" /> Add Lead
                 </Button>
@@ -613,15 +631,31 @@ export default function AdminLeadsPage() {
                     className="pl-8 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-400 w-44"
                   />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=export_csv`, "_blank")} className="gap-1.5 text-sm">
-                  <Download className="w-3.5 h-3.5" /> CSV
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=export_excel`, "_blank")} className="gap-1.5 text-sm text-emerald-700 border-emerald-200 hover:bg-emerald-50">
-                  <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=sample_csv`, "_blank")} className="gap-1.5 text-sm text-slate-500">
-                  <FileText className="w-3.5 h-3.5" /> Sample
-                </Button>
+                <div className="relative">
+                  <Button
+                    variant="outline" size="sm"
+                    onClick={() => setSubExportOpen(o => !o)}
+                    className="gap-1.5 text-sm"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Export <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                  {subExportOpen && (
+                    <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 text-sm">
+                      <button
+                        onClick={() => { window.open(`${API_BASE_URL}/newsletter.php?action=export_csv`, "_blank"); setSubExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <Download className="w-4 h-4 text-slate-400" /> Export as CSV
+                      </button>
+                      <button
+                        onClick={() => { window.open(`${API_BASE_URL}/newsletter.php?action=export_excel`, "_blank"); setSubExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Export as Excel
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
