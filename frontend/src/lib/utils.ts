@@ -31,7 +31,10 @@ export function fireWebhook(url: string, data: Record<string, unknown>): void {
   }).catch(() => {});
 }
 
+const IS_DEMO_MODE = process.env.NEXT_PUBLIC_USE_DEMO_DATA === 'true';
+
 export function safeFetch(url: string, options?: RequestInit, timeoutMs = 8000): Promise<Record<string, unknown>> {
+  if (IS_DEMO_MODE) return Promise.resolve({ status: 'error', message: 'Demo mode' });
   return new Promise((resolve) => {
     try {
       const xhr = new XMLHttpRequest();
