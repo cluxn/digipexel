@@ -123,6 +123,8 @@ export default function AdminBlogPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch]   = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
+  const [catFilter, setCatFilter] = useState("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo]     = useState("");
 
@@ -197,12 +199,21 @@ export default function AdminBlogPage() {
     finally { setSaving(false); }
   };
 
-  const filtered = posts.filter(p => {
+  const categories = Array.from(new Set(posts.map(p => p.category).filter(Boolean)));
+
+  const filtered = [...posts.filter(p => {
     if (!p.title.toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
+    if (catFilter !== "all" && p.category !== catFilter) return false;
     if (dateFrom && p.published_at && p.published_at < dateFrom) return false;
     if (dateTo   && p.published_at && p.published_at > dateTo)   return false;
     return true;
+  })].sort((a, b) => {
+    if (sort === "newest") return (b.published_at || "").localeCompare(a.published_at || "");
+    if (sort === "oldest") return (a.published_at || "").localeCompare(b.published_at || "");
+    if (sort === "az") return a.title.localeCompare(b.title);
+    if (sort === "za") return b.title.localeCompare(a.title);
+    return 0;
   });
 
   if (loading) return <AdminLayout><div className="p-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Loading…</div></AdminLayout>;
@@ -215,7 +226,7 @@ export default function AdminBlogPage() {
 
     return (
       <AdminLayout>
-        <div className="pb-32 max-w-2xl mx-auto">
+        <div className="pb-32 max-w-6xl mx-auto">
 
           {/* Top bar */}
           <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -240,193 +251,100 @@ export default function AdminBlogPage() {
             </div>
           </div>
 
-          {/* Form */}
-          <div className="space-y-6">
+          {/* Form — two-column layout */}
+          <div className="grid grid-cols-3 gap-8 items-start">
 
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
-              <input
-                value={p.title}
-                onChange={e => updatePost(idx, { title: e.target.value, slug: p.id ? p.slug : slugify(e.target.value) })}
-                placeholder="Post title"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
-              />
-            </div>
+            {/* ── LEFT: Writing area ────────────────────────────────────────── */}
+            <div className="col-span-2 space-y-5">
 
-            {/* Slug */}
-            <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Slug <span className="italic">(auto-generated from title; edit to customize)</span>
-              </label>
-              <input
-                value={p.slug}
-                onChange={e => updatePost(idx, { slug: e.target.value })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono text-slate-600 focus:outline-none focus:border-brand bg-white"
-              />
-            </div>
-
-            {/* Excerpt */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Excerpt</label>
-              <textarea
-                value={p.excerpt}
-                onChange={e => updatePost(idx, { excerpt: e.target.value })}
-                placeholder="Short summary shown in post listings…"
-                rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
-              />
-            </div>
-
-            {/* Cover Image */}
-            <UploadImageField label="Cover Image" value={p.image_url} onChange={v => updatePost(idx, { image_url: v })} />
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
-              <select
-                value={p.status}
-                onChange={e => updatePost(idx, { status: e.target.value as BlogPost["status"] })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="scheduled">Scheduled</option>
-              </select>
-            </div>
-
-            {p.status === "scheduled" && (
+              {/* Title */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Scheduled Date &amp; Time</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
                 <input
-                  type="datetime-local"
-                  value={p.scheduled_at || ""}
-                  onChange={e => updatePost(idx, { scheduled_at: e.target.value })}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
+                  value={p.title}
+                  onChange={e => updatePost(idx, { title: e.target.value, slug: p.id ? p.slug : slugify(e.target.value) })}
+                  placeholder="Post title"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-lg font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
+                />
+                <input
+                  value={p.slug}
+                  onChange={e => updatePost(idx, { slug: e.target.value })}
+                  className="w-full border-0 border-b border-slate-100 px-4 py-1.5 text-xs font-mono text-slate-400 focus:outline-none focus:border-brand bg-transparent"
+                  placeholder="slug"
                 />
               </div>
-            )}
 
-            {/* Meta Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Title <span className="text-xs font-normal text-slate-400">(SEO — defaults to post title if blank)</span>
-              </label>
-              <input
-                value={p.meta_title}
-                onChange={e => updatePost(idx, { meta_title: e.target.value })}
-                placeholder="SEO page title"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
-              />
-            </div>
+              {/* Excerpt */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Excerpt</label>
+                <textarea
+                  value={p.excerpt}
+                  onChange={e => updatePost(idx, { excerpt: e.target.value })}
+                  placeholder="Short summary shown in post listings…"
+                  rows={3}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
+                />
+              </div>
 
-            {/* Meta Description */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Description <span className="text-xs font-normal text-brand">(SEO)</span>
-              </label>
-              <textarea
-                value={p.meta_description}
-                onChange={e => updatePost(idx, { meta_description: e.target.value })}
-                placeholder="Brief description for search engines (150–160 characters)…"
-                rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
-              />
-            </div>
+              {/* Body */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
+                <RichBodyEditor value={p.content} onChange={v => updatePost(idx, { content: v })} />
+              </div>
 
-            {/* Body */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Body <span className="text-red-500">*</span>
-              </label>
-              <RichBodyEditor value={p.content} onChange={v => updatePost(idx, { content: v })} />
-            </div>
-
-            {/* Advanced toggle */}
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 border border-slate-200 rounded-xl px-4 py-3 w-full transition-colors"
-            >
-              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              Advanced options
-              <span className="ml-auto text-xs text-slate-400 hidden sm:block">Author · Category · Tags · Sections · FAQs</span>
-            </button>
-
-            {showAdvanced && (
-              <div className="space-y-6 border border-slate-200 rounded-2xl p-6 bg-slate-50/30">
-
-                {/* Author */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Author</p>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <Field label="Author Name" value={p.author_name} onChange={v => updatePost(idx, { author_name: v })} placeholder="Digi Pexel Team" />
-                    <Field label="Author Role" value={p.author_role} onChange={v => updatePost(idx, { author_role: v })} placeholder="AI Strategy Lead" />
+              {/* Content Blocks */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-500">Content Blocks</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Structured blocks override the Body field when added.</p>
                   </div>
-                  <AuthorImageField value={p.author_image} onChange={v => updatePost(idx, { author_image: v })} />
                 </div>
-
-                {/* Meta */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Category" value={p.category} onChange={v => updatePost(idx, { category: v })} placeholder="Technology, Strategy…" />
-                  <Field label="Read Time" value={p.read_time} onChange={v => updatePost(idx, { read_time: v })} placeholder="5 min read" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Tags (comma-separated)" value={p.tags} onChange={v => updatePost(idx, { tags: v })} placeholder="AI, Automation, SEO" />
-                  <Field label="Eyebrow Label" value={p.eyebrow} onChange={v => updatePost(idx, { eyebrow: v })} placeholder="Article" />
-                </div>
-                <Field label="Publish Date" value={p.published_at} type="date" onChange={v => updatePost(idx, { published_at: v })} />
-                <Field label="Sidebar Form Heading" value={p.form_heading} onChange={v => updatePost(idx, { form_heading: v })} placeholder="e.g. Plan an AI-led Automation for Your Business" />
-
-                {/* Content Blocks */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Content Blocks</p>
-                  <p className="text-xs text-slate-400 mb-4">Structured blocks override the Body field above when added.</p>
-                  {p.sections.length === 0 ? (
-                    <div className="border-2 border-dashed border-slate-200 rounded-2xl py-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">
-                      No blocks yet
-                    </div>
-                  ) : (
-                    <div className="space-y-3 mb-4">
-                      {p.sections.map((sec, si) => (
-                        <SectionEditor key={sec.id} section={sec}
-                          onChange={updated => { const s = [...p.sections]; s[si] = updated; updatePost(idx, { sections: s }); }}
-                          onRemove={() => updatePost(idx, { sections: p.sections.filter((_, i) => i !== si) })}
-                          onMove={dir => {
-                            if (dir === "up" && si === 0) return;
-                            if (dir === "down" && si === p.sections.length - 1) return;
-                            const s = [...p.sections]; const t = dir === "up" ? si - 1 : si + 1;
-                            [s[si], s[t]] = [s[t], s[si]]; updatePost(idx, { sections: s });
-                          }}
-                        />
+                {p.sections.length > 0 && (
+                  <div className="p-4 space-y-3">
+                    {p.sections.map((sec, si) => (
+                      <SectionEditor key={sec.id} section={sec}
+                        onChange={updated => { const s = [...p.sections]; s[si] = updated; updatePost(idx, { sections: s }); }}
+                        onRemove={() => updatePost(idx, { sections: p.sections.filter((_, i) => i !== si) })}
+                        onMove={dir => {
+                          if (dir === "up" && si === 0) return;
+                          if (dir === "down" && si === p.sections.length - 1) return;
+                          const s = [...p.sections]; const t = dir === "up" ? si - 1 : si + 1;
+                          [s[si], s[t]] = [s[t], s[si]]; updatePost(idx, { sections: s });
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="border-t border-slate-100">
+                  <button className="w-full flex items-center justify-between px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
+                    onClick={() => setAddOpen(!addOpen)}>
+                    <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Block</span>
+                    {addOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {addOpen && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50/30 border-t border-slate-100">
+                      {SECTION_TYPES.map(st => (
+                        <button key={st.type}
+                          onClick={() => { updatePost(idx, { sections: [...p.sections, buildDefaultSection(st.type)] }); setAddOpen(false); }}
+                          className="flex flex-col items-start gap-1 p-3 rounded-xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
+                          <span className="text-brand">{st.icon}</span>
+                          <span className="text-xs font-bold text-slate-700">{st.label}</span>
+                          <span className="text-[10px] text-slate-400">{st.desc}</span>
+                        </button>
                       ))}
                     </div>
                   )}
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                    <button className="w-full flex items-center justify-between px-5 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
-                      onClick={() => setAddOpen(!addOpen)}>
-                      <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Block</span>
-                      {addOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
-                    {addOpen && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-t border-slate-100 bg-slate-50/30">
-                        {SECTION_TYPES.map(st => (
-                          <button key={st.type}
-                            onClick={() => { updatePost(idx, { sections: [...p.sections, buildDefaultSection(st.type)] }); setAddOpen(false); }}
-                            className="flex flex-col items-start gap-1 p-3 rounded-xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
-                            <span className="text-brand">{st.icon}</span>
-                            <span className="text-xs font-bold text-slate-700">{st.label}</span>
-                            <span className="text-[10px] text-slate-400">{st.desc}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
+              </div>
 
-                {/* FAQs */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">FAQs ({p.faqs.length})</p>
-                  <div className="space-y-3 mb-3">
+              {/* FAQs */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-500">FAQs <span className="text-slate-300 font-normal ml-1">({p.faqs.length})</span></p>
+                </div>
+                {p.faqs.length > 0 && (
+                  <div className="p-4 space-y-3">
                     {p.faqs.map((faq, fi) => (
                       <div key={fi} className="border border-slate-200 rounded-xl p-4 space-y-3">
                         <div className="flex items-center justify-between">
@@ -442,23 +360,113 @@ export default function AdminBlogPage() {
                       </div>
                     ))}
                   </div>
+                )}
+                <div className="px-4 py-3 border-t border-slate-100">
                   <button onClick={() => updatePost(idx,{faqs:[...p.faqs,{question:"",answer:""}]})} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
                     <Plus className="w-3.5 h-3.5" /> Add FAQ
                   </button>
                 </div>
+              </div>
 
-                {/* Settings */}
-                <div className="border-t border-slate-200 pt-4">
-                  <ToggleSetting label="Show Related Articles" desc="Display 3 related posts after the content" value={p.show_related} onChange={v => updatePost(idx, { show_related: v })} />
-                  <ToggleSetting label="Show Category Section" desc="Show more posts from the same category" value={p.show_category_section} onChange={v => updatePost(idx, { show_category_section: v })} />
-                  <ToggleSetting label="Featured" desc="Highlight this article on the listing page" value={p.featured} onChange={v => updatePost(idx, { featured: v })} />
-                  <div className="pt-4">
-                    <Field label="Position (order)" value={String(p.position)} type="number" onChange={v => updatePost(idx, { position: Number(v) })} />
+            </div>
+
+            {/* ── RIGHT: Sidebar ────────────────────────────────────────────── */}
+            <div className="col-span-1 space-y-4 sticky top-4">
+
+              {/* Publishing */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Publishing</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Status</label>
+                    <select value={p.status} onChange={e => updatePost(idx, { status: e.target.value as BlogPost["status"] })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white">
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                      <option value="scheduled">Scheduled</option>
+                    </select>
+                  </div>
+                  {p.status === "scheduled" && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Scheduled Date &amp; Time</label>
+                      <input type="datetime-local" value={p.scheduled_at || ""} onChange={e => updatePost(idx, { scheduled_at: e.target.value })}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
+                    </div>
+                  )}
+                  <Field label="Publish Date" value={p.published_at} type="date" onChange={v => updatePost(idx, { published_at: v })} />
+                  <Field label="Position (order)" value={String(p.position)} type="number" onChange={v => updatePost(idx, { position: Number(v) })} />
+                </div>
+              </div>
+
+              {/* Cover Image */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cover Image</p>
+                </div>
+                <div className="p-4">
+                  <UploadImageField label="" value={p.image_url} onChange={v => updatePost(idx, { image_url: v })} />
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Details</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Category" value={p.category} onChange={v => updatePost(idx, { category: v })} placeholder="Technology, Strategy…" />
+                  <Field label="Read Time" value={p.read_time} onChange={v => updatePost(idx, { read_time: v })} placeholder="5 min read" />
+                  <Field label="Tags (comma-separated)" value={p.tags} onChange={v => updatePost(idx, { tags: v })} placeholder="AI, Automation, SEO" />
+                  <Field label="Eyebrow Label" value={p.eyebrow} onChange={v => updatePost(idx, { eyebrow: v })} placeholder="Article" />
+                </div>
+              </div>
+
+              {/* Author */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><User className="w-3 h-3" /> Author</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Author Name" value={p.author_name} onChange={v => updatePost(idx, { author_name: v })} placeholder="Digi Pexel Team" />
+                  <Field label="Author Role" value={p.author_role} onChange={v => updatePost(idx, { author_role: v })} placeholder="AI Strategy Lead" />
+                  <AuthorImageField value={p.author_image} onChange={v => updatePost(idx, { author_image: v })} />
+                </div>
+              </div>
+
+              {/* SEO */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SEO</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Meta Title" value={p.meta_title} onChange={v => updatePost(idx, { meta_title: v })} placeholder="SEO page title (defaults to post title)" />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Meta Description</label>
+                    <textarea value={p.meta_description} onChange={e => updatePost(idx, { meta_description: e.target.value })}
+                      placeholder="150–160 characters for search engines…" rows={3}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
                   </div>
                 </div>
-
               </div>
-            )}
+
+              {/* Settings */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Settings</p>
+                </div>
+                <div className="p-4 space-y-0.5">
+                  <ToggleSetting label="Featured" desc="Highlight on the listing page" value={p.featured} onChange={v => updatePost(idx, { featured: v })} />
+                  <ToggleSetting label="Show Related Articles" desc="Display 3 related posts after content" value={p.show_related} onChange={v => updatePost(idx, { show_related: v })} />
+                  <ToggleSetting label="Show Category Section" desc="More posts from same category" value={p.show_category_section} onChange={v => updatePost(idx, { show_category_section: v })} />
+                  <div className="pt-3">
+                    <Field label="Sidebar Form Heading" value={p.form_heading} onChange={v => updatePost(idx, { form_heading: v })} placeholder="Plan an AI-led Automation…" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </AdminLayout>
@@ -479,7 +487,7 @@ export default function AdminBlogPage() {
         )}
 
         {/* Content-type tabs */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto scrollbar-none">
           {[
             { label: "Blog", href: "/admin/blog" },
             { label: "Case Studies", href: "/admin/case-studies" },
@@ -516,7 +524,7 @@ export default function AdminBlogPage() {
           </div>
         </div>
 
-        {/* Status tabs + date filters */}
+        {/* Status tabs + advanced filters */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
             {(["all", "draft", "published", "scheduled"] as const).map(s => (
@@ -528,10 +536,22 @@ export default function AdminBlogPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>From</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="all">All categories</option>
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select value={sort} onChange={e => setSort(e.target.value as typeof sort)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="az">Title A→Z</option>
+              <option value="za">Title Z→A</option>
+            </select>
+            <span className="text-xs text-slate-400">From</span>
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
-            <span>to</span>
+            <span className="text-xs text-slate-400">to</span>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
           </div>
         </div>
@@ -540,7 +560,7 @@ export default function AdminBlogPage() {
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-sm font-semibold">
-              {search || statusFilter !== "all" || dateFrom || dateTo
+              {search || statusFilter !== "all" || catFilter !== "all" || dateFrom || dateTo
                 ? "No matching articles"
                 : "No articles yet — click \"+ New Post\" to begin"}
             </div>
@@ -552,7 +572,8 @@ export default function AdminBlogPage() {
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Category</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Author</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Scheduled At</th>
                   <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -578,8 +599,11 @@ export default function AdminBlogPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{p.author_name || "Digi Pexel Team"}</td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
                         {p.published_at ? new Date(p.published_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
+                        {p.scheduled_at ? new Date(p.scheduled_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">

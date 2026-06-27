@@ -34,7 +34,7 @@ interface Guide {
   position: number;
   meta_title: string;
   meta_description: string;
-  status: "published" | "draft";
+  status: "published" | "draft" | "scheduled";
   published_at: string;
   scheduled_at: string;
   author_name: string;
@@ -109,7 +109,8 @@ export default function AdminGuidesPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [search, setSearch]   = useState("");
   const [catFilter, setCatFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo]     = useState("");
 
@@ -178,13 +179,19 @@ export default function AdminGuidesPage() {
 
   const categories = Array.from(new Set(guides.map(g => g.category).filter(Boolean)));
 
-  const filtered = guides.filter(g => {
+  const filtered = [...guides.filter(g => {
     if (!g.title.toLowerCase().includes(search.toLowerCase())) return false;
     if (catFilter !== "all" && g.category !== catFilter) return false;
     if (statusFilter !== "all" && (g.status || "draft") !== statusFilter) return false;
     if (dateFrom && g.published_at && g.published_at < dateFrom) return false;
     if (dateTo   && g.published_at && g.published_at > dateTo)   return false;
     return true;
+  })].sort((a, b) => {
+    if (sort === "newest") return (b.published_at || "").localeCompare(a.published_at || "");
+    if (sort === "oldest") return (a.published_at || "").localeCompare(b.published_at || "");
+    if (sort === "az") return a.title.localeCompare(b.title);
+    if (sort === "za") return b.title.localeCompare(a.title);
+    return 0;
   });
 
   if (loading) return <AdminLayout><div className="p-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Loading…</div></AdminLayout>;
@@ -197,7 +204,7 @@ export default function AdminGuidesPage() {
 
     return (
       <AdminLayout>
-        <div className="pb-32 max-w-2xl mx-auto">
+        <div className="pb-32 max-w-6xl mx-auto">
 
           {/* Top bar */}
           <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -221,163 +228,43 @@ export default function AdminGuidesPage() {
             </div>
           </div>
 
-          {/* Form */}
-          <div className="space-y-6">
+          {/* Form — two-column layout */}
+          <div className="grid grid-cols-3 gap-8 items-start">
 
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
-              <input
-                value={g.title}
-                onChange={e => updateGuide(idx, { title: e.target.value, slug: g.id ? g.slug : slugify(e.target.value) })}
-                placeholder="Guide title"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
-              />
-            </div>
+            {/* ── LEFT: Writing area ────────────────────────────────────────── */}
+            <div className="col-span-2 space-y-5">
 
-            {/* Slug */}
-            <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Slug <span className="italic">(auto-generated from title; edit to customize)</span></label>
-              <input
-                value={g.slug}
-                onChange={e => updateGuide(idx, { slug: e.target.value })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono text-slate-600 focus:outline-none focus:border-brand bg-white"
-              />
-            </div>
+              {/* Title + Slug */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
+                <input value={g.title} onChange={e => updateGuide(idx, { title: e.target.value, slug: g.id ? g.slug : slugify(e.target.value) })}
+                  placeholder="Guide title"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-lg font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+                <input value={g.slug} onChange={e => updateGuide(idx, { slug: e.target.value })}
+                  className="w-full border-0 border-b border-slate-100 px-4 py-1.5 text-xs font-mono text-slate-400 focus:outline-none focus:border-brand bg-transparent" placeholder="slug" />
+              </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
-              <textarea
-                value={g.description}
-                onChange={e => updateGuide(idx, { description: e.target.value })}
-                placeholder="Short summary shown in guide listings…"
-                rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
-              />
-            </div>
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+                <textarea value={g.description} onChange={e => updateGuide(idx, { description: e.target.value })}
+                  placeholder="Short summary shown in guide listings…" rows={3}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
+              </div>
 
-            {/* Cover Image */}
-            <UploadImageField label="Cover Image" value={g.image_url} onChange={v => updateGuide(idx, { image_url: v })} />
+              {/* Body */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
+                <RichBodyEditor value={g.content} onChange={v => updateGuide(idx, { content: v })} />
+              </div>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
-              <input
-                list="guide-cats"
-                value={g.category}
-                onChange={e => updateGuide(idx, { category: e.target.value })}
-                placeholder="Strategy, SEO, Operations…"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
-              />
-              <datalist id="guide-cats">
-                {categories.map(c => <option key={c} value={c} />)}
-              </datalist>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
-              <select
-                value={g.status || "draft"}
-                onChange={e => updateGuide(idx, { status: e.target.value as Guide["status"] })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
-            </div>
-
-            {/* Publish Date + Author */}
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Publish Date" value={g.published_at} type="date" onChange={v => updateGuide(idx, { published_at: v })} />
-              <Field label="Author Name" value={g.author_name} onChange={v => updateGuide(idx, { author_name: v })} placeholder="Digi Pexel Team" />
-            </div>
-
-            {/* Scheduled At */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Scheduled At <span className="text-xs font-normal text-slate-400">(optional)</span></label>
-              <input
-                type="datetime-local"
-                value={g.scheduled_at || ""}
-                onChange={e => updateGuide(idx, { scheduled_at: e.target.value })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white"
-              />
-            </div>
-
-            {/* Meta Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Title <span className="text-xs font-normal text-slate-400">(SEO — defaults to title if blank)</span>
-              </label>
-              <input value={g.meta_title} onChange={e => updateGuide(idx, { meta_title: e.target.value })} placeholder="SEO page title" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
-            </div>
-
-            {/* Meta Description */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Description <span className="text-xs font-normal text-brand">(SEO)</span>
-              </label>
-              <textarea value={g.meta_description} onChange={e => updateGuide(idx, { meta_description: e.target.value })} placeholder="Brief description for search engines (150–160 characters)…" rows={3} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
-            </div>
-
-            {/* Body */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
-              <RichBodyEditor value={g.content} onChange={v => updateGuide(idx, { content: v })} />
-            </div>
-
-            {/* Advanced toggle */}
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 border border-slate-200 rounded-xl px-4 py-3 w-full transition-colors"
-            >
-              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              Advanced options
-              <span className="ml-auto text-xs text-slate-400 hidden sm:block">Chapters · Benefits · Download · CTA</span>
-            </button>
-
-            {showAdvanced && (
-              <div className="space-y-6 border border-slate-200 rounded-2xl p-6 bg-slate-50/30">
-
-                {/* Subtitle */}
-                <Field label="Subtitle" value={g.subtitle} onChange={v => updateGuide(idx, { subtitle: v })} placeholder="A hook line shown under the title" />
-
-                {/* Format + Pages */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="field-label">Format</label>
-                    <select value={g.format} onChange={e => updateGuide(idx, { format: e.target.value })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1">
-                      <option value="PDF">PDF</option>
-                      <option value="Video">Video</option>
-                      <option value="Spreadsheet">Spreadsheet</option>
-                      <option value="Template">Template</option>
-                    </select>
-                  </div>
-                  <Field label="Pages / Length" value={g.pages_count} onChange={v => updateGuide(idx, { pages_count: v })} placeholder="42" />
+              {/* Chapters */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-500">Chapters / Sections <span className="text-slate-300 font-normal ml-1">({g.chapters.length})</span></p>
                 </div>
-
-                {/* Download URL + CTA */}
-                <Field label="Download / File URL" value={g.file_url} onChange={v => updateGuide(idx, { file_url: v })} placeholder="https://…" />
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="CTA Button Label" value={g.cta_label} onChange={v => updateGuide(idx, { cta_label: v })} placeholder="Download the Guide" />
-                  <Field label="CTA Button Link" value={g.cta_link} onChange={v => updateGuide(idx, { cta_link: v })} placeholder="#" />
-                </div>
-
-                {/* Image Size */}
-                <div>
-                  <label className="field-label">Cover Image Display Size</label>
-                  <select value={g.image_size} onChange={e => updateGuide(idx, { image_size: e.target.value as Guide["image_size"] })} className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white mt-1">
-                    <option value="sm">Small</option>
-                    <option value="md">Medium</option>
-                    <option value="lg">Large</option>
-                  </select>
-                </div>
-
-                {/* Chapters */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Chapters / Sections ({g.chapters.length})</p>
-                  <div className="space-y-2 mb-3">
+                {g.chapters.length > 0 && (
+                  <div className="p-4 space-y-2">
                     {g.chapters.map((ch, ci) => (
                       <div key={ci} className="border border-slate-200 rounded-xl p-3 space-y-2">
                         <div className="flex items-center justify-between">
@@ -393,15 +280,21 @@ export default function AdminGuidesPage() {
                       </div>
                     ))}
                   </div>
+                )}
+                <div className="px-4 py-3 border-t border-slate-100">
                   <button onClick={() => updateGuide(idx,{chapters:[...g.chapters,{title:"",desc:""}]})} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
                     <Plus className="w-3.5 h-3.5" /> Add Chapter
                   </button>
                 </div>
+              </div>
 
-                {/* Benefits */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Key Benefits / Takeaways</p>
-                  <div className="space-y-2 mb-3">
+              {/* Benefits */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-500">Key Benefits / Takeaways</p>
+                </div>
+                {g.benefits.length > 0 && (
+                  <div className="p-4 space-y-2">
                     {g.benefits.map((b, bi) => (
                       <div key={bi} className="flex gap-2">
                         <input value={b} onChange={e=>{const bens=[...g.benefits];bens[bi]=e.target.value;updateGuide(idx,{benefits:bens});}} placeholder="Identify your top automation opportunities" className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
@@ -409,16 +302,123 @@ export default function AdminGuidesPage() {
                       </div>
                     ))}
                   </div>
+                )}
+                <div className="px-4 py-3 border-t border-slate-100">
                   <button onClick={() => updateGuide(idx,{benefits:[...g.benefits,""]})} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
                     <Plus className="w-3.5 h-3.5" /> Add Benefit
                   </button>
                 </div>
-
-                {/* Position */}
-                <Field label="Position (order in listing)" value={String(g.position)} type="number" onChange={v => updateGuide(idx, { position: Number(v) })} />
-
               </div>
-            )}
+
+            </div>
+
+            {/* ── RIGHT: Sidebar ────────────────────────────────────────────── */}
+            <div className="col-span-1 space-y-4 sticky top-4">
+
+              {/* Publishing */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Publishing</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Status</label>
+                    <select value={g.status || "draft"} onChange={e => updateGuide(idx, { status: e.target.value as Guide["status"] })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white">
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                      <option value="scheduled">Scheduled</option>
+                    </select>
+                  </div>
+                  {g.status === "scheduled" && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Scheduled Date &amp; Time</label>
+                      <input type="datetime-local" value={g.scheduled_at || ""} onChange={e => updateGuide(idx, { scheduled_at: e.target.value })}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
+                    </div>
+                  )}
+                  <Field label="Publish Date" value={g.published_at} type="date" onChange={v => updateGuide(idx, { published_at: v })} />
+                  <Field label="Author Name" value={g.author_name} onChange={v => updateGuide(idx, { author_name: v })} placeholder="Digi Pexel Team" />
+                  <Field label="Position (order)" value={String(g.position)} type="number" onChange={v => updateGuide(idx, { position: Number(v) })} />
+                </div>
+              </div>
+
+              {/* Cover Image */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cover Image</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <UploadImageField label="" value={g.image_url} onChange={v => updateGuide(idx, { image_url: v })} />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Display Size</label>
+                    <select value={g.image_size} onChange={e => updateGuide(idx, { image_size: e.target.value as Guide["image_size"] })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white">
+                      <option value="sm">Small</option>
+                      <option value="md">Medium</option>
+                      <option value="lg">Large</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Details</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Category</label>
+                    <input list="guide-cats" value={g.category} onChange={e => updateGuide(idx, { category: e.target.value })}
+                      placeholder="Strategy, SEO, Operations…"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+                    <datalist id="guide-cats">{categories.map(c => <option key={c} value={c} />)}</datalist>
+                  </div>
+                  <Field label="Subtitle" value={g.subtitle} onChange={v => updateGuide(idx, { subtitle: v })} placeholder="A hook line shown under the title" />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Format</label>
+                    <select value={g.format} onChange={e => updateGuide(idx, { format: e.target.value })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white">
+                      <option value="PDF">PDF</option>
+                      <option value="Video">Video</option>
+                      <option value="Spreadsheet">Spreadsheet</option>
+                      <option value="Template">Template</option>
+                    </select>
+                  </div>
+                  <Field label="Pages / Length" value={g.pages_count} onChange={v => updateGuide(idx, { pages_count: v })} placeholder="42" />
+                </div>
+              </div>
+
+              {/* Download & CTA */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Download &amp; CTA</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Download / File URL" value={g.file_url} onChange={v => updateGuide(idx, { file_url: v })} placeholder="https://…" />
+                  <Field label="CTA Button Label" value={g.cta_label} onChange={v => updateGuide(idx, { cta_label: v })} placeholder="Download the Guide" />
+                  <Field label="CTA Button Link" value={g.cta_link} onChange={v => updateGuide(idx, { cta_link: v })} placeholder="#" />
+                </div>
+              </div>
+
+              {/* SEO */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SEO</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Meta Title" value={g.meta_title} onChange={v => updateGuide(idx, { meta_title: v })} placeholder="SEO page title (defaults to title)" />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Meta Description</label>
+                    <textarea value={g.meta_description} onChange={e => updateGuide(idx, { meta_description: e.target.value })}
+                      placeholder="150–160 characters for search engines…" rows={3}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </AdminLayout>
@@ -439,7 +439,7 @@ export default function AdminGuidesPage() {
         )}
 
         {/* Content-type tabs */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto scrollbar-none">
           {[
             { label: "Blog", href: "/admin/blog" },
             { label: "Case Studies", href: "/admin/case-studies" },
@@ -476,10 +476,10 @@ export default function AdminGuidesPage() {
           </div>
         </div>
 
-        {/* Status tabs + date filters */}
+        {/* Status tabs + advanced filters */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-            {(["all", "draft", "published"] as const).map(s => (
+            {(["all", "draft", "published", "scheduled"] as const).map(s => (
               <button key={s} onClick={() => setStatusFilter(s)}
                 className={cn("px-3 py-1.5 rounded-md text-xs font-semibold capitalize transition-all",
                   statusFilter === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
@@ -488,10 +488,22 @@ export default function AdminGuidesPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>From</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="all">All categories</option>
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select value={sort} onChange={e => setSort(e.target.value as typeof sort)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="az">Title A→Z</option>
+              <option value="za">Title Z→A</option>
+            </select>
+            <span className="text-xs text-slate-400">From</span>
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
-            <span>to</span>
+            <span className="text-xs text-slate-400">to</span>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
           </div>
         </div>
@@ -500,7 +512,7 @@ export default function AdminGuidesPage() {
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-sm font-semibold">
-              {search || statusFilter !== "all" || dateFrom || dateTo ? "No matching guides" : "No guides yet — click \"+ New Guide\" to begin"}
+              {search || statusFilter !== "all" || catFilter !== "all" || dateFrom || dateTo ? "No matching guides" : "No guides yet — click \"+ New Guide\" to begin"}
             </div>
           ) : (
             <table className="w-full">
@@ -510,7 +522,8 @@ export default function AdminGuidesPage() {
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Category</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Author</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Scheduled At</th>
                   <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -528,14 +541,19 @@ export default function AdminGuidesPage() {
                       <td className="px-4 py-3.5">
                         <span className={cn(
                           "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide",
-                          g.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                          g.status === "published" ? "bg-emerald-100 text-emerald-700"
+                            : g.status === "scheduled" ? "bg-blue-100 text-blue-700"
+                            : "bg-amber-100 text-amber-700"
                         )}>
                           {g.status || "draft"}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{g.author_name || "Digi Pexel Team"}</td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
                         {g.published_at ? new Date(g.published_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
+                        {g.scheduled_at ? new Date(g.scheduled_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">

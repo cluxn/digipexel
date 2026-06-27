@@ -75,7 +75,7 @@ interface CaseStudy {
   show_related: boolean;
   show_industry_section: boolean;
   industry_section_title: string;
-  status: "published" | "draft";
+  status: "published" | "draft" | "scheduled";
   featured: boolean;
   position: number;
   challenge: string;
@@ -159,7 +159,9 @@ export default function AdminCaseStudyPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [search, setSearch]     = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
+  const [industryFilter, setIndustryFilter] = useState("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo]     = useState("");
 
@@ -225,12 +227,21 @@ export default function AdminCaseStudyPage() {
     finally { setSaving(false); }
   };
 
-  const filtered = cases.filter(c => {
+  const industries = Array.from(new Set(cases.map(c => c.industry).filter(Boolean)));
+
+  const filtered = [...cases.filter(c => {
     if (!c.title.toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== "all" && c.status !== statusFilter) return false;
+    if (industryFilter !== "all" && c.industry !== industryFilter) return false;
     if (dateFrom && c.published_date && c.published_date < dateFrom) return false;
     if (dateTo   && c.published_date && c.published_date > dateTo)   return false;
     return true;
+  })].sort((a, b) => {
+    if (sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "");
+    if (sort === "oldest") return (a.published_date || "").localeCompare(b.published_date || "");
+    if (sort === "az") return a.title.localeCompare(b.title);
+    if (sort === "za") return b.title.localeCompare(a.title);
+    return 0;
   });
 
   if (loading) return <AdminLayout><div className="p-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Loading…</div></AdminLayout>;
@@ -243,7 +254,7 @@ export default function AdminCaseStudyPage() {
 
     return (
       <AdminLayout>
-        <div className="pb-32 max-w-2xl mx-auto">
+        <div className="pb-32 max-w-6xl mx-auto">
 
           {/* Top bar */}
           <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -267,152 +278,48 @@ export default function AdminCaseStudyPage() {
             </div>
           </div>
 
-          {/* Form */}
-          <div className="space-y-6">
+          {/* Form — two-column layout */}
+          <div className="grid grid-cols-3 gap-8 items-start">
 
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
-              <input
-                value={c.title}
-                onChange={e => updateCase(idx, { title: e.target.value, slug: c.id ? c.slug : slugify(e.target.value) })}
-                placeholder="Case study title"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300"
-              />
-            </div>
+            {/* ── LEFT: Writing area ────────────────────────────────────────── */}
+            <div className="col-span-2 space-y-5">
 
-            {/* Slug */}
-            <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Slug <span className="italic">(auto-generated from title; edit to customize)</span></label>
-              <input
-                value={c.slug}
-                onChange={e => updateCase(idx, { slug: e.target.value })}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono text-slate-600 focus:outline-none focus:border-brand bg-white"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
-              <textarea
-                value={c.description}
-                onChange={e => updateCase(idx, { description: e.target.value })}
-                placeholder="Brief summary shown in listings and the hero section…"
-                rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300"
-              />
-            </div>
-
-            {/* Client + Industry */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Title + Slug */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Client Name</label>
-                <input value={c.client_name} onChange={e => updateCase(idx, { client_name: e.target.value })} placeholder="Acme Corp" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Title <span className="text-red-500">*</span></label>
+                <input value={c.title} onChange={e => updateCase(idx, { title: e.target.value, slug: c.id ? c.slug : slugify(e.target.value) })}
+                  placeholder="Case study title"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-lg font-semibold focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+                <input value={c.slug} onChange={e => updateCase(idx, { slug: e.target.value })}
+                  className="w-full border-0 border-b border-slate-100 px-4 py-1.5 text-xs font-mono text-slate-400 focus:outline-none focus:border-brand bg-transparent" placeholder="slug" />
               </div>
+
+              {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Industry</label>
-                <input value={c.industry} onChange={e => updateCase(idx, { industry: e.target.value })} placeholder="FinTech, E-commerce…" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+                <textarea value={c.description} onChange={e => updateCase(idx, { description: e.target.value })}
+                  placeholder="Brief summary shown in listings and the hero section…" rows={3}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
               </div>
-            </div>
 
-            {/* Cover Image */}
-            <UploadImageField label="Cover Image" value={c.image_url} onChange={v => updateCase(idx, { image_url: v })} />
-
-            {/* Status + Date */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Body */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
-                <select value={c.status} onChange={e => updateCase(idx, { status: e.target.value as CaseStudy["status"] })} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white">
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
+                <RichBodyEditor value={c.content} onChange={v => updateCase(idx, { content: v })} />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Published Date</label>
-                <input type="date" value={c.published_date} onChange={e => updateCase(idx, { published_date: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white" />
-              </div>
-            </div>
 
-            {/* Scheduled At + Author Name */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Scheduled At</label>
-                <input type="datetime-local" value={c.scheduled_at} onChange={e => updateCase(idx, { scheduled_at: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Author Name</label>
-                <input value={c.author_name} onChange={e => updateCase(idx, { author_name: e.target.value })} placeholder="Digi Pexel Team" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
-              </div>
-            </div>
-
-            {/* Meta Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Title <span className="text-xs font-normal text-slate-400">(SEO — defaults to title if blank)</span>
-              </label>
-              <input value={c.meta_title} onChange={e => updateCase(idx, { meta_title: e.target.value })} placeholder="SEO page title" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white placeholder:text-slate-300" />
-            </div>
-
-            {/* Meta Description */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Meta Description <span className="text-xs font-normal text-brand">(SEO)</span>
-              </label>
-              <textarea value={c.meta_description} onChange={e => updateCase(idx, { meta_description: e.target.value })} placeholder="Brief description for search engines (150–160 characters)…" rows={3} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
-            </div>
-
-            {/* Body */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Body <span className="text-red-500">*</span></label>
-              <RichBodyEditor value={c.content} onChange={v => updateCase(idx, { content: v })} />
-            </div>
-
-            {/* Advanced toggle */}
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 border border-slate-200 rounded-xl px-4 py-3 w-full transition-colors"
-            >
-              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              Advanced options
-              <span className="ml-auto text-xs text-slate-400 hidden sm:block">Hero Stats · Service Tags · Sections · Settings</span>
-            </button>
-
-            {showAdvanced && (
-              <div className="space-y-6 border border-slate-200 rounded-2xl p-6 bg-slate-50/30">
-
-                {/* Eyebrow + Read Time */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Eyebrow Badge" value={c.eyebrow} onChange={v => updateCase(idx, { eyebrow: v })} placeholder="Case Study" />
-                  <Field label="Read Time" value={c.read_time} onChange={v => updateCase(idx, { read_time: v })} placeholder="8 min read" />
+              {/* Hero Stats */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-500">Hero Stats Strip <span className="text-slate-300 font-normal">(up to 4)</span></p>
+                  {(c.hero_stats ?? []).length < 4 && (
+                    <button onClick={() => updateCase(idx, { hero_stats: [...(c.hero_stats ?? []), { value: "", label: "" }] })} className="flex items-center gap-1 text-xs font-bold text-brand hover:underline">
+                      <Plus className="w-3.5 h-3.5" /> Add Stat
+                    </button>
+                  )}
                 </div>
-
-                {/* Subtitle */}
-                <Field label="Subtitle / Punchline" value={c.subtitle} onChange={v => updateCase(idx, { subtitle: v })} placeholder="A hook line for the hero section" />
-
-                {/* Images */}
-                <ImageField label="Client / Person Image URL" value={c.client_image} onChange={v => updateCase(idx, { client_image: v })} />
-                <Field label="Client Logo URL (shown inverted/white in dark hero)" value={c.client_logo} onChange={v => updateCase(idx, { client_logo: v })} />
-
-                {/* Hero CTA */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Hero CTA Label" value={c.hero_cta_label} onChange={v => updateCase(idx, { hero_cta_label: v })} placeholder="View Case Study" />
-                  <Field label="Hero CTA URL" value={c.hero_cta_url} onChange={v => updateCase(idx, { hero_cta_url: v })} placeholder="#contact" />
-                </div>
-
-                {/* Service Tags */}
-                <TagsField label="Service Tags" tags={c.service_tags} onChange={v => updateCase(idx, { service_tags: v })} />
-
-                {/* Hero Stats */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hero Stats Strip (up to 4)</p>
-                    {(c.hero_stats ?? []).length < 4 && (
-                      <button onClick={() => updateCase(idx, { hero_stats: [...(c.hero_stats ?? []), { value: "", label: "" }] })} className="flex items-center gap-1 text-xs font-bold text-brand hover:underline">
-                        <Plus className="w-3.5 h-3.5" /> Add Stat
-                      </button>
-                    )}
-                  </div>
-                  <div className="space-y-2">
+                {(c.hero_stats ?? []).length > 0 && (
+                  <div className="p-4 space-y-2">
                     {(c.hero_stats ?? []).map((stat, si) => (
                       <div key={si} className="flex gap-2 items-start">
                         <input value={stat.value} onChange={e => { const s=[...(c.hero_stats??[])]; s[si]={...s[si],value:e.target.value}; updateCase(idx,{hero_stats:s}); }} placeholder="85%" className="w-24 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold focus:outline-none focus:border-brand bg-white" />
@@ -421,62 +328,166 @@ export default function AdminCaseStudyPage() {
                       </div>
                     ))}
                   </div>
-                </div>
+                )}
+                {(c.hero_stats ?? []).length === 0 && (
+                  <div className="px-5 py-4">
+                    <button onClick={() => updateCase(idx, { hero_stats: [{ value: "", label: "" }] })} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs font-bold text-slate-400 hover:border-brand hover:text-brand transition-all w-full justify-center">
+                      <Plus className="w-3.5 h-3.5" /> Add first stat
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                {/* Content Blocks */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Content Blocks</p>
-                  <p className="text-xs text-slate-400 mb-4">Structured blocks override the Body field above when added.</p>
-                  {c.sections.length > 0 && (
-                    <div className="space-y-3 mb-4">
-                      {c.sections.map((sec, si) => (
-                        <SectionEditor key={sec.id} section={sec}
-                          onChange={updated => { const s=[...c.sections]; s[si]=updated; updateCase(idx,{sections:s}); }}
-                          onRemove={() => updateCase(idx,{sections:c.sections.filter((_,i)=>i!==si)})}
-                          onMove={dir => {
-                            if (dir==="up"&&si===0) return;
-                            if (dir==="down"&&si===c.sections.length-1) return;
-                            const s=[...c.sections]; const t=dir==="up"?si-1:si+1;
-                            [s[si],s[t]]=[s[t],s[si]]; updateCase(idx,{sections:s});
-                          }}
-                        />
+              {/* Content Blocks */}
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-500">Content Blocks</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Structured blocks override the Body field when added.</p>
+                  </div>
+                </div>
+                {c.sections.length > 0 && (
+                  <div className="p-4 space-y-3">
+                    {c.sections.map((sec, si) => (
+                      <SectionEditor key={sec.id} section={sec}
+                        onChange={updated => { const s=[...c.sections]; s[si]=updated; updateCase(idx,{sections:s}); }}
+                        onRemove={() => updateCase(idx,{sections:c.sections.filter((_,i)=>i!==si)})}
+                        onMove={dir => {
+                          if (dir==="up"&&si===0) return;
+                          if (dir==="down"&&si===c.sections.length-1) return;
+                          const s=[...c.sections]; const t=dir==="up"?si-1:si+1;
+                          [s[si],s[t]]=[s[t],s[si]]; updateCase(idx,{sections:s});
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="border-t border-slate-100">
+                  <button className="w-full flex items-center justify-between px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
+                    onClick={() => setAddSectionOpen(!addSectionOpen)}>
+                    <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Block</span>
+                    {addSectionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {addSectionOpen && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50/30 border-t border-slate-100">
+                      {SECTION_TYPES.map(st => (
+                        <button key={st.type}
+                          onClick={() => { updateCase(idx,{sections:[...c.sections,buildDefaultSection(st.type)]}); setAddSectionOpen(false); }}
+                          className="flex flex-col items-start gap-1 p-3 rounded-xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
+                          <span className="text-brand">{st.icon}</span>
+                          <span className="text-xs font-bold text-slate-700">{st.label}</span>
+                          <span className="text-[10px] text-slate-400">{st.desc}</span>
+                        </button>
                       ))}
                     </div>
                   )}
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                    <button className="w-full flex items-center justify-between px-5 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-colors"
-                      onClick={() => setAddSectionOpen(!addSectionOpen)}>
-                      <span className="flex items-center gap-2"><Plus className="w-4 h-4 text-brand" /> Add Block</span>
-                      {addSectionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
-                    {addSectionOpen && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-t border-slate-100 bg-slate-50/30">
-                        {SECTION_TYPES.map(st => (
-                          <button key={st.type}
-                            onClick={() => { updateCase(idx,{sections:[...c.sections,buildDefaultSection(st.type)]}); setAddSectionOpen(false); }}
-                            className="flex flex-col items-start gap-1 p-3 rounded-xl bg-white border border-slate-200 hover:border-brand hover:shadow-sm transition-all text-left">
-                            <span className="text-brand">{st.icon}</span>
-                            <span className="text-xs font-bold text-slate-700">{st.label}</span>
-                            <span className="text-[10px] text-slate-400">{st.desc}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
-
-                {/* Settings */}
-                <div className="border-t border-slate-200 pt-4">
-                  <ToggleSetting label="Show Related Case Studies" desc="Display 3 related case studies after the content" value={c.show_related} onChange={v => updateCase(idx,{show_related:v})} />
-                  <ToggleSetting label="Show Industry Section" desc="Show industry-filtered case studies section" value={c.show_industry_section} onChange={v => updateCase(idx,{show_industry_section:v})} />
-                  <ToggleSetting label="Featured" desc="Highlight this case study on the listing page" value={c.featured} onChange={v => updateCase(idx,{featured:v})} />
-                  <div className="pt-4">
-                    <Field label="Position (order in listing)" value={String(c.position)} type="number" onChange={v => updateCase(idx,{position:Number(v)})} />
-                  </div>
-                </div>
-
               </div>
-            )}
+
+            </div>
+
+            {/* ── RIGHT: Sidebar ────────────────────────────────────────────── */}
+            <div className="col-span-1 space-y-4 sticky top-4">
+
+              {/* Publishing */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Publishing</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Status</label>
+                    <select value={c.status} onChange={e => updateCase(idx, { status: e.target.value as CaseStudy["status"] })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white">
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                      <option value="scheduled">Scheduled</option>
+                    </select>
+                  </div>
+                  {c.status === "scheduled" && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">Scheduled At</label>
+                      <input type="datetime-local" value={c.scheduled_at} onChange={e => updateCase(idx, { scheduled_at: e.target.value })}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Published Date</label>
+                    <input type="date" value={c.published_date} onChange={e => updateCase(idx, { published_date: e.target.value })}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white" />
+                  </div>
+                  <Field label="Author Name" value={c.author_name} onChange={v => updateCase(idx, { author_name: v })} placeholder="Digi Pexel Team" />
+                  <Field label="Position (order)" value={String(c.position)} type="number" onChange={v => updateCase(idx,{position:Number(v)})} />
+                </div>
+              </div>
+
+              {/* Cover Image */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cover Image</p>
+                </div>
+                <div className="p-4">
+                  <UploadImageField label="" value={c.image_url} onChange={v => updateCase(idx, { image_url: v })} />
+                </div>
+              </div>
+
+              {/* Client Details */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Client</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Client Name" value={c.client_name} onChange={v => updateCase(idx, { client_name: v })} placeholder="Acme Corp" />
+                  <Field label="Industry" value={c.industry} onChange={v => updateCase(idx, { industry: v })} placeholder="FinTech, E-commerce…" />
+                  <Field label="Eyebrow Badge" value={c.eyebrow} onChange={v => updateCase(idx, { eyebrow: v })} placeholder="Case Study" />
+                  <Field label="Read Time" value={c.read_time} onChange={v => updateCase(idx, { read_time: v })} placeholder="8 min read" />
+                  <Field label="Subtitle / Punchline" value={c.subtitle} onChange={v => updateCase(idx, { subtitle: v })} placeholder="A hook line for the hero" />
+                  <TagsField label="Service Tags" tags={c.service_tags} onChange={v => updateCase(idx, { service_tags: v })} />
+                </div>
+              </div>
+
+              {/* Hero Images & CTA */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Hero Images &amp; CTA</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <ImageField label="Client / Person Image" value={c.client_image} onChange={v => updateCase(idx, { client_image: v })} />
+                  <Field label="Client Logo URL (white/inverted)" value={c.client_logo} onChange={v => updateCase(idx, { client_logo: v })} />
+                  <Field label="Hero CTA Label" value={c.hero_cta_label} onChange={v => updateCase(idx, { hero_cta_label: v })} placeholder="View Case Study" />
+                  <Field label="Hero CTA URL" value={c.hero_cta_url} onChange={v => updateCase(idx, { hero_cta_url: v })} placeholder="#contact" />
+                </div>
+              </div>
+
+              {/* SEO */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SEO</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <Field label="Meta Title" value={c.meta_title} onChange={v => updateCase(idx, { meta_title: v })} placeholder="SEO page title (defaults to title)" />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Meta Description</label>
+                    <textarea value={c.meta_description} onChange={e => updateCase(idx, { meta_description: e.target.value })}
+                      placeholder="150–160 characters for search engines…" rows={3}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand bg-white resize-none placeholder:text-slate-300" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Settings */}
+              <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Settings</p>
+                </div>
+                <div className="p-4 space-y-0.5">
+                  <ToggleSetting label="Featured" desc="Highlight on the listing page" value={c.featured} onChange={v => updateCase(idx,{featured:v})} />
+                  <ToggleSetting label="Show Related" desc="Display 3 related case studies" value={c.show_related} onChange={v => updateCase(idx,{show_related:v})} />
+                  <ToggleSetting label="Show Industry Section" desc="Industry-filtered case studies" value={c.show_industry_section} onChange={v => updateCase(idx,{show_industry_section:v})} />
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </AdminLayout>
@@ -497,7 +508,7 @@ export default function AdminCaseStudyPage() {
         )}
 
         {/* Content-type tabs */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto scrollbar-none">
           {[
             { label: "Blog", href: "/admin/blog" },
             { label: "Case Studies", href: "/admin/case-studies" },
@@ -534,10 +545,10 @@ export default function AdminCaseStudyPage() {
           </div>
         </div>
 
-        {/* Status tabs + date filters */}
+        {/* Status tabs + advanced filters */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-            {(["all", "draft", "published"] as const).map(s => (
+            {(["all", "draft", "published", "scheduled"] as const).map(s => (
               <button key={s} onClick={() => setStatusFilter(s)}
                 className={cn("px-3 py-1.5 rounded-md text-xs font-semibold capitalize transition-all",
                   statusFilter === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
@@ -546,10 +557,22 @@ export default function AdminCaseStudyPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>From</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={industryFilter} onChange={e => setIndustryFilter(e.target.value)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="all">All industries</option>
+              {industries.map(i => <option key={i} value={i}>{i}</option>)}
+            </select>
+            <select value={sort} onChange={e => setSort(e.target.value as typeof sort)}
+              className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white text-slate-600">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="az">Title A→Z</option>
+              <option value="za">Title Z→A</option>
+            </select>
+            <span className="text-xs text-slate-400">From</span>
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
-            <span>to</span>
+            <span className="text-xs text-slate-400">to</span>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
           </div>
         </div>
@@ -558,7 +581,7 @@ export default function AdminCaseStudyPage() {
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-sm font-semibold">
-              {search || statusFilter !== "all" || dateFrom || dateTo ? "No matching case studies" : "No case studies yet — click \"+ New Case Study\" to begin"}
+              {search || statusFilter !== "all" || industryFilter !== "all" || dateFrom || dateTo ? "No matching case studies" : "No case studies yet — click \"+ New Case Study\" to begin"}
             </div>
           ) : (
             <table className="w-full">
@@ -568,7 +591,8 @@ export default function AdminCaseStudyPage() {
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Industry</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Author</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Published At</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Scheduled At</th>
                   <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -586,14 +610,19 @@ export default function AdminCaseStudyPage() {
                       <td className="px-4 py-3.5">
                         <span className={cn(
                           "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide",
-                          c.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                          c.status === "published" ? "bg-emerald-100 text-emerald-700"
+                            : c.status === "scheduled" ? "bg-blue-100 text-blue-700"
+                            : "bg-amber-100 text-amber-700"
                         )}>
                           {c.status}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{c.author_name || "Digi Pexel Team"}</td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
                         {c.published_date ? new Date(c.published_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
+                        {c.scheduled_at ? new Date(c.scheduled_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">

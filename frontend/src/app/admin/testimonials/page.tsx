@@ -304,7 +304,7 @@ export default function AdminTestimonialsPage() {
       <div className="pb-20 max-w-[1200px] mx-auto">
 
         {/* Content-type tabs */}
-        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto scrollbar-none">
           {CONTENT_TABS.map(tab => (
             <a key={tab.href} href={tab.href}
               className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap",
