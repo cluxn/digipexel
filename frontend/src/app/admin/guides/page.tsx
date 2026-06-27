@@ -438,33 +438,58 @@ export default function AdminGuidesPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display font-bold text-slate-900">Guides</h1>
-          <button onClick={openNew} className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm">
-            <Plus className="w-4 h-4" /> New Guide
-          </button>
+        {/* Content-type tabs */}
+        <div className="flex items-center gap-1 border-b border-slate-200 mb-6">
+          {[
+            { label: "Blog", href: "/admin/blog" },
+            { label: "Case Studies", href: "/admin/case-studies" },
+            { label: "Guides", href: "/admin/guides" },
+            { label: "Testimonials", href: "/admin/testimonials" },
+          ].map(tab => (
+            <a key={tab.href} href={tab.href}
+              className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
+                tab.href === "/admin/guides"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              )}>
+              {tab.label}
+            </a>
+          ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-5">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title…" className="pl-9 pr-4 h-9 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand bg-white w-60" />
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-2xl font-display font-bold text-slate-900">Guides</h1>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search guides…"
+                className="pl-9 pr-4 h-9 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand bg-white w-52" />
+            </div>
+            <button onClick={openNew}
+              className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all shadow-sm">
+              + New Guide
+            </button>
           </div>
-          <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white text-slate-600">
-            <option value="all">All categories</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white text-slate-600">
-            <option value="all">All statuses</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-          </select>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            Published from
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
-            to
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:border-brand bg-white" />
+        </div>
+
+        {/* Status tabs + date filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+            {(["all", "draft", "published"] as const).map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={cn("px-3 py-1.5 rounded-md text-xs font-semibold capitalize transition-all",
+                  statusFilter === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                )}>
+                {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span>From</span>
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
+            <span>to</span>
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 border border-slate-200 rounded-lg px-2 text-xs focus:outline-none focus:border-brand bg-white" />
           </div>
         </div>
 
@@ -472,18 +497,18 @@ export default function AdminGuidesPage() {
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-sm font-semibold">
-              {search || catFilter !== "all" ? "No matching guides" : "No guides yet — click \"New Guide\" to begin"}
+              {search || statusFilter !== "all" || dateFrom || dateTo ? "No matching guides" : "No guides yet — click \"+ New Guide\" to begin"}
             </div>
           ) : (
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60">
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500">Title</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500">Status</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Scheduled At</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Published At</th>
-                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 hidden md:table-cell">Author</th>
-                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500">Actions</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Title</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Category</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Author</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Published At</th>
+                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -493,26 +518,22 @@ export default function AdminGuidesPage() {
                   return (
                     <tr key={key} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/40 transition-colors">
                       <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-8 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
-                            {g.image_url ? <img src={g.image_url} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-3.5 h-3.5 text-slate-300" />}
-                          </div>
-                          <span className="text-sm font-medium text-slate-800 truncate max-w-[240px]">{g.title || "Untitled"}</span>
-                        </div>
+                        <span className="text-sm font-medium text-slate-800 block truncate max-w-[280px]">{g.title || "Untitled"}</span>
+                        <span className="text-xs text-slate-400 font-mono">{g.slug}</span>
                       </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{g.category || "—"}</td>
                       <td className="px-4 py-3.5">
-                        <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full",
-                          g.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>
+                        <span className={cn(
+                          "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide",
+                          g.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        )}>
                           {g.status || "draft"}
                         </span>
                       </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{g.author_name || "Digi Pexel Team"}</td>
                       <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
-                        {g.scheduled_at ? new Date(g.scheduled_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                        {g.published_at ? new Date(g.published_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
                       </td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
-                        {g.published_at ? new Date(g.published_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "—"}
-                      </td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">{g.author_name || "—"}</td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <a href={`/guides/${g.id ?? g.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg text-slate-400 hover:text-brand hover:bg-brand/8 transition-all"><Eye className="w-4 h-4" /></a>
