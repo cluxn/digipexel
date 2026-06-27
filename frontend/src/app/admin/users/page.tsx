@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/admin-layout";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Trash2, UserPlus, Edit3, X } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface AdminUser {
   id: number;
@@ -15,16 +14,52 @@ interface AdminUser {
   created_at: string;
 }
 
+const SETTINGS_TABS = [
+  { label: "Site Settings", href: "/admin/settings" },
+  { label: "Users", href: "/admin/users" },
+];
+
+type AccessLevel = "super_admin" | "admin" | "custom";
+
+const ACCESS_OPTIONS: { value: AccessLevel; label: string; desc: string }[] = [
+  { value: "super_admin", label: "Super Admin", desc: "Full access + user management & deletion" },
+  { value: "admin",       label: "Admin",       desc: "Full access to all sections" },
+  { value: "custom",      label: "Custom Access", desc: "Choose specific sections this user can see" },
+];
+
+const PAGE_ACCESS_GROUPS = [
+  {
+    group: "CONTENT",
+    items: [
+      { label: "Blog Posts",       key: "blog" },
+      { label: "Case Studies",     key: "case_studies" },
+      { label: "Guides / Lead Magnets", key: "guides" },
+      { label: "Testimonials",     key: "testimonials" },
+      { label: "Client Logos",     key: "logos" },
+      { label: "Authors",          key: "authors" },
+      { label: "Categories",       key: "categories" },
+    ],
+  },
+  {
+    group: "SECTIONS",
+    items: [
+      { label: "Leads & Subscribers", key: "leads" },
+      { label: "Marketing Tools",     key: "marketing" },
+      { label: "SEO Tools",           key: "seo" },
+      { label: "Settings",            key: "settings" },
+    ],
+  },
+];
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ id: 0, name: '', designation: '', login_id: '', password: '' });
-  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-
-  // Passcode change section (per USR-02)
-  const [passcode, setPasscode] = useState('');
-  const [passcodeSaveStatus, setPasscodeSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ id: 0, name: "", designation: "", login_id: "", password: "" });
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>("admin");
+  const [pageAccess, setPageAccess] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   const fetchUsers = () => {
     api.get("users").then(res => {
@@ -34,19 +69,20 @@ export default function AdminUsersPage() {
 
   useEffect(() => { fetchUsers(); }, []);
 
+  const resetForm = () => {
+    setForm({ id: 0, name: "", designation: "", login_id: "", password: "" });
+    setFormMode("create");
+    setAccessLevel("admin");
+    setPageAccess(new Set());
+    setShowForm(false);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveStatus('saving');
-    const res = await api.post("users", { action: "save_user", ...form });
-    if (res?.status === "success") {
-      setSaveStatus('saved');
-      setForm({ id: 0, name: '', designation: '', login_id: '', password: '' });
-      setFormMode('create');
-      fetchUsers();
-    } else {
-      setSaveStatus('error');
-    }
-    setTimeout(() => setSaveStatus('idle'), 3000);
+    setSaving(true);
+    const res = await api.post("users", { action: "save_user", ...form, access_level: accessLevel });
+    if (res?.status === "success") { resetForm(); fetchUsers(); }
+    setSaving(false);
   };
 
   const handleDelete = async (id: number) => {
@@ -56,210 +92,195 @@ export default function AdminUsersPage() {
   };
 
   const handleEdit = (user: AdminUser) => {
-    setForm({ id: user.id, name: user.name, designation: user.designation, login_id: user.login_id, password: '' });
-    setFormMode('edit');
+    setForm({ id: user.id, name: user.name, designation: user.designation, login_id: user.login_id, password: "" });
+    setFormMode("edit");
+    setShowForm(true);
   };
 
-  const handleCancelEdit = () => {
-    setForm({ id: 0, name: '', designation: '', login_id: '', password: '' });
-    setFormMode('create');
+  const toggleAccess = (key: string) => {
+    setPageAccess(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
   };
 
-  const handlePasscodeSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!passcode.trim()) return;
-    setPasscodeSaveStatus('saving');
-    const res = await api.post("settings", { action: "save_all_settings", settings: { admin_passcode: passcode.trim() } });
-    setPasscodeSaveStatus(res?.status === "success" ? 'saved' : 'error');
-    setPasscode('');
-    setTimeout(() => setPasscodeSaveStatus('idle'), 3000);
+  const getAccessLabel = (user: AdminUser) => {
+    if (user.designation?.toLowerCase().includes("super")) return { label: "Super Admin", cls: "bg-rose-100 text-rose-600" };
+    return { label: "Admin", cls: "bg-blue-100 text-blue-600" };
   };
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="text-brand font-display text-xl animate-pulse">Loading users...</div>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
-      <div className="space-y-10">
-        {/* Page Header */}
-        <div className="space-y-2">
-          <Badge className="rounded-full bg-brand/10 text-brand border border-brand/20 px-3 py-1 text-[10px] uppercase tracking-[0.2em]">
-            Users
-          </Badge>
-          <h1 className="text-4xl font-display font-bold text-[#1A1C1E]">User Management</h1>
-          <p className="text-slate-400 text-sm">Manage admin panel users and login passcode.</p>
+      <div className="max-w-5xl mx-auto">
+
+        {/* Settings tabs */}
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-8">
+          {SETTINGS_TABS.map(tab => (
+            <a key={tab.href} href={tab.href}
+              className={cn("px-5 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
+                tab.href === "/admin/users"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              )}>
+              {tab.label}
+            </a>
+          ))}
         </div>
 
-        {/* 2-column grid: User List + Create/Edit Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left — User List */}
-          <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm space-y-6">
-            <h2 className="text-xl font-bold text-[#1A1C1E]">Admin Users</h2>
-
-            {users.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
-                  <UserPlus className="text-slate-300 w-5 h-5" />
-                </div>
-                <p className="text-slate-400 text-sm">No users yet. Create the first one.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Name</th>
-                      <th className="pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Designation</th>
-                      <th className="pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Login ID</th>
-                      <th className="pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Created</th>
-                      <th className="pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {users.map(user => (
-                      <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors">
-                        <td className="py-4 pr-3 text-sm font-bold text-[#1A1C1E]">{user.name}</td>
-                        <td className="py-4 pr-3 text-xs text-slate-500">{user.designation || '—'}</td>
-                        <td className="py-4 pr-3 text-xs font-mono text-slate-500">{user.login_id}</td>
-                        <td className="py-4 pr-3 text-xs text-slate-400">
-                          {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
-                        </td>
-                        <td className="py-4 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-lg text-slate-300 hover:text-brand hover:bg-brand/5 transition-all"
-                              onClick={() => handleEdit(user)}
-                              title="Edit user"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all"
-                              onClick={() => handleDelete(user.id)}
-                              title="Delete user"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Users &amp; Access</h1>
+            <p className="text-sm text-slate-500 mt-1">Manage admin users and control which sections each person can access.</p>
           </div>
+          {!showForm && (
+            <button
+              onClick={() => { resetForm(); setShowForm(true); }}
+              className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all shadow-sm"
+            >
+              + New User
+            </button>
+          )}
+        </div>
 
-          {/* Right — Create / Edit Form */}
-          <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[#1A1C1E]">
-                {formMode === 'edit' ? 'Edit User' : 'Create New User'}
-              </h2>
-              {formMode === 'edit' && (
-                <button
-                  onClick={handleCancelEdit}
-                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <X className="w-3 h-3" /> Cancel
-                </button>
+        {/* Create / Edit form */}
+        {showForm && (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+            <h2 className="text-sm font-bold text-slate-800 mb-5">
+              {formMode === "edit" ? "Edit User" : "Create New User"}
+            </h2>
+            <form onSubmit={handleSave} className="space-y-5">
+              {/* Row 1: Name / Email / Password */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Name <span className="text-rose-400">*</span></label>
+                  <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">Email <span className="text-rose-400">*</span></label>
+                  <input required value={form.login_id} onChange={e => setForm(p => ({ ...p, login_id: e.target.value }))}
+                    placeholder="user@digipexel.com"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                    Password {formMode === "create" && <span className="text-rose-400">*</span>}
+                  </label>
+                  <input required={formMode === "create"} type="password" value={form.password}
+                    onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                    placeholder={formMode === "edit" ? "Leave blank to keep" : ""}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand" />
+                </div>
+              </div>
+
+              {/* Row 2: Access level */}
+              <div>
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">Access Level <span className="text-rose-400">*</span></label>
+                <div className="grid grid-cols-3 gap-3">
+                  {ACCESS_OPTIONS.map(opt => (
+                    <label key={opt.value}
+                      className={cn(
+                        "flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                        accessLevel === opt.value ? "border-brand bg-brand/5" : "border-slate-200 hover:border-slate-300"
+                      )}>
+                      <input type="radio" name="access" value={opt.value} checked={accessLevel === opt.value}
+                        onChange={() => setAccessLevel(opt.value)} className="mt-0.5 accent-brand" />
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{opt.label}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{opt.desc}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 3: Page access (custom only) */}
+              {accessLevel === "custom" && (
+                <div className="border border-slate-100 rounded-xl p-4 space-y-4">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Page Access — select what this user can see and manage</p>
+                  {PAGE_ACCESS_GROUPS.map(group => (
+                    <div key={group.group}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{group.group}</p>
+                      <div className="grid grid-cols-2 gap-y-2 gap-x-6">
+                        {group.items.map(item => (
+                          <label key={item.key} className="flex items-center gap-2.5 cursor-pointer group">
+                            <input type="checkbox" checked={pageAccess.has(item.key)} onChange={() => toggleAccess(item.key)}
+                              className="w-4 h-4 accent-brand rounded" />
+                            <span className="text-sm text-slate-700 group-hover:text-slate-900">{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
 
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Name <span className="text-rose-400">*</span></label>
-                <input
-                  required
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand/30"
-                  value={form.name}
-                  onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                  placeholder="Full name"
-                />
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={resetForm}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving}
+                  className="px-5 py-2 rounded-lg text-sm font-semibold bg-brand text-white hover:bg-brand/90 disabled:opacity-50 transition-all">
+                  {saving ? "Saving…" : formMode === "edit" ? "Update User" : "Create User"}
+                </button>
               </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Designation</label>
-                <input
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand/30"
-                  value={form.designation}
-                  onChange={e => setForm(p => ({ ...p, designation: e.target.value }))}
-                  placeholder="e.g. Content Manager"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Login ID <span className="text-rose-400">*</span></label>
-                <input
-                  required
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand/30"
-                  value={form.login_id}
-                  onChange={e => setForm(p => ({ ...p, login_id: e.target.value }))}
-                  placeholder="Username or email"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                  Password {formMode === 'create' && <span className="text-rose-400">*</span>}
-                </label>
-                <input
-                  required={formMode === 'create'}
-                  type="password"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand/30"
-                  value={form.password}
-                  onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                  placeholder={formMode === 'edit' ? 'Leave blank to keep current password' : 'Set a password'}
-                />
-                {formMode === 'edit' && (
-                  <p className="text-xs text-slate-400 mt-1">Leave blank to keep current password.</p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                disabled={saveStatus === 'saving'}
-                className="w-full bg-[#1A1C1E] hover:bg-[#2A2C2E] text-white rounded-xl h-11 font-bold"
-              >
-                {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : saveStatus === 'error' ? 'Error — Retry' : 'Save User'}
-              </Button>
             </form>
           </div>
-        </div>
+        )}
 
-        {/* Admin Login Passcode Section */}
-        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm space-y-4">
-          <div className="space-y-1">
-            <h3 className="font-bold text-[#1A1C1E]">Admin Login Passcode</h3>
-            <p className="text-slate-400 text-sm">Change the passcode used to access the admin panel. The login page fetches this value from the database at runtime — no code change required.</p>
-          </div>
-          <form onSubmit={handlePasscodeSave} className="flex gap-3 items-end">
-            <div className="flex-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">New Passcode</label>
-              <input
-                type="password"
-                value={passcode}
-                onChange={e => setPasscode(e.target.value)}
-                placeholder="Enter new passcode"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand/30"
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={passcodeSaveStatus === 'saving' || !passcode.trim()}
-              className="bg-[#1A1C1E] hover:bg-[#2A2C2E] text-white rounded-xl h-11 px-6 font-bold"
-            >
-              {passcodeSaveStatus === 'saving' ? 'Saving...' : passcodeSaveStatus === 'saved' ? 'Saved!' : passcodeSaveStatus === 'error' ? 'Error' : 'Update Passcode'}
-            </Button>
-          </form>
+        {/* User table */}
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          {loading ? (
+            <div className="py-16 text-center text-slate-400 text-sm">Loading…</div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/60">
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">User</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Access</th>
+                  <th className="text-left px-4 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Added</th>
+                  <th className="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr><td colSpan={4} className="py-16 text-center text-slate-400 text-sm">No users yet</td></tr>
+                ) : users.map(user => {
+                  const { label, cls } = getAccessLabel(user);
+                  const initials = user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+                  return (
+                    <tr key={user.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/40 transition-colors">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs font-bold flex-shrink-0">{initials}</div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-800">{user.name}</p>
+                            <p className="text-xs text-slate-400">{user.login_id}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className={cn("text-[11px] font-bold px-2.5 py-1 rounded-full", cls)}>{label}</span>
+                      </td>
+                      <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => handleEdit(user)} className="p-1.5 rounded-lg text-slate-400 hover:text-brand hover:bg-brand/8 transition-all"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => handleDelete(user.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </AdminLayout>

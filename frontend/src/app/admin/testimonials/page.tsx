@@ -272,7 +272,30 @@ export default function AdminTestimonialsPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+        {/* Content-type tabs */}
+        <div className="flex items-center gap-0 border-b border-slate-200 overflow-x-auto">
+          {[
+            { label: "Blog", href: "/admin/blog" },
+            { label: "Case Studies", href: "/admin/case-studies" },
+            { label: "Guides", href: "/admin/guides" },
+            { label: "Testimonials", href: "/admin/testimonials" },
+            { label: "Client Logos", href: "/admin/logos" },
+            { label: "Authors", href: "/admin/authors" },
+            { label: "Categories", href: "/admin/categories" },
+          ].map(tab => (
+            <a key={tab.href} href={tab.href}
+              className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap",
+                tab.href === "/admin/testimonials"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              )}>
+              {tab.label}
+            </a>
+          ))}
+        </div>
+
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-100 pb-8">
           <div className="space-y-2">

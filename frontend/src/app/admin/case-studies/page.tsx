@@ -497,15 +497,18 @@ export default function AdminCaseStudyPage() {
         )}
 
         {/* Content-type tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-200 mb-6">
+        <div className="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
           {[
             { label: "Blog", href: "/admin/blog" },
             { label: "Case Studies", href: "/admin/case-studies" },
             { label: "Guides", href: "/admin/guides" },
             { label: "Testimonials", href: "/admin/testimonials" },
+            { label: "Client Logos", href: "/admin/logos" },
+            { label: "Authors", href: "/admin/authors" },
+            { label: "Categories", href: "/admin/categories" },
           ].map(tab => (
             <a key={tab.href} href={tab.href}
-              className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors",
+              className={cn("px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap",
                 tab.href === "/admin/case-studies"
                   ? "border-brand text-brand"
                   : "border-transparent text-slate-500 hover:text-slate-800"
