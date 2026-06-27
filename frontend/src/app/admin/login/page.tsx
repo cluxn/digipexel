@@ -35,8 +35,13 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Fallback: auth.php not yet deployed — check settings passcode
-      // (email is still validated below to prevent blank-email bypass)
+      // If auth.php returned a clear error (DB down, wrong credentials), show it
+      if (res?.message && res.message !== "Connection failed") {
+        setError(String(res.message));
+        return;
+      }
+
+      // Fallback: check settings passcode (for when auth.php isn't deployed yet)
       if (!email.includes("@")) {
         setError("Invalid email or password");
         return;
@@ -49,7 +54,7 @@ export default function AdminLoginPage() {
         localStorage.setItem("admin_auth", "true");
         router.push("/admin");
       } else {
-        setError(stored ? "Invalid email or password" : String(res?.message ?? "Connection failed"));
+        setError(stored ? "Invalid email or password" : String(res?.message ?? "Cannot reach server — check your connection or backend deployment"));
       }
     } catch {
       setError("Unable to connect. Please try again.");
