@@ -38,10 +38,14 @@ try {
         full_name      VARCHAR(255) NOT NULL,
         email          VARCHAR(255),
         company        VARCHAR(255),
+        role           VARCHAR(255),
         contact_number VARCHAR(100),
+        source         VARCHAR(100) DEFAULT '',
         service        VARCHAR(255),
         message        TEXT,
-        status         ENUM('new','contacted','archived') DEFAULT 'new',
+        notes          TEXT,
+        follow_up_date DATE,
+        status         VARCHAR(50) DEFAULT 'new',
         created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -99,25 +103,33 @@ try {
     )");
 
     run($pdo, "CREATE TABLE IF NOT EXISTS blogs (
-        id          INT AUTO_INCREMENT PRIMARY KEY,
-        title       VARCHAR(255) NOT NULL,
-        slug        VARCHAR(255) UNIQUE NOT NULL,
-        eyebrow     VARCHAR(255),
-        subtitle    VARCHAR(255),
-        excerpt     TEXT,
-        content     LONGTEXT,
-        image_url   TEXT,
-        category    VARCHAR(100),
-        tags        TEXT,
-        author_name VARCHAR(255) DEFAULT 'Digi Pexel Team',
-        author_role VARCHAR(255),
-        author_image TEXT,
-        read_time   VARCHAR(50),
-        status      VARCHAR(20) DEFAULT 'published',
-        sections    LONGTEXT,
-        position    INT DEFAULT 0,
-        published_at DATE,
-        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id                   INT AUTO_INCREMENT PRIMARY KEY,
+        title                VARCHAR(255) NOT NULL,
+        slug                 VARCHAR(255) UNIQUE NOT NULL,
+        eyebrow              VARCHAR(255),
+        subtitle             VARCHAR(255),
+        excerpt              TEXT,
+        content              LONGTEXT,
+        image_url            TEXT,
+        category             VARCHAR(100),
+        tags                 TEXT,
+        author_name          VARCHAR(255) DEFAULT 'Digi Pexel Team',
+        author_role          VARCHAR(255),
+        author_image         TEXT,
+        read_time            VARCHAR(50),
+        status               VARCHAR(20) DEFAULT 'published',
+        featured             TINYINT(1) DEFAULT 0,
+        show_related         TINYINT(1) DEFAULT 1,
+        show_category_section TINYINT(1) DEFAULT 0,
+        sections             LONGTEXT,
+        scheduled_at         DATETIME NULL DEFAULT NULL,
+        meta_title           VARCHAR(255) DEFAULT '',
+        meta_description     TEXT,
+        form_heading         VARCHAR(255) DEFAULT '',
+        faqs                 LONGTEXT,
+        position             INT DEFAULT 0,
+        published_at         DATE,
+        created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
 
     run($pdo, "CREATE TABLE IF NOT EXISTS case_studies (
@@ -197,6 +209,25 @@ try {
         updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
 
+    run($pdo, "CREATE TABLE IF NOT EXISTS authors (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        name       VARCHAR(255) NOT NULL,
+        role       VARCHAR(255) DEFAULT '',
+        bio        TEXT DEFAULT '',
+        image_url  VARCHAR(500) DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    run($pdo, "CREATE TABLE IF NOT EXISTS categories (
+        id           INT AUTO_INCREMENT PRIMARY KEY,
+        name         VARCHAR(100) NOT NULL UNIQUE,
+        slug         VARCHAR(120) NOT NULL DEFAULT '',
+        description  TEXT DEFAULT '',
+        content_type VARCHAR(50) DEFAULT 'all',
+        position     INT DEFAULT 0,
+        created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
     // ── 2. Add any columns that older deployments may be missing (safe — ignores duplicate-column errors) ──
 
     run($pdo, "ALTER TABLE leads MODIFY COLUMN email VARCHAR(255)");
@@ -231,6 +262,19 @@ try {
     run($pdo, "ALTER TABLE guides ADD COLUMN scheduled_at DATETIME");
     run($pdo, "ALTER TABLE guides ADD COLUMN meta_title VARCHAR(255)");
     run($pdo, "ALTER TABLE guides ADD COLUMN meta_description TEXT");
+    // Blog new columns
+    run($pdo, "ALTER TABLE blogs ADD COLUMN featured TINYINT(1) DEFAULT 0");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN show_related TINYINT(1) DEFAULT 1");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN show_category_section TINYINT(1) DEFAULT 0");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN scheduled_at DATETIME NULL DEFAULT NULL");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN meta_title VARCHAR(255) DEFAULT ''");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN meta_description TEXT");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN form_heading VARCHAR(255) DEFAULT ''");
+    run($pdo, "ALTER TABLE blogs ADD COLUMN faqs LONGTEXT");
+    // Categories new columns
+    run($pdo, "ALTER TABLE categories ADD COLUMN slug VARCHAR(120) NOT NULL DEFAULT ''");
+    run($pdo, "ALTER TABLE categories ADD COLUMN description TEXT DEFAULT ''");
+    run($pdo, "UPDATE categories SET slug = LOWER(REPLACE(REPLACE(name, ' ', '-'), '/', '-')) WHERE slug = '' OR slug IS NULL");
 
     // Promote any guide rows with null/empty status to 'published' (legacy rows)
     run($pdo, "UPDATE guides SET status = 'published' WHERE status IS NULL OR status = ''");
@@ -292,6 +336,13 @@ try {
     $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['nudge',      '{"enabled":false,"message":"Limited automation audit slots available this week!","ctaLabel":"Claim your spot","ctaLink":"/contact-us","position":"bottom-right","delayMs":3000}']);
     $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['mini_ctas',  '{"items":[{"label":"Free Audit","url":"/contact-us"},{"label":"Book a Call","url":"/contact-us"}]}']);
     $pdo->prepare("INSERT IGNORE INTO banners (config_key, config_value) VALUES (?, ?)")->execute(['lead_form',  '{"heading":"Ready to automate your ops?","subtext":"Fill in your details and we will send a custom automation roadmap in 24 hours.","ctaLabel":"Send My Roadmap","fields":["name","email","company","phone","service"]}']);
+
+    // Authors — seed default author if table is empty
+    $existingAuthors = (int)$pdo->query("SELECT COUNT(*) FROM authors")->fetchColumn();
+    if ($existingAuthors === 0) {
+        $pdo->prepare("INSERT INTO authors (name, role, bio) VALUES (?,?,?)")
+            ->execute(['Digi Pexel Team', 'Content Team', 'The Digi Pexel editorial team.']);
+    }
 
     // Admin user — seed only on first run, never overwrite
     $existingUsers = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
