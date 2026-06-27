@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
 import {
   Trash2, Mail, Search, Phone, Building2, AlertTriangle,
-  RefreshCw, Download, Plus, X, Calendar,
+  RefreshCw, Download, Plus, X, Calendar, FileSpreadsheet, FileText, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -100,6 +100,9 @@ export default function AdminLeadsPage() {
   const [addOpen, setAddOpen]           = useState(false);
   const [newLead, setNewLead]           = useState(BLANK_LEAD);
   const [saving, setSaving]             = useState(false);
+  const [editingNotes, setEditingNotes] = useState<Record<number, string>>({});
+  const [editingFollowUp, setEditingFollowUp] = useState<Record<number, string>>({});
+  const [savingField, setSavingField]   = useState<number | null>(null);
 
   // Newsletter
   const [subscribers, setSubscribers]   = useState<Subscriber[]>([]);
@@ -153,6 +156,26 @@ export default function AdminLeadsPage() {
     }
   };
 
+  const saveNotes = async (id: number) => {
+    setSavingField(id);
+    const notes = editingNotes[id] ?? leads.find(l => l.id === id)?.notes ?? "";
+    const res = await api.post("leads", { action: "update_notes", id, notes });
+    if (res?.status === "success") {
+      setLeads(prev => prev.map(l => l.id === id ? { ...l, notes } : l));
+    }
+    setSavingField(null);
+  };
+
+  const saveFollowUp = async (id: number) => {
+    setSavingField(id);
+    const follow_up_date = editingFollowUp[id] ?? leads.find(l => l.id === id)?.follow_up_date ?? "";
+    const res = await api.post("leads", { action: "update_follow_up", id, follow_up_date });
+    if (res?.status === "success") {
+      setLeads(prev => prev.map(l => l.id === id ? { ...l, follow_up_date: follow_up_date || null } : l));
+    }
+    setSavingField(null);
+  };
+
   const saveLead = async () => {
     if (!newLead.full_name.trim()) return;
     setSaving(true);
@@ -165,9 +188,9 @@ export default function AdminLeadsPage() {
     setSaving(false);
   };
 
-  const exportCSV = () => {
-    window.open(`${API_BASE_URL}/leads.php?action=export_csv`, "_blank");
-  };
+  const exportCSV     = () => window.open(`${API_BASE_URL}/leads.php?action=export_csv`, "_blank");
+  const exportExcel   = () => window.open(`${API_BASE_URL}/leads.php?action=export_excel`, "_blank");
+  const downloadSample = () => window.open(`${API_BASE_URL}/leads.php?action=sample_csv`, "_blank");
 
   // ── Derived stats ────────────────────────────────────────────────────────────
 
@@ -310,7 +333,13 @@ export default function AdminLeadsPage() {
 
               <div className="ml-auto flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 text-sm">
-                  <Download className="w-4 h-4" /> Export CSV
+                  <Download className="w-4 h-4" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportExcel} className="gap-1.5 text-sm text-emerald-700 border-emerald-200 hover:bg-emerald-50">
+                  <FileSpreadsheet className="w-4 h-4" /> Excel
+                </Button>
+                <Button variant="outline" size="sm" onClick={downloadSample} className="gap-1.5 text-sm text-slate-500">
+                  <FileText className="w-4 h-4" /> Sample
                 </Button>
                 <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm">
                   <Plus className="w-4 h-4" /> Add Lead
@@ -470,16 +499,47 @@ export default function AdminLeadsPage() {
                                 </p>
                               </div>
 
+                              {/* Follow-up date editor */}
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Follow-Up Date</p>
+                                <input
+                                  type="date"
+                                  defaultValue={lead.follow_up_date?.slice(0, 10) ?? ""}
+                                  onClick={e => e.stopPropagation()}
+                                  onChange={e => setEditingFollowUp(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                                  className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 mb-2"
+                                />
+                                <button
+                                  onClick={e => { e.stopPropagation(); saveFollowUp(lead.id); }}
+                                  disabled={savingField === lead.id}
+                                  className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 disabled:opacity-50"
+                                >
+                                  <Check className="w-3 h-3" /> {savingField === lead.id ? "Saving…" : "Save Date"}
+                                </button>
+                              </div>
+
                               {/* Notes + actions */}
                               <div>
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Notes</p>
-                                <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap mb-4">
-                                  {lead.notes || "No internal notes."}
-                                </p>
-                                <div className="flex items-center gap-3 mt-auto pt-2 border-t border-slate-200">
+                                <textarea
+                                  rows={3}
+                                  defaultValue={lead.notes ?? ""}
+                                  onClick={e => e.stopPropagation()}
+                                  onChange={e => setEditingNotes(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                                  placeholder="Add internal notes…"
+                                  className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 resize-none mb-2"
+                                />
+                                <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
+                                  <button
+                                    onClick={e => { e.stopPropagation(); saveNotes(lead.id); }}
+                                    disabled={savingField === lead.id}
+                                    className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 disabled:opacity-50"
+                                  >
+                                    <Check className="w-3 h-3" /> {savingField === lead.id ? "Saving…" : "Save Notes"}
+                                  </button>
                                   <button
                                     onClick={e => { e.stopPropagation(); deleteLead(lead.id); }}
-                                    className="text-[11px] text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
+                                    className="text-[11px] text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 ml-auto"
                                   >
                                     <Trash2 className="w-3 h-3" /> Delete
                                   </button>
@@ -543,14 +603,25 @@ export default function AdminLeadsPage() {
                   </button>
                 ))}
               </div>
-              <div className="relative mb-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-                <input
-                  value={subSearch}
-                  onChange={e => setSubSearch(e.target.value)}
-                  placeholder="Search…"
-                  className="pl-8 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-400 w-44"
-                />
+              <div className="flex items-center gap-2 mb-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                  <input
+                    value={subSearch}
+                    onChange={e => setSubSearch(e.target.value)}
+                    placeholder="Search…"
+                    className="pl-8 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-400 w-44"
+                  />
+                </div>
+                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=export_csv`, "_blank")} className="gap-1.5 text-sm">
+                  <Download className="w-3.5 h-3.5" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=export_excel`, "_blank")} className="gap-1.5 text-sm text-emerald-700 border-emerald-200 hover:bg-emerald-50">
+                  <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.open(`${API_BASE_URL}/newsletter.php?action=sample_csv`, "_blank")} className="gap-1.5 text-sm text-slate-500">
+                  <FileText className="w-3.5 h-3.5" /> Sample
+                </Button>
               </div>
             </div>
 

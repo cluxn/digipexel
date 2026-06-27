@@ -20,6 +20,10 @@ $new_columns = [
     "status VARCHAR(20) DEFAULT 'published'",
     "featured TINYINT(1) DEFAULT 0",
     "scheduled_at DATETIME NULL DEFAULT NULL",
+    "meta_title VARCHAR(255) DEFAULT ''",
+    "meta_description TEXT",
+    "form_heading VARCHAR(255) DEFAULT ''",
+    "faqs LONGTEXT",
 ];
 foreach ($new_columns as $col_def) {
     try { $pdo->exec("ALTER TABLE blogs ADD COLUMN $col_def"); } catch (Exception $e) { /* exists */ }
@@ -30,6 +34,7 @@ try { $pdo->exec("UPDATE blogs SET author_name = 'Digi Pexel Team' WHERE author_
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function parseBlog(array $row): array {
     $row['sections']             = json_decode($row['sections']  ?? '[]', true) ?: [];
+    $row['faqs']                 = json_decode($row['faqs']      ?? '[]', true) ?: [];
     $row['tags_array']           = array_filter(array_map('trim', explode(',', $row['tags'] ?? '')));
     $row['show_related']         = (bool)($row['show_related']         ?? 1);
     $row['show_category_section']= (bool)($row['show_category_section']?? 0);
@@ -98,6 +103,10 @@ try {
                 'published_at'          => $b['published_at']           ?? date('Y-m-d'),
                 'scheduled_at'          => !empty($b['scheduled_at']) ? $b['scheduled_at'] : null,
                 'position'              => (int)($b['position']         ?? 0),
+                'meta_title'            => $b['meta_title']             ?? '',
+                'meta_description'      => $b['meta_description']       ?? '',
+                'form_heading'          => $b['form_heading']           ?? '',
+                'faqs'                  => json_encode($b['faqs']       ?? []),
             ];
 
             if ($id) {

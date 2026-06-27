@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Pencil, Check, X, User } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Trash2, Pencil, User, AlertTriangle, RefreshCw } from "lucide-react";
 import AdminLayout from "@/components/admin/admin-layout";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 interface Author {
   id: number;
@@ -13,9 +14,7 @@ interface Author {
   image_url: string;
 }
 
-const SEED: Author[] = [
-  { id: 1, name: "Digi Pexel Team", role: "Content Team", bio: "The Digi Pexel editorial team.", image_url: "" },
-];
+const BLANK = { id: 0, name: "", role: "", bio: "", image_url: "" };
 
 const CONTENT_TABS = [
   { label: "Blog", href: "/admin/blog" },
@@ -28,50 +27,53 @@ const CONTENT_TABS = [
 ];
 
 export default function AdminAuthorsPage() {
-  const [authors, setAuthors] = useState<Author[]>([]);
+  const [authors, setAuthors]   = useState<Author[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [apiError, setApiError] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ id: 0, name: "", role: "", bio: "", image_url: "" });
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [form, setForm]         = useState(BLANK);
+  const [saving, setSaving]     = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("admin_authors");
-    setAuthors(stored ? JSON.parse(stored) : SEED);
+  const fetchAuthors = useCallback(async () => {
+    setLoading(true);
+    setApiError(false);
+    const res = await api.get("authors");
+    if (res?.status === "success" && Array.isArray(res.data)) {
+      setAuthors(res.data as Author[]);
+    } else {
+      setApiError(true);
+    }
+    setLoading(false);
   }, []);
 
-  const persist = (next: Author[]) => {
-    setAuthors(next);
-    localStorage.setItem("admin_authors", JSON.stringify(next));
-  };
+  useEffect(() => { fetchAuthors(); }, [fetchAuthors]);
 
-  const resetForm = () => {
-    setForm({ id: 0, name: "", role: "", bio: "", image_url: "" });
-    setEditingId(null);
-    setShowForm(false);
-  };
+  const resetForm = () => { setForm(BLANK); setShowForm(false); };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.name.trim()) return;
     setSaving(true);
-    if (editingId !== null) {
-      persist(authors.map(a => a.id === editingId ? { ...a, ...form, id: editingId } : a));
-    } else {
-      const next: Author = { ...form, id: Date.now() };
-      persist([...authors, next]);
+    const res = await api.post("authors", {
+      action: form.id ? "save_author" : "save_author",
+      ...form,
+    });
+    if (res?.status === "success") {
+      await fetchAuthors();
+      resetForm();
     }
     setSaving(false);
-    resetForm();
   };
 
   const handleEdit = (a: Author) => {
     setForm({ id: a.id, name: a.name, role: a.role, bio: a.bio, image_url: a.image_url });
-    setEditingId(a.id);
     setShowForm(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (!confirm("Delete this author?")) return;
-    persist(authors.filter(a => a.id !== id));
+    const res = await api.post("authors", { action: "delete_author", id });
+    if (res?.status === "success") setAuthors(prev => prev.filter(a => a.id !== id));
   };
 
   return (
@@ -92,6 +94,17 @@ export default function AdminAuthorsPage() {
           ))}
         </div>
 
+        {/* API error banner */}
+        {apiError && (
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 mb-4">
+            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <span>Backend unreachable — authors could not be loaded.</span>
+            <button onClick={fetchAuthors} className="ml-auto text-amber-700 font-bold underline underline-offset-2 flex items-center gap-1">
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-900">Authors</h1>
@@ -106,7 +119,7 @@ export default function AdminAuthorsPage() {
         {/* Form */}
         {showForm && (
           <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
-            <h2 className="text-sm font-bold text-slate-800 mb-4">{editingId ? "Edit Author" : "New Author"}</h2>
+            <h2 className="text-sm font-bold text-slate-800 mb-4">{form.id ? "Edit Author" : "New Author"}</h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -139,7 +152,7 @@ export default function AdminAuthorsPage() {
                   className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">Cancel</button>
                 <button type="submit" disabled={saving}
                   className="px-5 py-2 rounded-lg text-sm font-semibold bg-brand text-white hover:bg-brand/90 disabled:opacity-50 transition-all">
-                  {saving ? "Saving…" : editingId ? "Update" : "Create Author"}
+                  {saving ? "Saving…" : form.id ? "Update" : "Create Author"}
                 </button>
               </div>
             </form>
@@ -148,7 +161,9 @@ export default function AdminAuthorsPage() {
 
         {/* Table */}
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          {authors.length === 0 ? (
+          {loading ? (
+            <div className="py-16 text-center text-slate-400 text-sm animate-pulse">Loading authors…</div>
+          ) : authors.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-sm font-semibold">No authors yet</div>
           ) : (
             <table className="w-full">

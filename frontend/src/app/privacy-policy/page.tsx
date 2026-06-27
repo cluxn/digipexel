@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import PrivacyClient from './privacy-client'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://www.digipexel.com/backend/api'
@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = res ? await res.json().catch(() => null) : null
   const meta = data?.status === 'success' ? data.data : null
   const title = meta?.seo_title || 'Privacy Policy — Digi Pexel'
-  const description = meta?.meta_description || 'Digi Pexel privacy policy for data collection and processing.'
+  const description = meta?.meta_description || 'How Digi Pexel collects, uses, and protects your personal data.'
   return {
     title,
     description,

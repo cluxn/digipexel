@@ -9,23 +9,69 @@ $method = $_SERVER['REQUEST_METHOD'];
 try {
     if ($method === 'GET') {
         $action = $_GET['action'] ?? 'list';
-        if ($action === 'export_csv') {
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename="leads_' . date('Y-m-d') . '.csv"');
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['ID','Name','Email','Company','Role','Phone','Source','Service','Status','Follow-up Date','Notes','Message','Created At']);
+
+        $headers = ['ID','Name','Email','Company','Role','Phone','Source','Service','Status','Follow-up Date','Notes','Message','Created At'];
+
+        if ($action === 'export_csv' || $action === 'export_excel') {
             $stmt = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC");
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                fputcsv($out, [
-                    $row['id'], $row['full_name'], $row['email'], $row['company'],
-                    $row['role'] ?? '', $row['contact_number'], $row['source'] ?? '',
-                    $row['service'], $row['status'], $row['follow_up_date'] ?? '',
-                    $row['notes'] ?? '', $row['message'], $row['created_at'],
-                ]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($action === 'export_excel') {
+                // Export as Excel-compatible XML (opens natively in Excel/Sheets)
+                $filename = 'leads_' . date('Y-m-d') . '.xls';
+                header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                echo "\xEF\xBB\xBF"; // UTF-8 BOM
+                echo "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>";
+                echo "<head><meta charset='UTF-8'></head><body><table border='1'>";
+                echo "<tr>";
+                foreach ($headers as $h) echo "<th>" . htmlspecialchars($h) . "</th>";
+                echo "</tr>";
+                foreach ($rows as $row) {
+                    echo "<tr>";
+                    $cells = [
+                        $row['id'], $row['full_name'], $row['email'], $row['company'],
+                        $row['role'] ?? '', $row['contact_number'], $row['source'] ?? '',
+                        $row['service'], $row['status'], $row['follow_up_date'] ?? '',
+                        $row['notes'] ?? '', $row['message'], $row['created_at'],
+                    ];
+                    foreach ($cells as $cell) echo "<td>" . htmlspecialchars((string)$cell) . "</td>";
+                    echo "</tr>";
+                }
+                echo "</table></body></html>";
+                exit;
+            } else {
+                // CSV
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="leads_' . date('Y-m-d') . '.csv"');
+                $out = fopen('php://output', 'w');
+                fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM for Excel
+                fputcsv($out, $headers);
+                foreach ($rows as $row) {
+                    fputcsv($out, [
+                        $row['id'], $row['full_name'], $row['email'], $row['company'],
+                        $row['role'] ?? '', $row['contact_number'], $row['source'] ?? '',
+                        $row['service'], $row['status'], $row['follow_up_date'] ?? '',
+                        $row['notes'] ?? '', $row['message'], $row['created_at'],
+                    ]);
+                }
+                fclose($out);
+                exit;
             }
+        }
+
+        if ($action === 'sample_csv') {
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="leads_sample.csv"');
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($out, $headers);
+            fputcsv($out, ['', 'Jane Smith', 'jane@example.com', 'Acme Corp', 'CEO', '+1 555 0100', 'website', 'AI Automation', 'new', '', '', 'Interested in AI workflows', '']);
+            fputcsv($out, ['', 'John Doe',  'john@example.com', 'TechCo',   'CTO', '+1 555 0101', 'referral', 'SEO Services', 'contacted', '2026-07-15', 'Follow up after demo', 'Needs pricing info', '']);
             fclose($out);
             exit;
         }
+
         $stmt = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC");
         json_resp('success', $stmt->fetchAll(PDO::FETCH_ASSOC));
     }

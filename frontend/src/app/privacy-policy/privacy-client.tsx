@@ -5,94 +5,84 @@ import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/blocks/floating-icons-hero-demo";
 import { Footer } from "@/components/ui/footer-section";
 
-export default function PrivacyPolicyPage() {
+const SECTIONS = [
+  {
+    title: "Information We Collect",
+    body: "We collect information you provide directly — such as your name, email address, company, phone number, and message — when you fill out our contact form, subscribe to our newsletter, or engage with our services. We also collect basic usage analytics (page views, referral sources) through privacy-respecting tools.",
+  },
+  {
+    title: "How We Use Your Information",
+    body: "We use your information to respond to enquiries, deliver the services you requested, send relevant updates or newsletters (only with your consent), improve our website and offerings, and comply with legal obligations. We do not sell, rent, or trade your personal data to third parties.",
+  },
+  {
+    title: "Data Storage & Security",
+    body: "Your data is stored on secure servers hosted on Hostinger infrastructure located within the EU/US regions. We use industry-standard measures including HTTPS encryption, access controls, and regular security audits. Despite these measures, no method of transmission over the internet is 100% secure.",
+  },
+  {
+    title: "Cookies",
+    body: "We use essential cookies required for the website to function, and optional analytics cookies to understand how visitors use the site. You can manage cookie preferences via the cookie banner on your first visit. Disabling non-essential cookies will not affect your ability to use the site.",
+  },
+  {
+    title: "Third-Party Services",
+    body: "We use trusted third-party tools including n8n (workflow automation), Hostinger (hosting), and analytics providers. These services have their own privacy policies. We ensure any data shared with them is limited to what is necessary and handled according to their respective policies.",
+  },
+  {
+    title: "Your Rights",
+    body: "Depending on your jurisdiction, you may have the right to access, correct, delete, or export the personal data we hold about you. To exercise any of these rights, please contact us at info@digipexel.com. We will respond within 30 days.",
+  },
+  {
+    title: "Data Retention",
+    body: "We retain your data for as long as necessary to provide services and comply with legal obligations. Lead enquiry data is retained for up to 3 years. Newsletter subscriber data is retained until you unsubscribe. You may request earlier deletion at any time.",
+  },
+  {
+    title: "Changes to This Policy",
+    body: "We may update this Privacy Policy periodically. The 'Last updated' date at the top of this page reflects the most recent revision. Continued use of our website after changes constitutes acceptance of the updated policy.",
+  },
+  {
+    title: "Contact Us",
+    body: "For any privacy-related questions, requests, or concerns, please contact: Digi Pexel, Email: info@digipexel.com. We are committed to resolving any complaints about your privacy and our collection or use of your personal information.",
+  },
+];
+
+export default function PrivacyClient() {
   return (
     <main className="min-h-screen bg-base">
       <Navbar className="top-0" darkHero={false} />
-      {/* Hero Section - Standardized for Single Screen Fit */}
+
+      {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center pt-32 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_45%)]" />
-        <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center md:text-center">
+        <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center">
           <Badge variant="outline" className="section-eyebrow mb-6">
             Privacy Policy
           </Badge>
           <h1 className="hero-title mb-6 leading-[1.05]">
-            Your privacy,<br /><span className="hero-title-accent">protected by design.</span>
+            Your data,<br />
+            <span className="hero-title-accent">your rights.</span>
           </h1>
           <p className="section-subtitle max-w-2xl mx-auto opacity-70">
-            This policy explains how Digi Pexel collects, uses, and safeguards information when you engage with our
-            services, website, and automation systems.
+            At Digi Pexel, we take your privacy seriously. This policy explains what we collect, why we collect it, and how we keep it safe.
           </p>
-          <p className="text-secondary/40 text-xs mt-8 font-bold uppercase tracking-widest">Last updated: March 15, 2026</p>
+          <p className="text-secondary/40 text-xs mt-8 font-bold uppercase tracking-widest">Last updated: June 27, 2026</p>
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="container mx-auto px-6 max-w-5xl space-y-10">
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Information We Collect</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              We collect information you provide directly, including contact details, company name, and project
-              requirements. We also gather usage analytics from website interactions, as well as IP address and browser
-              data for security purposes.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">How We Use Your Information</h2>
-            <ul className="text-secondary text-sm space-y-2 leading-relaxed">
-              <li>Deliver AI automation and digital marketing services</li>
-              <li>Respond to inquiries and send relevant project proposals</li>
-              <li>Improve platform performance and user experience</li>
-              <li>Ensure legal compliance and fraud prevention</li>
-              <li>Send service updates (opt-out available at any time)</li>
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">AI Data Processing</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              Digi Pexel uses AI tools including large language models and automation platforms (n8n, Make, Zapier) to
-              process workflow data. Client data processed through these systems is handled with strict access controls.
-              We do not use your data to train AI models without explicit consent.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Third-Party Tools</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              We use the following third-party services that may process your data: Google Analytics (website analytics),
-              Calendly (booking and scheduling), and email service providers (newsletter delivery). Each third party has
-              their own privacy policy governing their data practices.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">GDPR and Data Rights</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              If you are located in the EU/EEA: you have the right to access, rectify, erase, restrict, or port your
-              data; you may withdraw consent at any time; you have the right to lodge a complaint with a supervisory
-              authority. Contact us at info@digipexel.com to exercise these rights.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Data Security</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              We use TLS encryption for data in transit, access controls, and regular security reviews. Only authorized
-              team members access client data for delivery or support purposes.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Data Retention</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              We retain client data for the duration of the service engagement and up to 3 years after project
-              completion for legal and accounting purposes. Inquiry data is retained for up to 12 months.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border-subtle bg-surface p-8">
-            <h2 className="text-xl font-semibold text-primary mb-3 mt-0">Contact</h2>
-            <p className="text-secondary text-sm leading-relaxed">
-              For privacy requests, email us at info@digipexel.com. We aim to respond within 5 business days.
-            </p>
+      {/* Content */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <div className="space-y-10">
+            {SECTIONS.map((s, i) => (
+              <div key={i}>
+                <h2 className="text-lg font-bold text-slate-900 mb-3">
+                  {i + 1}. {s.title}
+                </h2>
+                <p className="text-slate-600 leading-relaxed text-[15px]">{s.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
       <Footer />
     </main>
   );

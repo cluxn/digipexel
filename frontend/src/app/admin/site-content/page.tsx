@@ -264,8 +264,7 @@ export default function AdminSiteContentPage() {
       section,
       content,
     });
-    // Show saved if API succeeded OR local save succeeded
-    autoReset(setStatus, res?.status === "success" ? "saved" : "saved");
+    autoReset(setStatus, res?.status === "success" ? "saved" : "error");
   };
 
   // ── Icon slot updater ──────────────────────────────────────────────────
