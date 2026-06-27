@@ -217,21 +217,6 @@ export default function AdminLeadsPage() {
     </AdminLayout>
   );
 
-  if (apiError) return (
-    <AdminLayout>
-      <div className="flex flex-col items-center justify-center h-[60vh] gap-5 text-center">
-        <AlertTriangle className="w-8 h-8 text-rose-400" />
-        <p className="font-bold text-lg text-slate-800">Could not load leads</p>
-        <p className="text-slate-400 text-sm">
-          Backend unreachable at <code className="bg-slate-100 px-1 rounded">{API_BASE_URL}</code>
-        </p>
-        <Button variant="outline" onClick={fetchLeads} className="gap-2">
-          <RefreshCw className="w-4 h-4" /> Retry
-        </Button>
-      </div>
-    </AdminLayout>
-  );
-
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
@@ -257,6 +242,17 @@ export default function AdminLeadsPage() {
             ))}
           </div>
         </div>
+
+        {/* API error banner */}
+        {apiError && (
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <span>Backend unreachable — showing local data only.</span>
+            <button onClick={fetchLeads} className="ml-auto text-amber-700 font-bold underline underline-offset-2 hover:no-underline flex items-center gap-1">
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </button>
+          </div>
+        )}
 
         {/* ══════════════════════════════ LEADS TAB ═══════════════════════════ */}
         {mainTab === "leads" && (
