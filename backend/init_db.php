@@ -200,6 +200,12 @@ try {
     // ── 2. Add any columns that older deployments may be missing (safe — ignores duplicate-column errors) ──
 
     run($pdo, "ALTER TABLE leads MODIFY COLUMN email VARCHAR(255)");
+    run($pdo, "ALTER TABLE leads MODIFY COLUMN status VARCHAR(50) DEFAULT 'new'");
+    run($pdo, "ALTER TABLE leads ADD COLUMN source VARCHAR(100) DEFAULT ''");
+    run($pdo, "ALTER TABLE leads ADD COLUMN role VARCHAR(255)");
+    run($pdo, "ALTER TABLE leads ADD COLUMN follow_up_date DATE");
+    run($pdo, "ALTER TABLE leads ADD COLUMN notes TEXT");
+    run($pdo, "ALTER TABLE newsletter_subscribers ADD COLUMN source VARCHAR(100) DEFAULT 'website'")
     run($pdo, "ALTER TABLE testimonials ADD COLUMN star_rating TINYINT DEFAULT 5");
     run($pdo, "ALTER TABLE testimonials ADD COLUMN video_url TEXT");
     run($pdo, "ALTER TABLE testimonials ADD COLUMN logo_url TEXT");
