@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Image as ImageIcon,
-  Workflow,
   MessageSquare,
   Users,
   Globe,
@@ -23,33 +22,35 @@ import {
   BarChart2,
   UserCog,
   Search,
-  Tag
+  Tag,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 const sidebarItems = [
-  { name: "DASHBOARD",     icon: LayoutDashboard, href: "/admin",              status: "Active" },
-  { name: "SITE CONTENT",  icon: Globe,            href: "/admin/site-content", status: "Active" },
-  { name: "SERVICES",      icon: Workflow,         href: "/admin/services",     status: "Active" },
-  { name: "PARTNER LOGOS", icon: ImageIcon,        href: "/admin/logos",        status: "Active" },
-  { name: "CASE STUDIES",  icon: Briefcase,        href: "/admin/case-studies", status: "Active" },
-  { name: "BLOG POSTS",    icon: FileText,          href: "/admin/blog",         status: "Active" },
-  { name: "GUIDES",        icon: BookOpen,          href: "/admin/guides",       status: "Active" },
-  { name: "CATEGORIES",    icon: Tag,               href: "/admin/categories",   status: "Active" },
-  { name: "TESTIMONIALS",  icon: MessageSquare,     href: "/admin/testimonials", status: "Active" },
-  { name: "LEADS",         icon: Users,             href: "/admin/leads",        status: "Active" },
-  { name: "NEWSLETTER",    icon: Mail,              href: "/admin/newsletter",   status: "Active" },
-  { name: "POPUPS",        icon: Sparkles,          href: "/admin/nudges",       status: "Active" },
-  { name: "BANNERS",       icon: Layers,            href: "/admin/banners",      status: "Active" },
-  { name: "ANALYTICS",     icon: BarChart2,         href: "/admin/analytics",    status: "Active" },
-  { name: "SEO",           icon: Search,            href: "/admin/seo",          status: "Active" },
-  { name: "USERS",         icon: UserCog,           href: "/admin/users",        status: "Active" },
-  { name: "SETTINGS",      icon: Settings,          href: "/admin/settings",     status: "Active" },
+  { name: "DASHBOARD",     icon: LayoutDashboard, href: "/admin"              },
+  { name: "SITE CONTENT",  icon: Globe,            href: "/admin/site-content" },
+  { name: "PARTNER LOGOS", icon: ImageIcon,        href: "/admin/logos"        },
+  { name: "CASE STUDIES",  icon: Briefcase,        href: "/admin/case-studies" },
+  { name: "BLOG POSTS",    icon: FileText,          href: "/admin/blog"         },
+  { name: "GUIDES",        icon: BookOpen,          href: "/admin/guides"       },
+  { name: "CATEGORIES",    icon: Tag,               href: "/admin/categories"   },
+  { name: "TESTIMONIALS",  icon: MessageSquare,     href: "/admin/testimonials" },
+  { name: "LEADS",         icon: Users,             href: "/admin/leads"        },
+  { name: "NEWSLETTER",    icon: Mail,              href: "/admin/newsletter"   },
+  { name: "POPUPS",        icon: Sparkles,          href: "/admin/nudges"       },
+  { name: "BANNERS",       icon: Layers,            href: "/admin/banners"      },
+  { name: "ANALYTICS",     icon: BarChart2,         href: "/admin/analytics"    },
+  { name: "SEO",           icon: Search,            href: "/admin/seo"          },
+  { name: "USERS",         icon: UserCog,           href: "/admin/users"        },
+  { name: "SETTINGS",      icon: Settings,          href: "/admin/settings"     },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [collapsed, setCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     const auth = localStorage.getItem("admin_auth");
@@ -58,11 +59,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } else {
       setIsAuthenticated(true);
     }
+    const saved = localStorage.getItem("admin_sidebar_collapsed");
+    if (saved === "true") setCollapsed(true);
   }, [router]);
 
-  // Chrome extensions (e.g. frame_ant.js) monkey-patch window.fetch and create
-  // internal promise chains with no .catch(). Suppress those unhandled rejections
-  // so they don't surface as Next.js dev overlay errors.
   React.useEffect(() => {
     const handler = (e: PromiseRejectionEvent) => {
       const stack = (e.reason as Error)?.stack ?? "";
@@ -72,6 +72,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return () => window.removeEventListener("unhandledrejection", handler);
   }, []);
 
+  const toggleSidebar = () => {
+    setCollapsed(prev => {
+      localStorage.setItem("admin_sidebar_collapsed", String(!prev));
+      return !prev;
+    });
+  };
+
   const handleSignOut = () => {
     localStorage.removeItem("admin_auth");
     router.push("/admin/login");
@@ -79,75 +86,105 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-8 h-8 text-brand animate-spin" />
         <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase">Authenticating...</p>
       </div>
     );
   }
 
+  const sidebarW = collapsed ? "w-[68px]" : "w-64";
+  const mainML  = collapsed ? "ml-[68px]" : "ml-64";
+
   return (
-    <div className="flex min-h-screen bg-[#F8F9FA] font-sans selection:bg-brand/10 selection:text-brand">
+    <div className="flex min-h-screen bg-slate-50 font-sans selection:bg-brand/10 selection:text-brand">
       {/* Sidebar */}
-      <aside className="w-72 bg-[#1A1C1E] text-white flex flex-col fixed inset-y-0 left-0 z-50 overflow-hidden shadow-2xl">
-        {/* Logo Section */}
-        <div className="p-8 mb-8 border-b border-white/5">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl font-display font-bold tracking-tight text-white flex items-center gap-2">
-              Digi Pexel <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-            </span>
-          </div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">Admin Station</p>
+      <aside className={cn(
+        "bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 left-0 z-50 overflow-hidden transition-all duration-200 shadow-sm",
+        sidebarW
+      )}>
+        {/* Logo + collapse toggle */}
+        <div className={cn(
+          "flex items-center border-b border-slate-100 h-16 flex-shrink-0",
+          collapsed ? "justify-center px-0" : "justify-between px-5"
+        )}>
+          {!collapsed && (
+            <div>
+              <span className="text-sm font-display font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
+                Digi Pexel <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+              </span>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-0.5">Admin</p>
+            </div>
+          )}
+          <button
+            onClick={toggleSidebar}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0"
+          >
+            {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+          </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        {/* Navigation */}
+        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
           {sidebarItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
+                title={collapsed ? item.name : undefined}
                 className={cn(
-                  "flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 group",
-                  isActive 
-                    ? "bg-brand/10 text-brand border border-brand/20 shadow-[0_0_20px_rgba(37,99,235,0.1)]" 
-                    : "text-white/40 hover:text-white hover:bg-white/5"
+                  "flex items-center gap-3 mx-2 my-0.5 rounded-lg transition-all duration-150 group",
+                  collapsed ? "justify-center px-0 py-3" : "px-3 py-2.5",
+                  isActive
+                    ? "bg-brand/8 text-brand"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                 )}
               >
-                <item.icon className={cn("w-5 h-5", isActive ? "text-brand" : "text-inherit")} />
-                <span className="text-[11px] font-bold tracking-[0.15em]">
-                  {item.name}
-                </span>
-                {item.status === "Upcoming" && (
-                  <span className="ml-auto text-[8px] bg-white/5 px-1.5 py-0.5 rounded opacity-50">SOON</span>
+                <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive ? "text-brand" : "text-inherit")} />
+                {!collapsed && (
+                  <span className="text-[11px] font-bold tracking-[0.12em] truncate">
+                    {item.name}
+                  </span>
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer Actions */}
-        <div className="p-6 space-y-2 mt-auto border-t border-white/5 bg-black/20">
-          <Link 
-            href="/" 
-            className="flex items-center gap-4 px-6 py-4 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all w-full"
+        {/* Footer */}
+        <div className={cn(
+          "py-3 mt-auto border-t border-slate-100",
+          collapsed ? "px-0" : "px-2"
+        )}>
+          <Link
+            href="/"
+            title={collapsed ? "View Site" : undefined}
+            className={cn(
+              "flex items-center gap-3 mx-0 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all",
+              collapsed ? "justify-center mx-2 py-3 px-0" : "px-3 py-2.5 mx-0"
+            )}
           >
-            <Globe className="w-5 h-5" />
-            <span className="text-[11px] font-bold tracking-[0.15em]">VIEW SITE</span>
+            <Globe className="w-[18px] h-[18px] flex-shrink-0" />
+            {!collapsed && <span className="text-[11px] font-bold tracking-[0.12em]">VIEW SITE</span>}
           </Link>
-          <button 
-            className="flex items-center gap-4 px-6 py-4 rounded-xl text-rose-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all w-full text-left"
+          <button
             onClick={handleSignOut}
+            title={collapsed ? "Sign Out" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-all w-full",
+              collapsed ? "justify-center mx-2 py-3 px-0" : "px-3 py-2.5 mx-0"
+            )}
           >
-            <LogOut className="w-5 h-5" />
-            <span className="text-[11px] font-bold tracking-[0.15em]">SIGN OUT</span>
+            <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
+            {!collapsed && <span className="text-[11px] font-bold tracking-[0.12em]">SIGN OUT</span>}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 p-12">
+      <main className={cn("flex-1 p-10 transition-all duration-200", mainML)}>
         {children}
       </main>
     </div>
