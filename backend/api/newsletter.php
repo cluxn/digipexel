@@ -6,6 +6,10 @@ send_json_headers();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Auto-migrate: add source column if missing
+try { $pdo->query("SELECT source FROM newsletter_subscribers LIMIT 1"); }
+catch (PDOException $_) { $pdo->exec("ALTER TABLE newsletter_subscribers ADD COLUMN source VARCHAR(100) DEFAULT 'website'"); }
+
 try {
     if ($method === 'POST') {
         $input = get_input();

@@ -6,6 +6,18 @@ send_json_headers();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Auto-migrate: add columns that may be missing from older installs
+$migrations = [
+    "source"        => "ALTER TABLE leads ADD COLUMN source VARCHAR(100) DEFAULT ''",
+    "role"          => "ALTER TABLE leads ADD COLUMN role VARCHAR(255) DEFAULT ''",
+    "notes"         => "ALTER TABLE leads ADD COLUMN notes TEXT",
+    "follow_up_date"=> "ALTER TABLE leads ADD COLUMN follow_up_date DATE NULL",
+];
+foreach ($migrations as $col => $sql) {
+    try { $pdo->query("SELECT $col FROM leads LIMIT 1"); }
+    catch (PDOException $_) { $pdo->exec($sql); }
+}
+
 try {
     if ($method === 'GET') {
         $action = $_GET['action'] ?? 'list';

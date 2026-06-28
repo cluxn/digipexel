@@ -717,7 +717,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
         const serviceOnes: TestimonialsItem[] = json.data
           .filter((t: { display_context?: string }) => (t.display_context || '').split(',').map((s: string) => s.trim()).includes('service'))
           .map((t: { content: string; role: string; company?: string }) => ({ quote: t.content, role: t.role, company: t.company }));
-        if (serviceOnes.length > 0) setSharedTestimonials(serviceOnes);
+        if (serviceOnes.length >= 3) setSharedTestimonials(serviceOnes);
       }
     }
     fetchSharedTestimonials().catch(() => {});
@@ -1018,7 +1018,7 @@ export function ServicePageClient({ slug }: { slug: string }) {
             <p className="section-subtitle max-w-2xl mx-auto">{staticData.testimonialsCopy ?? DEFAULT_SECTIONS.testimonialsCopy}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {(sharedTestimonials.length > 0 ? sharedTestimonials : (testimonialsData.items ?? staticData.testimonials ?? DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" })))).slice(0, 3).map((t: any, idx) => (
+            {(sharedTestimonials.length > 0 ? sharedTestimonials : ((testimonialsData.items?.length ?? 0) >= 3 ? testimonialsData.items! : (staticData.testimonials ?? DEFAULT_SECTIONS.testimonialsItems.map(([quote, role]) => ({ quote, role, company: "" }))))).slice(0, 3).map((t: any, idx) => (
               <div key={idx} className="group relative rounded-[3rem] border border-border-subtle bg-white p-10 hover:shadow-2xl hover:shadow-brand/5 transition-all duration-500 flex flex-col h-full overflow-hidden">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative mb-8">

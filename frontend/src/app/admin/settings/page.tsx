@@ -163,12 +163,14 @@ export default function AdminSettingsPage() {
             >
               Site Settings
             </a>
-            <a
-              href="/admin/users"
-              className="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700"
-            >
-              Users
-            </a>
+            {typeof window !== "undefined" && localStorage.getItem("admin_access_level") !== "custom" && (
+              <a
+                href="/admin/users"
+                className="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700"
+              >
+                Users
+              </a>
+            )}
           </div>
         </div>
 

@@ -94,7 +94,12 @@ export default function TestimonialsPage() {
               <p className="text-secondary/50 font-medium">Loading success stories...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={[
+                "grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto",
+                testimonials.length >= 3 ? "lg:grid-cols-3" :
+                testimonials.length === 2 ? "lg:grid-cols-2 max-w-3xl" :
+                "lg:grid-cols-1 max-w-lg"
+              ].join(" ")}>
               {testimonials.map((t, idx) => (
                 <motion.div
                   key={t.id}

@@ -11,6 +11,7 @@ interface AdminUser {
   name: string;
   designation: string;
   login_id: string;
+  access_level: string;
   created_at: string;
 }
 
@@ -19,12 +20,11 @@ const SETTINGS_TABS = [
   { label: "Users", href: "/admin/users" },
 ];
 
-type AccessLevel = "super_admin" | "admin" | "custom";
+type AccessLevel = "admin" | "custom";
 
 const ACCESS_OPTIONS: { value: AccessLevel; label: string; desc: string }[] = [
-  { value: "super_admin", label: "Super Admin", desc: "Full access + user management & deletion" },
-  { value: "admin",       label: "Admin",       desc: "Full access to all sections" },
-  { value: "custom",      label: "Custom Access", desc: "Choose specific sections this user can see" },
+  { value: "admin",  label: "Admin",         desc: "Full access to all sections including Users" },
+  { value: "custom", label: "Custom Access", desc: "Choose specific sections this user can see" },
 ];
 
 const PAGE_ACCESS_GROUPS = [
@@ -93,6 +93,8 @@ export default function AdminUsersPage() {
 
   const handleEdit = (user: AdminUser) => {
     setForm({ id: user.id, name: user.name, designation: user.designation, login_id: user.login_id, password: "" });
+    const lvl = user.access_level === "custom" ? "custom" : "admin";
+    setAccessLevel(lvl);
     setFormMode("edit");
     setShowForm(true);
   };
@@ -106,7 +108,7 @@ export default function AdminUsersPage() {
   };
 
   const getAccessLabel = (user: AdminUser) => {
-    if (user.designation?.toLowerCase().includes("super")) return { label: "Super Admin", cls: "bg-rose-100 text-rose-600" };
+    if (user.access_level === "custom") return { label: "Custom", cls: "bg-amber-100 text-amber-600" };
     return { label: "Admin", cls: "bg-blue-100 text-blue-600" };
   };
 

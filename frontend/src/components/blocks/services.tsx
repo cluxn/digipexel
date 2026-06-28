@@ -99,7 +99,14 @@ export function Services() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className={cn(
+                "grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto w-full",
+                (allServices as any)[activeTab].length >= 3
+                  ? "lg:grid-cols-3"
+                  : (allServices as any)[activeTab].length === 2
+                    ? "lg:grid-cols-2 max-w-2xl"
+                    : "lg:grid-cols-1 max-w-sm"
+              )}
             >
               {(allServices as any)[activeTab].map((service: any, idx: number) => (
                 <ServiceCard key={idx} service={service} index={idx} />

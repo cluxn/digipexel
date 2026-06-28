@@ -14,6 +14,10 @@ if (!$email || !$password) {
     json_resp('error', null, 'Email and password are required');
 }
 
+// ── Auto-migrate: add access_level column if missing ──────────────────────────
+try { $pdo->query("SELECT access_level FROM users LIMIT 1"); }
+catch (PDOException $_) { $pdo->exec("ALTER TABLE users ADD COLUMN access_level VARCHAR(20) NOT NULL DEFAULT 'admin'"); }
+
 // ── Auto-seed admin on first deploy (users table empty) ────────────────────────
 $count = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 if ($count === 0) {
@@ -28,7 +32,7 @@ if ($count === 0) {
 }
 
 // ── Normal login ───────────────────────────────────────────────────────────────
-$stmt = $pdo->prepare("SELECT password_hash FROM users WHERE login_id = ? LIMIT 1");
+$stmt = $pdo->prepare("SELECT password_hash, access_level FROM users WHERE login_id = ? LIMIT 1");
 $stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -36,4 +40,4 @@ if (!$user || !password_verify($password, $user['password_hash'])) {
     json_resp('error', null, 'Invalid email or password');
 }
 
-json_resp('success', null, 'Authenticated');
+json_resp('success', ['access_level' => $user['access_level'] ?? 'admin'], 'Authenticated');

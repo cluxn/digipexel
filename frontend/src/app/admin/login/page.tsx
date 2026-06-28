@@ -31,6 +31,7 @@ export default function AdminLoginPage() {
 
       if (res?.status === "success") {
         localStorage.setItem("admin_auth", "true");
+        localStorage.setItem("admin_access_level", (res.data as Record<string,string>)?.access_level ?? "admin");
         router.push("/admin");
         return;
       }

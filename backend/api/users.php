@@ -6,41 +6,49 @@ send_json_headers();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Auto-migrate: add access_level column if missing
+try {
+    $pdo->query("SELECT access_level FROM users LIMIT 1");
+} catch (PDOException $_) {
+    $pdo->exec("ALTER TABLE users ADD COLUMN access_level VARCHAR(20) NOT NULL DEFAULT 'admin'");
+}
+
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->query("SELECT id, name, designation, login_id, created_at FROM users ORDER BY created_at DESC");
+        $stmt = $pdo->query("SELECT id, name, designation, login_id, access_level, created_at FROM users ORDER BY created_at DESC");
         json_resp('success', $stmt->fetchAll(PDO::FETCH_ASSOC));
     } elseif ($method === 'POST') {
         $input = get_input();
         $action = $input['action'] ?? '';
 
         if ($action === 'save_user') {
-            $id = (int)($input['id'] ?? 0);
-            $name = trim($input['name'] ?? '');
-            $designation = trim($input['designation'] ?? '');
-            $login_id = trim($input['login_id'] ?? '');
-            $password = $input['password'] ?? '';
+            $id           = (int)($input['id'] ?? 0);
+            $name         = trim($input['name'] ?? '');
+            $designation  = trim($input['designation'] ?? '');
+            $login_id     = trim($input['login_id'] ?? '');
+            $password     = $input['password'] ?? '';
+            $raw = $input['access_level'] ?? '';
+            if ($raw === 'super_admin') $raw = 'admin'; // normalize legacy value
+            $access_level = in_array($raw, ['admin','custom'])
+                            ? $raw
+                            : 'admin';
 
-            if (!$name) {
-                json_resp('error', null, 'name is required');
-            }
-            if (!$login_id) {
-                json_resp('error', null, 'login_id is required');
-            }
+            if (!$name)     json_resp('error', null, 'name is required');
+            if (!$login_id) json_resp('error', null, 'login_id is required');
 
             try {
                 if ($id) {
                     if ($password) {
-                        $stmt = $pdo->prepare("UPDATE users SET name=?, designation=?, login_id=?, password_hash=? WHERE id=?");
-                        $stmt->execute([$name, $designation, $login_id, password_hash($password, PASSWORD_DEFAULT), $id]);
+                        $stmt = $pdo->prepare("UPDATE users SET name=?, designation=?, login_id=?, access_level=?, password_hash=? WHERE id=?");
+                        $stmt->execute([$name, $designation, $login_id, $access_level, password_hash($password, PASSWORD_DEFAULT), $id]);
                     } else {
-                        $stmt = $pdo->prepare("UPDATE users SET name=?, designation=?, login_id=? WHERE id=?");
-                        $stmt->execute([$name, $designation, $login_id, $id]);
+                        $stmt = $pdo->prepare("UPDATE users SET name=?, designation=?, login_id=?, access_level=? WHERE id=?");
+                        $stmt->execute([$name, $designation, $login_id, $access_level, $id]);
                     }
                 } else {
                     $hash = password_hash($password ?: 'changeme', PASSWORD_DEFAULT);
-                    $stmt = $pdo->prepare("INSERT INTO users (name, designation, login_id, password_hash) VALUES (?,?,?,?)");
-                    $stmt->execute([$name, $designation, $login_id, $hash]);
+                    $stmt = $pdo->prepare("INSERT INTO users (name, designation, login_id, access_level, password_hash) VALUES (?,?,?,?,?)");
+                    $stmt->execute([$name, $designation, $login_id, $access_level, $hash]);
                 }
                 json_resp('success', null, 'User saved');
             } catch (PDOException $e) {

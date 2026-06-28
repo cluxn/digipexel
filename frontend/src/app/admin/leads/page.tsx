@@ -7,7 +7,8 @@ import { api } from "@/lib/api";
 import { API_BASE_URL } from "@/lib/constants";
 import {
   Trash2, Mail, Search, Phone, Building2, AlertTriangle,
-  RefreshCw, Download, Plus, X, Calendar, FileSpreadsheet, ChevronDown, Check,
+  RefreshCw, Download, Plus, X, Calendar, FileSpreadsheet,
+  ChevronDown, Check, ChevronRight, UserMinus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -67,14 +68,16 @@ const STATUS_STYLE: Record<string, string> = {
   archived:          "bg-slate-100 text-slate-400 border border-slate-200",
 };
 
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function age(dateStr: string): string {
-  const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000);
-  if (d === 0) return "today";
-  if (d < 30)  return `${d}d`;
-  if (d < 365) return `${Math.floor(d / 30)}mo`;
-  return `${Math.floor(d / 365)}y`;
+function fmtDate(dateStr: string): { date: string; ago: string } {
+  const d = new Date(dateStr);
+  const date = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const diff = Math.floor((Date.now() - d.getTime()) / 86_400_000);
+  const ago = diff === 0 ? "today" : diff < 30 ? `${diff}d ago` : diff < 365 ? `${Math.floor(diff / 30)}mo ago` : `${Math.floor(diff / 365)}y ago`;
+  return { date, ago };
 }
 
 const BLANK_LEAD = {
@@ -105,6 +108,14 @@ export default function AdminLeadsPage() {
   const [savingField, setSavingField]   = useState<number | null>(null);
   const [exportOpen, setExportOpen]     = useState(false);
   const [subExportOpen, setSubExportOpen] = useState(false);
+
+  // Pagination — leads
+  const [page, setPage]         = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  // Pagination — newsletter
+  const [subPage, setSubPage]         = useState(1);
+  const [subPageSize, setSubPageSize] = useState(25);
 
   // Newsletter
   const [subscribers, setSubscribers]   = useState<Subscriber[]>([]);
@@ -140,6 +151,10 @@ export default function AdminLeadsPage() {
     if (mainTab === "newsletter") fetchSubscribers();
   }, [mainTab, fetchSubscribers]);
 
+  // Reset to page 1 whenever filters change
+  useEffect(() => { setPage(1); }, [statusFilter, sourceFilter, search, dateFrom, dateTo]);
+  useEffect(() => { setSubPage(1); }, [subFilter, subSearch]);
+
   // ── Lead actions ─────────────────────────────────────────────────────────────
 
   const updateStatus = async (id: number, status: string) => {
@@ -149,7 +164,8 @@ export default function AdminLeadsPage() {
     }
   };
 
-  const deleteLead = async (id: number) => {
+  const deleteLead = async (id: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!confirm("Delete this lead permanently?")) return;
     const res = await api.post("leads", { action: "delete_lead", id });
     if (res?.status === "success") {
@@ -190,6 +206,22 @@ export default function AdminLeadsPage() {
     setSaving(false);
   };
 
+  const unsubscribeSub = async (id: number) => {
+    if (!confirm("Mark this subscriber as unsubscribed?")) return;
+    const res = await api.post("newsletter", { action: "unsubscribe", id });
+    if (res?.status === "success") {
+      setSubscribers(prev => prev.map(s => s.id === id ? { ...s, status: "unsubscribed" } : s));
+    }
+  };
+
+  const deleteSub = async (id: number) => {
+    if (!confirm("Delete this subscriber permanently?")) return;
+    const res = await api.post("newsletter", { action: "delete_subscriber", id });
+    if (res?.status === "success") {
+      setSubscribers(prev => prev.filter(x => x.id !== id));
+    }
+  };
+
   const exportCSV   = () => window.open(`${API_BASE_URL}/leads.php?action=export_csv`, "_blank");
   const exportExcel = () => window.open(`${API_BASE_URL}/leads.php?action=export_excel`, "_blank");
 
@@ -205,7 +237,7 @@ export default function AdminLeadsPage() {
   const converted      = leads.filter(l => l.status === "converted").length;
   const conversionRate = totalLeads > 0 ? ((converted / totalLeads) * 100).toFixed(1) : "0.0";
 
-  const sources  = Array.from(new Set(leads.map(l => l.source).filter(Boolean)));
+  const sources = Array.from(new Set(leads.map(l => l.source).filter(Boolean)));
 
   const filtered = leads.filter(l => {
     if (statusFilter !== "all" && l.status !== statusFilter) return false;
@@ -219,17 +251,23 @@ export default function AdminLeadsPage() {
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated  = filtered.slice((page - 1) * pageSize, page * pageSize);
+
   // ── Newsletter stats ─────────────────────────────────────────────────────────
 
-  const activeSubs  = subscribers.filter(s => s.status === "active").length;
+  const activeSubs   = subscribers.filter(s => s.status === "active").length;
   const unsubscribed = subscribers.filter(s => s.status === "unsubscribed").length;
-  const subThisWeek = subscribers.filter(s => new Date(s.subscribed_at).getTime() >= weekAgo).length;
+  const subThisWeek  = subscribers.filter(s => new Date(s.subscribed_at).getTime() >= weekAgo).length;
 
   const filteredSubs = subscribers.filter(s => {
     if (subFilter !== "all" && s.status !== subFilter) return false;
     if (subSearch && !s.email.toLowerCase().includes(subSearch.toLowerCase())) return false;
     return true;
   });
+
+  const subTotalPages = Math.max(1, Math.ceil(filteredSubs.length / subPageSize));
+  const paginatedSubs = filteredSubs.slice((subPage - 1) * subPageSize, subPage * subPageSize);
 
   // ── Loading / error ──────────────────────────────────────────────────────────
 
@@ -261,7 +299,7 @@ export default function AdminLeadsPage() {
                     : "border-transparent text-slate-500 hover:text-slate-700"
                 )}
               >
-                {tab === "leads" ? "All Leads" : "Newsletter"}
+                {tab === "leads" ? `All Leads${totalLeads > 0 ? ` (${totalLeads})` : ""}` : `Newsletter${activeSubs > 0 ? ` (${activeSubs})` : ""}`}
               </button>
             ))}
           </div>
@@ -319,41 +357,43 @@ export default function AdminLeadsPage() {
                 {sources.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
 
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
-              />
-              <input
-                type="date"
-                value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
-              />
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+
+              {(search || sourceFilter !== "all" || dateFrom || dateTo) && (
+                <button
+                  onClick={() => { setSearch(""); setSourceFilter("all"); setDateFrom(""); setDateTo(""); }}
+                  className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" /> Clear
+                </button>
+              )}
 
               <div className="ml-auto flex items-center gap-2">
+                {/* Page size */}
+                <select
+                  value={pageSize}
+                  onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+                  className="border border-slate-200 rounded-lg px-2 py-2 text-xs bg-white focus:outline-none"
+                >
+                  {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n} / page</option>)}
+                </select>
+
                 {/* Export dropdown */}
                 <div className="relative">
-                  <Button
-                    variant="outline" size="sm"
-                    onClick={() => setExportOpen(o => !o)}
-                    className="gap-1.5 text-sm"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setExportOpen(o => !o)} className="gap-1.5 text-sm">
                     <Download className="w-4 h-4" /> Export <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
                   {exportOpen && (
                     <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 text-sm">
-                      <button
-                        onClick={() => { exportCSV(); setExportOpen(false); }}
-                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
+                      <button onClick={() => { exportCSV(); setExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50">
                         <Download className="w-4 h-4 text-slate-400" /> Export as CSV
                       </button>
-                      <button
-                        onClick={() => { exportExcel(); setExportOpen(false); }}
-                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
+                      <button onClick={() => { exportExcel(); setExportOpen(false); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50">
                         <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Export as Excel
                       </button>
                     </div>
@@ -375,25 +415,27 @@ export default function AdminLeadsPage() {
                     onClick={() => setStatusFilter(key)}
                     className={cn(
                       "whitespace-nowrap px-4 py-2.5 text-[11px] font-bold tracking-wider border-b-2 transition-colors",
-                      statusFilter === key
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                      statusFilter === key ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"
                     )}
                   >
                     {label}
                     {cnt > 0 && key !== "all" && (
-                      <span className="ml-1.5 text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5">
-                        {cnt}
-                      </span>
+                      <span className="ml-1.5 text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5">{cnt}</span>
                     )}
                   </button>
                 );
               })}
             </div>
 
+            {/* Result count */}
+            <p className="text-xs text-slate-400">
+              Showing {Math.min((page - 1) * pageSize + 1, filtered.length)}–{Math.min(page * pageSize, filtered.length)} of {filtered.length} lead{filtered.length !== 1 ? "s" : ""}
+              {filtered.length !== totalLeads && ` (filtered from ${totalLeads} total)`}
+            </p>
+
             {/* Leads table */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
-              <table className="w-full min-w-[800px]">
+              <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Name</th>
@@ -401,153 +443,183 @@ export default function AdminLeadsPage() {
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Source</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Follow-Up</th>
-                    <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Age</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Date</th>
+                    <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(lead => (
-                    <React.Fragment key={lead.id}>
-                      {/* Row */}
-                      <tr
-                        onClick={() => setExpandedId(expandedId === lead.id ? null : lead.id)}
-                        className="border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors"
-                      >
-                        {/* Name + email */}
-                        <td className="px-4 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0">
-                              {lead.full_name.charAt(0).toUpperCase()}
+                  {paginated.map(lead => {
+                    const { date, ago } = fmtDate(lead.created_at);
+                    return (
+                      <React.Fragment key={lead.id}>
+                        {/* Row */}
+                        <tr
+                          onClick={() => setExpandedId(expandedId === lead.id ? null : lead.id)}
+                          className="border-b border-slate-50 hover:bg-slate-50/60 cursor-pointer transition-colors"
+                        >
+                          {/* Name + email */}
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0">
+                                {lead.full_name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-slate-900 leading-tight">{lead.full_name}</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5">{lead.email || "—"}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-semibold text-slate-900 leading-tight">{lead.full_name}</p>
-                              <p className="text-[11px] text-slate-400 mt-0.5">{lead.email}</p>
-                            </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Company + role */}
-                        <td className="px-4 py-3.5">
-                          <p className="text-sm text-slate-700">{lead.company || "—"}</p>
-                          {lead.role && <p className="text-[11px] text-slate-400 mt-0.5">{lead.role}</p>}
-                        </td>
+                          {/* Company + role */}
+                          <td className="px-4 py-3.5">
+                            <p className="text-sm text-slate-700">{lead.company || "—"}</p>
+                            {lead.role && <p className="text-[11px] text-slate-400 mt-0.5">{lead.role}</p>}
+                          </td>
 
-                        {/* Source */}
-                        <td className="px-4 py-3.5">
-                          <span className="inline-block text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
-                            {lead.source || lead.service || "—"}
-                          </span>
-                        </td>
-
-                        {/* Status — inline dropdown */}
-                        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
-                          <select
-                            value={lead.status}
-                            onChange={e => updateStatus(lead.id, e.target.value)}
-                            className={cn(
-                              "text-[11px] font-semibold px-2.5 py-1 rounded-full cursor-pointer focus:outline-none appearance-none text-center",
-                              STATUS_STYLE[lead.status] ?? "bg-slate-100 text-slate-500 border border-slate-200"
-                            )}
-                          >
-                            {LEAD_STATUSES.filter(s => s.key !== "all").map(s => (
-                              <option key={s.key} value={s.key}>{s.label}</option>
-                            ))}
-                          </select>
-                        </td>
-
-                        {/* Follow-up */}
-                        <td className="px-4 py-3.5">
-                          {lead.follow_up_date ? (
-                            <span className={cn(
-                              "text-[11px] font-medium",
-                              lead.follow_up_date <= today ? "text-rose-500" : "text-slate-500"
-                            )}>
-                              {new Date(lead.follow_up_date).toLocaleDateString()}
+                          {/* Source */}
+                          <td className="px-4 py-3.5">
+                            <span className="inline-block text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium max-w-[120px] truncate" title={lead.source || lead.service}>
+                              {lead.source || lead.service || "—"}
                             </span>
-                          ) : (
-                            <span className="text-slate-300 text-sm">—</span>
-                          )}
-                        </td>
+                          </td>
 
-                        {/* Age */}
-                        <td className="px-4 py-3.5 text-right text-[11px] text-slate-400 font-medium">
-                          {age(lead.created_at)}
-                        </td>
-                      </tr>
+                          {/* Status — inline dropdown */}
+                          <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                            <select
+                              value={lead.status}
+                              onChange={e => updateStatus(lead.id, e.target.value)}
+                              className={cn(
+                                "text-[11px] font-semibold px-2.5 py-1 rounded-full cursor-pointer focus:outline-none appearance-none text-center",
+                                STATUS_STYLE[lead.status] ?? "bg-slate-100 text-slate-500 border border-slate-200"
+                              )}
+                            >
+                              {LEAD_STATUSES.filter(s => s.key !== "all").map(s => (
+                                <option key={s.key} value={s.key}>{s.label}</option>
+                              ))}
+                            </select>
+                          </td>
 
-                      {/* Expanded 360° detail row */}
-                      {expandedId === lead.id && (
-                        <tr className="bg-slate-50/80 border-b border-slate-100">
-                          <td colSpan={6} className="px-6 py-5">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
+                          {/* Follow-up */}
+                          <td className="px-4 py-3.5">
+                            {lead.follow_up_date ? (
+                              <span className={cn(
+                                "text-[11px] font-medium",
+                                lead.follow_up_date <= today ? "text-rose-500 font-bold" : "text-slate-500"
+                              )}>
+                                <Calendar className="w-3 h-3 inline mr-1 opacity-60" />
+                                {new Date(lead.follow_up_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
+                                {lead.follow_up_date <= today && <span className="ml-1 text-rose-400">●</span>}
+                              </span>
+                            ) : (
+                              <span className="text-slate-300 text-sm">—</span>
+                            )}
+                          </td>
 
-                              {/* Contact */}
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Contact</p>
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2 text-slate-600">
-                                    <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                    <span className="text-xs break-all">{lead.email || "—"}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600">
-                                    <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                    <span className="text-xs">{lead.contact_number || "—"}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-slate-600">
-                                    <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                    <span className="text-xs">{lead.company || "—"}{lead.role ? ` · ${lead.role}` : ""}</span>
+                          {/* Date submitted */}
+                          <td className="px-4 py-3.5">
+                            <p className="text-[11px] text-slate-700 font-medium">{date}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{ago}</p>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => setExpandedId(expandedId === lead.id ? null : lead.id)}
+                                title="View details"
+                                className={cn(
+                                  "p-1.5 rounded-lg transition-all",
+                                  expandedId === lead.id
+                                    ? "text-blue-600 bg-blue-50"
+                                    : "text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                )}
+                              >
+                                <ChevronRight className={cn("w-4 h-4 transition-transform", expandedId === lead.id && "rotate-90")} />
+                              </button>
+                              <button
+                                onClick={e => deleteLead(lead.id, e)}
+                                title="Delete lead"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* Expanded 360° detail row */}
+                        {expandedId === lead.id && (
+                          <tr className="bg-slate-50/80 border-b border-slate-100">
+                            <td colSpan={7} className="px-6 py-5">
+                              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
+
+                                {/* Contact */}
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Contact</p>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                      <span className="text-xs break-all">{lead.email || "—"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                      <span className="text-xs">{lead.contact_number || "—"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                      <span className="text-xs">{lead.company || "—"}{lead.role ? ` · ${lead.role}` : ""}</span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              {/* Service / Source */}
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Lead Info</p>
-                                <div className="space-y-2 text-xs text-slate-600">
-                                  <div><span className="text-slate-400">Service: </span>{lead.service || "—"}</div>
-                                  <div><span className="text-slate-400">Source: </span>{lead.source || "—"}</div>
-                                  <div><span className="text-slate-400">Received: </span>{new Date(lead.created_at).toLocaleString()}</div>
+                                {/* Service / Source */}
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Lead Info</p>
+                                  <div className="space-y-2 text-xs text-slate-600">
+                                    <div><span className="text-slate-400">Service: </span>{lead.service || "—"}</div>
+                                    <div><span className="text-slate-400">Source: </span>{lead.source || "—"}</div>
+                                    <div><span className="text-slate-400">Received: </span>{new Date(lead.created_at).toLocaleString()}</div>
+                                  </div>
                                 </div>
-                              </div>
 
-                              {/* Message */}
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Message</p>
-                                <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                  {lead.message || "No message provided."}
-                                </p>
-                              </div>
+                                {/* Message */}
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Message</p>
+                                  <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                    {lead.message || "No message provided."}
+                                  </p>
+                                </div>
 
-                              {/* Follow-up date editor */}
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Follow-Up Date</p>
-                                <input
-                                  type="date"
-                                  defaultValue={lead.follow_up_date?.slice(0, 10) ?? ""}
-                                  onClick={e => e.stopPropagation()}
-                                  onChange={e => setEditingFollowUp(prev => ({ ...prev, [lead.id]: e.target.value }))}
-                                  className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 mb-2"
-                                />
-                                <button
-                                  onClick={e => { e.stopPropagation(); saveFollowUp(lead.id); }}
-                                  disabled={savingField === lead.id}
-                                  className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 disabled:opacity-50"
-                                >
-                                  <Check className="w-3 h-3" /> {savingField === lead.id ? "Saving…" : "Save Date"}
-                                </button>
-                              </div>
+                                {/* Follow-up date editor */}
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Follow-Up Date</p>
+                                  <input
+                                    type="date"
+                                    defaultValue={lead.follow_up_date?.slice(0, 10) ?? ""}
+                                    onClick={e => e.stopPropagation()}
+                                    onChange={e => setEditingFollowUp(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                                    className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 mb-2"
+                                  />
+                                  <button
+                                    onClick={e => { e.stopPropagation(); saveFollowUp(lead.id); }}
+                                    disabled={savingField === lead.id}
+                                    className="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 disabled:opacity-50"
+                                  >
+                                    <Check className="w-3 h-3" /> {savingField === lead.id ? "Saving…" : "Save Date"}
+                                  </button>
+                                </div>
 
-                              {/* Notes + actions */}
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Notes</p>
-                                <textarea
-                                  rows={3}
-                                  defaultValue={lead.notes ?? ""}
-                                  onClick={e => e.stopPropagation()}
-                                  onChange={e => setEditingNotes(prev => ({ ...prev, [lead.id]: e.target.value }))}
-                                  placeholder="Add internal notes…"
-                                  className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 resize-none mb-2"
-                                />
-                                <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
+                                {/* Notes */}
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Notes</p>
+                                  <textarea
+                                    rows={3}
+                                    defaultValue={lead.notes ?? ""}
+                                    onClick={e => e.stopPropagation()}
+                                    onChange={e => setEditingNotes(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                                    placeholder="Add internal notes…"
+                                    className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 resize-none mb-2"
+                                  />
                                   <button
                                     onClick={e => { e.stopPropagation(); saveNotes(lead.id); }}
                                     disabled={savingField === lead.id}
@@ -555,20 +627,14 @@ export default function AdminLeadsPage() {
                                   >
                                     <Check className="w-3 h-3" /> {savingField === lead.id ? "Saving…" : "Save Notes"}
                                   </button>
-                                  <button
-                                    onClick={e => { e.stopPropagation(); deleteLead(lead.id); }}
-                                    className="text-[11px] text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 ml-auto"
-                                  >
-                                    <Trash2 className="w-3 h-3" /> Delete
-                                  </button>
                                 </div>
                               </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
 
@@ -579,6 +645,49 @@ export default function AdminLeadsPage() {
                 </div>
               )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between text-sm">
+                <p className="text-xs text-slate-400">Page {page} of {totalPages}</p>
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage(1)}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50"
+                  >«</button>
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50"
+                  >Prev</button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+                    const p = start + i;
+                    return p <= totalPages ? (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg border text-xs",
+                          p === page ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 hover:bg-slate-50"
+                        )}
+                      >{p}</button>
+                    ) : null;
+                  })}
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(p => p + 1)}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50"
+                  >Next</button>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(totalPages)}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50"
+                  >»</button>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -612,9 +721,7 @@ export default function AdminLeadsPage() {
                     onClick={() => setSubFilter(f)}
                     className={cn(
                       "px-4 py-2.5 text-sm font-medium capitalize border-b-2 transition-colors",
-                      subFilter === f
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                      subFilter === f ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"
                     )}
                   >
                     {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -627,29 +734,32 @@ export default function AdminLeadsPage() {
                   <input
                     value={subSearch}
                     onChange={e => setSubSearch(e.target.value)}
-                    placeholder="Search…"
-                    className="pl-8 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-400 w-44"
+                    placeholder="Search email…"
+                    className="pl-8 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-400 w-48"
                   />
                 </div>
+                <select
+                  value={subPageSize}
+                  onChange={e => { setSubPageSize(Number(e.target.value)); setSubPage(1); }}
+                  className="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white focus:outline-none"
+                >
+                  {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n} / page</option>)}
+                </select>
                 <div className="relative">
-                  <Button
-                    variant="outline" size="sm"
-                    onClick={() => setSubExportOpen(o => !o)}
-                    className="gap-1.5 text-sm"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setSubExportOpen(o => !o)} className="gap-1.5 text-sm">
                     <Download className="w-3.5 h-3.5" /> Export <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
                   {subExportOpen && (
                     <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 text-sm">
                       <button
                         onClick={() => { window.open(`${API_BASE_URL}/newsletter.php?action=export_csv`, "_blank"); setSubExportOpen(false); }}
-                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50"
                       >
                         <Download className="w-4 h-4 text-slate-400" /> Export as CSV
                       </button>
                       <button
                         onClick={() => { window.open(`${API_BASE_URL}/newsletter.php?action=export_excel`, "_blank"); setSubExportOpen(false); }}
-                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-slate-700 hover:bg-slate-50"
                       >
                         <FileSpreadsheet className="w-4 h-4 text-emerald-500" /> Export as Excel
                       </button>
@@ -658,6 +768,11 @@ export default function AdminLeadsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Result count */}
+            <p className="text-xs text-slate-400">
+              Showing {Math.min((subPage - 1) * subPageSize + 1, filteredSubs.length)}–{Math.min(subPage * subPageSize, filteredSubs.length)} of {filteredSubs.length} subscriber{filteredSubs.length !== 1 ? "s" : ""}
+            </p>
 
             {/* Newsletter table */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -669,55 +784,66 @@ export default function AdminLeadsPage() {
                     <tr className="border-b border-slate-100 bg-slate-50">
                       <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Email</th>
                       <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Source</th>
+                      <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Subscribed On</th>
                       <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
                       <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSubs.map(sub => (
-                      <tr key={sub.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                            <div>
+                    {paginatedSubs.map(sub => {
+                      const { date: subDate, ago: subAgo } = fmtDate(sub.subscribed_at);
+                      return (
+                        <tr key={sub.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <Mail className="w-3.5 h-3.5 text-slate-400" />
+                              </div>
                               <p className="text-sm text-slate-700">{sub.email}</p>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                {new Date(sub.subscribed_at).toLocaleDateString()}
-                              </p>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
-                            {sub.source || "website"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <span className={cn(
-                            "text-[11px] font-semibold px-2.5 py-1 rounded-full",
-                            sub.status === "active"
-                              ? "bg-emerald-50 text-emerald-600"
-                              : "bg-slate-100 text-slate-500"
-                          )}>
-                            {sub.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-right">
-                          <button
-                            onClick={async () => {
-                              if (!confirm("Delete this subscriber?")) return;
-                              const res = await api.post("newsletter", { action: "delete_subscriber", id: sub.id });
-                              if (res?.status === "success") {
-                                setSubscribers(prev => prev.filter(x => x.id !== sub.id));
-                              }
-                            }}
-                            className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                              {sub.source || "website"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <p className="text-[11px] text-slate-700 font-medium">{subDate}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{subAgo}</p>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className={cn(
+                              "text-[11px] font-semibold px-2.5 py-1 rounded-full",
+                              sub.status === "active"
+                                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                                : "bg-slate-100 text-slate-500 border border-slate-200"
+                            )}>
+                              {sub.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center justify-end gap-1">
+                              {sub.status === "active" && (
+                                <button
+                                  onClick={() => unsubscribeSub(sub.id)}
+                                  title="Unsubscribe"
+                                  className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all"
+                                >
+                                  <UserMinus className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => deleteSub(sub.id)}
+                                title="Delete"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
@@ -728,6 +854,33 @@ export default function AdminLeadsPage() {
                 </div>
               )}
             </div>
+
+            {/* Newsletter pagination */}
+            {subTotalPages > 1 && (
+              <div className="flex items-center justify-between text-sm">
+                <p className="text-xs text-slate-400">Page {subPage} of {subTotalPages}</p>
+                <div className="flex items-center gap-1">
+                  <button disabled={subPage === 1} onClick={() => setSubPage(1)}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50">«</button>
+                  <button disabled={subPage === 1} onClick={() => setSubPage(p => p - 1)}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50">Prev</button>
+                  {Array.from({ length: Math.min(5, subTotalPages) }, (_, i) => {
+                    const start = Math.max(1, Math.min(subPage - 2, subTotalPages - 4));
+                    const p = start + i;
+                    return p <= subTotalPages ? (
+                      <button key={p} onClick={() => setSubPage(p)}
+                        className={cn("px-3 py-1.5 rounded-lg border text-xs",
+                          p === subPage ? "bg-blue-600 text-white border-blue-600" : "border-slate-200 hover:bg-slate-50"
+                        )}>{p}</button>
+                    ) : null;
+                  })}
+                  <button disabled={subPage === subTotalPages} onClick={() => setSubPage(p => p + 1)}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50">Next</button>
+                  <button disabled={subPage === subTotalPages} onClick={() => setSubPage(subTotalPages)}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs disabled:opacity-40 hover:bg-slate-50">»</button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -738,10 +891,7 @@ export default function AdminLeadsPage() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-slate-900">Add Lead</h2>
-              <button
-                onClick={() => setAddOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
+              <button onClick={() => setAddOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -756,9 +906,7 @@ export default function AdminLeadsPage() {
                 { key: "source",         label: "Source" },
               ].map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    {label}
-                  </label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">{label}</label>
                   <input
                     value={(newLead as Record<string, string>)[key]}
                     onChange={e => setNewLead(prev => ({ ...prev, [key]: e.target.value }))}
