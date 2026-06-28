@@ -17,7 +17,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
 } else {
     $db_host = '207.180.252.239';
     $db_user = 'digi_pexel';
-    $db_pass = 'YOUR_DB_PASSWORD';
+    $db_pass = 'HFWrCrTS8G7amc5r';
     $db_name = 'digi_pexel';
 }
 
